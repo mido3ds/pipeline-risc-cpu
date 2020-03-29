@@ -49,7 +49,7 @@
 
 \part{Overall System}
 
-\section{Overall Design Diagram}
+\section{Overall Design Schema}
 \begin{center}
     \begin{figure}[hp]
         \centering
@@ -59,10 +59,25 @@
     \end{figure}
 \end{center}
 
+\section{Hazards Detection}
+
+\subsection{Structural Hazards}
+No detection required.
+
+\subsection{Data Hazards}
+Refer the \emph{HDU} in \ref{fig:overall}
+
+\subsection{Control Hazards}
+\begin{itemize}
+    \item At Fetch stage, always check the branch predictor and calculate the next address accordingly.
+    \item At Decode stage, check whether the OPCode is of a branch operation. If so, pass the address to the program counter and compare the correct address with the address of the counter to decide whether to flush the Fetch stage or not. 
+\end{itemize}
+
 \section{Hazards Handling}
 
 \subsection{Structural Hazards}
-2 memory units, one for instructions and one for data. Both have the same specs \emph{(mentioned below)}.
+2 memory units, one for instructions and one for data. Both have the same specs \emph{(mentioned below)}. \\
+Also, to handle register file structural hazard, the write back will be in the first half of the clock cycle and the decode will be in the second half.
 
 \subsection{Data Hazards}
 
