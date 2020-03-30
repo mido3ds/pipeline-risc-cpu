@@ -436,18 +436,38 @@ This section discusses the 5 stages of our system and their functionalities.
 
 \part{Pipeline Hazards and solutions}
 
-\section{Hazards Detection and Handling}
-\textbf{TODO: refactor this section and add more details}
+\section{Structural Hazards}
 
-\subsection{Structural Hazards}
-2 memory units, one for instructions and one for data. Both have the same specs \emph{(mentioned below)}. \\
-Also, to handle register file structural hazard, the write back will be in the first half of the clock cycle and the decode will be in the second half.
+\subsection{Detection}
+The structural hazard occurs in data memory and register file.
 
-\subsection{Data Hazards}
-Refer the \emph{HDU} in \ref{fig:overall}
+\subsection{Handling}
+The structural hazard in data memory is solved by using 2 memory units, one for instructions and one for data. Both have the same specs \emph{(previously mentioned)}. \\
+However structural hazard in register file is handled by forcing the write back to happen in the first half of the clock cycle and the decode to happen in the second half.
+
+\section{Data Hazards}
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{hdu}
+        \caption{Hazard Detection Unit Diagram}
+        \label{fig:hdu}
+    \end{figure}
+\end{center}
+
+\subsection{Detection}
+\subsubsection{Hazard Detection Unit (HDU)}
+HDU consists of 3 parts:
+\begin{itemize}
+    \item \textbf{OPCode Checker:} checks the opcode of the current instruction to check whether it will cause data hazard or not, then activates the Register Comparator accordingly.
+    \item \textbf{Register Comparator:} compares the decode source registers with the destination registers of the execute and memory stages.
+    \item \textbf{Output Unit:} outputs stall signal in case of load and pop instructions and data forward unit enable in case of other data hazards.
+\end{itemize}
+
+\subsection{Handling}
 
 \subsubsection{Stall}
-Occurs only at Decode stage, due to load use case.
+Occurs only at Fetch and Decode stage, due to load(pop) use case.
 \begin{itemize}
     \item Fetch same instruction (don't increment the program counter).
     \item Latch IF/ID buffer with the same values.
@@ -461,10 +481,15 @@ Occurs only at Decode stage, due to load use case.
     \item ID/EX buffer $->$ Decode.
 \end{itemize}
 
-\subsection{Control Hazards}
+\section{Control Hazards}
+
+\subsection{Detection}
+The branch address calculation occurs in the Decode stage. So, the hazard might affect only the Fetch stage, which will be flushed in case of wrong address prediction.
+
+\subsection{Handling}
 \begin{itemize}
     \item At Fetch stage, always check the branch predictor and calculate the next address accordingly.
-    \item At Decode stage, check whether the OPCode is of a branch operation. If so, pass the address to the program counter and compare the correct address with the address of the counter to decide whether to flush the Fetch stage or not. 
+    \item At Decode stage, we have a \emph{Branch Address Unit} that checks whether the OPCode is of a branch operation. If so, it passes the address to the program counter and compares the correct address with the address of the counter to decide whether to flush the Fetch stage or not. 
 \end{itemize}
 
 \subsubsection{Flush}
@@ -475,6 +500,6 @@ Occurs only at Fetch Stage, due to wrong branch prediction at Decode stage.
 \end{itemize}
 
 \subsubsection{Dynamic Branch Prediction}
-Hash table of some length containing Keys of branch addresses paired with 1-bit for branch prediction.
+We use 2-bit branch predictor, which is a \emph{Finite State Machine} (FSM) to predict whether the branch will be taken (1) or not (0).
 
 \end{document}
