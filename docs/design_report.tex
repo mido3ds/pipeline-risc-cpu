@@ -74,16 +74,98 @@ different blocks and the hazard solutions.
 \textbf{TODO: Add both memory specs and figures}
 
 \section{PC Control Unit}
-\textbf{TODO: Add PC control unit flow}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item IF Flush (1 bit)
+    \item Stall Signal (1 bit)
+    \item RESET Signal (1 bit)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item PC Mux Selectors (2 bits)
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item If IF Flush == 1, Output = 01
+    \item If RESET == 1, Output = 10
+    \item If Stall == 1, Output = 11
+    \item Else, Output = 00
+\end{itemize}
 
 \section{Dynamic Branch Prediction}
 \textbf{TODO: Add branch prediction details in both overall diagram and section}
 
 \section{Branch Address Unit}
-\textbf{TODO: Add branch address unit flow}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item PC Next Address (32 bits)
+    \item Instruction Address (32 bits)
+    \item OpCode (7 bits)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item IF Flush (1 bit)
+    \item Branch Address (32 bits)
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item Check if OpCode is of a branch instruction, if true:
+    \begin{itemize}
+        \item Check whether PC Next Address is equal to Instruction Address
+        \item If true:
+        \begin{itemize}
+            \item IF Flush = 0, Branch Address = Instruction Address
+        \end{itemize}
+        \item If false:
+        \begin{itemize}
+            \item IF Flush = 1, Branch Address = Instruction Address
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
 
 \section{Register File}
-\textbf{TODO: Add register file flow}
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{reg_file}
+        \caption{Register File Diagram}
+        \label{fig:reg_file}
+    \end{figure}
+\end{center}
+
+\subsection{Registers}
+\begin{itemize}
+    \item 8 general purpose registers
+    \item Stack pointer (SP) register
+    \item Program counter (PC) register
+\end{itemize}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Dest Regs: 2$X$4 bits (for destination selection)
+    \item SRC Regs: 2$X$4 bits (for source selection)
+    \item WB values: 2$X$32 bits (for write back values)
+    \item RESET: 1 bit (for registers clear).
+    \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)
+    \item IN Port: 32 bits (IO input port)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item OP1: 32 bits (value of first operand)
+    \item OP2: 32 bits (value of second operand)
+    \item Instruction Address: 32 bits (value of branch address)
+    \item OUT Port: 32 bits (IO output port)
+\end{itemize}
+
+\subsection{Logic}
+The register selector acts like a decoder to select the required operation and the register on which the operation performed.
 
 \section{ALU}
 \textbf{TODO: Add ALU flow}
