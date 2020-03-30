@@ -66,21 +66,27 @@ different blocks and the hazard solutions.
         \label{fig:overall}
     \end{figure}
 \end{center}
+\textbf{TODO(1): Add branch predictor design}\\
+\textbf{TODO(2): Add Interrupt handling design}\\
+\textbf{TODO(3): Add stack pointer related instructions design}
 
 \section{Memory Specs}
-The following are the initial specs for both instruction and data memory.
-\subsection{Instruction Memory}
-\begin{itemize}
-    \item $4GB$ $X$ $16BIT$
-    \item BUS = $16BIT$
-\end{itemize}
+\textbf{TODO: Add both memory specs and figures}
 
-\subsection{Data Memory}
-\begin{itemize}
-    \item $4GB$ $X$ $16BIT$
-    \item BUS = $16BIT$
-    \item SP $->$ $2^{31}$ \emph{(at the middle of the memory).}
-\end{itemize}
+\section{PC Control Unit}
+\textbf{TODO: Add PC control unit flow}
+
+\section{Dynamic Branch Prediction}
+\textbf{TODO: Add branch prediction details in both overall diagram and section}
+
+\section{Branch Address Unit}
+\textbf{TODO: Add branch address unit flow}
+
+\section{Register File}
+\textbf{TODO: Add register file flow}
+
+\section{ALU}
+\textbf{TODO: Add ALU flow}
 
 \part{Instruction Format}
 
@@ -206,33 +212,37 @@ The following are the initial specs for both instruction and data memory.
 \end{tabular}
 \end{center}
 
-\part{Control Unit}
+\part{Control Signals}
+\textbf{TODO: Add related control signals for each instruction}
 
 \part{Pipeline Stages}
 
+\section{Overview}
+\textbf{TODO: Add an overview of how pipelining works in our system}
+
+\section{IF/ID Buffer}
+\textbf{TODO: Add buffer components}
+
+\section{ID/EX Buffer}
+\textbf{TODO: Add buffer components}
+
+\section{EX/M Buffer}
+\textbf{TODO: Add buffer components}
+
+\section{M/WB Buffer}
+\textbf{TODO: Add buffer components}
+
 \part{Pipeline Hazards and solutions}
 
-\section{Hazards Detection}
-
-\subsection{Structural Hazards}
-No detection required.
-
-\subsection{Data Hazards}
-Refer the \emph{HDU} in \ref{fig:overall}
-
-\subsection{Control Hazards}
-\begin{itemize}
-    \item At Fetch stage, always check the branch predictor and calculate the next address accordingly.
-    \item At Decode stage, check whether the OPCode is of a branch operation. If so, pass the address to the program counter and compare the correct address with the address of the counter to decide whether to flush the Fetch stage or not. 
-\end{itemize}
-
-\section{Hazards Handling}
+\section{Hazards Detection and Handling}
+\textbf{TODO: refactor this section and add more details}
 
 \subsection{Structural Hazards}
 2 memory units, one for instructions and one for data. Both have the same specs \emph{(mentioned below)}. \\
 Also, to handle register file structural hazard, the write back will be in the first half of the clock cycle and the decode will be in the second half.
 
 \subsection{Data Hazards}
+Refer the \emph{HDU} in \ref{fig:overall}
 
 \subsubsection{Stall}
 Occurs only at Decode stage, due to load use case.
@@ -250,6 +260,10 @@ Occurs only at Decode stage, due to load use case.
 \end{itemize}
 
 \subsection{Control Hazards}
+\begin{itemize}
+    \item At Fetch stage, always check the branch predictor and calculate the next address accordingly.
+    \item At Decode stage, check whether the OPCode is of a branch operation. If so, pass the address to the program counter and compare the correct address with the address of the counter to decide whether to flush the Fetch stage or not. 
+\end{itemize}
 
 \subsubsection{Flush}
 Occurs only at Fetch Stage, due to wrong branch prediction at Decode stage.
