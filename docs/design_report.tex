@@ -459,7 +459,7 @@ However structural hazard in register file is handled by forcing the write back 
 \subsubsection{Hazard Detection Unit (HDU)}
 HDU consists of 3 parts:
 \begin{itemize}
-    \item \textbf{OPCode Checker:} checks the opcode of the current instruction to check whether it will cause data hazard or not, then activates the Register Comparator accordingly.
+    \item \textbf{OPCode Checker:} checks the opcode of the current instruction to check whether it will cause data hazard or not, then activates the Register Comparator accordingly. Also, it checks for \emph{load-use case}, in order to activate the stall signal.
     \item \textbf{Register Comparator:} compares the decode source registers with the destination registers of the execute and memory stages.
     \item \textbf{Output Unit:} outputs stall signal in case of load and pop instructions and data forward unit enable in case of other data hazards.
 \end{itemize}
