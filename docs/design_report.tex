@@ -66,10 +66,8 @@ different blocks and the hazard solutions.
         \label{fig:overall}
     \end{figure}
 \end{center}
-\textbf{TODO(1): Add branch predictor design}\\
-\textbf{TODO(2): Add Interrupt handling design}\\
-\textbf{TODO(3): Add stack pointer related instructions design}\\
-\textbf{TODO(4): Add 32-bit fetch detection unit}
+\textbf{TODO(1): Add Interrupt handling design}\\
+\textbf{TODO(2): Add stack pointer related instructions design}\\
 
 \section{Memory Specs}
 \begin{itemize}
@@ -109,27 +107,66 @@ different blocks and the hazard solutions.
     \item Else, Output = 00
 \end{itemize}
 
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{bpu}
+        \caption{Branch Prediction Unit Diagram}
+        \label{fig:bpu}
+    \end{figure}
+\end{center}
+
 \section{Dynamic Branch Prediction}
-\textbf{TODO: Add branch prediction details in both overall diagram and section}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Hashed Address (4 bits)
+    \item Update Bit (1 bit): \emph{Taken or Not}  to update FSM
+    \item OPcode (4 bits)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item Taken (1 bit): predict whether the branch taken or not
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item Updates the FSM corresponding to the hashed address.
+    \item Checks whether the OPCode is of a conditional branch instruction.
+    \item Outputs the prediction bit \emph{(Taken or Not)} accordingly.
+\end{itemize}
+
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{bau}
+        \caption{Branch Address Unit Diagram}
+        \label{fig:bau}
+    \end{figure}
+\end{center}
 
 \section{Branch Address Unit}
 
 \subsection{Inputs}
 \begin{itemize}
-    \item PC Next Address (32 bits)
+    \item Next PC Address (32 bits)
     \item Instruction Address (32 bits)
-    \item OpCode (7 bits)
+    \item Incremented PC Address (32 bits)
+    \item Hashed Address (4 bits)
+    \item OpCode (4 bits)
 \end{itemize}
 
 \subsection{Outputs}
 \begin{itemize}
     \item IF Flush (1 bit)
     \item Branch Address (32 bits)
+    \item Hashed Address (4 bits)
 \end{itemize}
 
 \subsection{Logic}
 \begin{itemize}
-    \item Check if OpCode is of a branch instruction, if true:
+    \item Check if OpCode is of a conditional branch instruction, if true:
     \begin{itemize}
         \item Check whether PC Next Address is equal to Instruction Address
         \item If true:
@@ -143,7 +180,6 @@ different blocks and the hazard solutions.
     \end{itemize}
 \end{itemize}
 
-\section{Register File}
 \begin{center}
     \begin{figure}[hp]
         \centering
@@ -152,6 +188,8 @@ different blocks and the hazard solutions.
         \label{fig:reg_file}
     \end{figure}
 \end{center}
+
+\section{Register File}
 
 \subsection{Registers}
 \begin{itemize}
@@ -500,6 +538,6 @@ Occurs only at Fetch Stage, due to wrong branch prediction at Decode stage.
 \end{itemize}
 
 \subsubsection{Dynamic Branch Prediction}
-We use 2-bit branch predictor, which is a \emph{Finite State Machine} (FSM) to predict whether the branch will be taken (1) or not (0).
+We use 2-bit branch predictor, which is a hash table of \emph{Finite State Machines} (FSMs) to predict whether the branch will be taken (1) or not (0) at each individual branch address.
 
 \end{document}
