@@ -410,6 +410,20 @@ The register selector acts like a decoder to select the required operation and t
 \end{center}
 
 \part{Control Signals}
+
+\section{Overview}
+Control unit is responsible for generating the control signals that are used to activate several operations throughout the pipeline. Also, it's responsible for the extraction of specific information from instruction bits.
+\begin{itemize}
+    \item Immediate values (16 bits)
+    \item Effective addresses (20 bits)
+    \item source registers (4 bits)
+    \item destination registers (4 bits)
+    \item OPCode (4:7 bits)
+    \item Branch/IO Enable (2 bits)
+    \item ALUop (4 bits)
+    \item Interrupt Enable (1 bit)
+\end{itemize}
+
 \textbf{TODO: Add related control signals for each instruction}
 
 \part{Pipeline Stages}
