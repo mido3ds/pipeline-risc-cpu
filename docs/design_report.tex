@@ -66,8 +66,6 @@ different blocks and the hazard solutions.
         \label{fig:overall}
     \end{figure}
 \end{center}
-\textbf{TODO(1): Add Interrupt handling design}\\
-\textbf{TODO(2): Add stack pointer related instructions design}\\
 
 \section{Memory Specs}
 \begin{itemize}
@@ -92,19 +90,22 @@ different blocks and the hazard solutions.
     \item IF Flush (1 bit)
     \item Stall Signal (1 bit)
     \item RESET Signal (1 bit)
+    \item Interrupt Signal (1 bit)
+    \item Current OPCode (7 bits)
 \end{itemize}
 
 \subsection{Outputs}
 \begin{itemize}
-    \item PC Mux Selectors (2 bits)
+    \item PC Mux Selectors (3 bits)
 \end{itemize}
 
 \subsection{Logic}
 \begin{itemize}
-    \item If IF Flush == 1, Output = 01
-    \item If RESET == 1, Output = 10
-    \item If Stall == 1, Output = 11
-    \item Else, Output = 00
+    \item If IF Flush == 1, Output = 001
+    \item If RESET == 1, Output = 010
+    \item If Stall == 1, Output = 011
+    \item If Interrupt == 1 $||$ OPCode == RET/RTI, Output = 100
+    \item Else, Output = 000
 \end{itemize}
 
 \begin{center}
@@ -136,6 +137,32 @@ different blocks and the hazard solutions.
     \item Checks whether the OPCode is of a conditional branch instruction.
     \item Outputs the prediction bit \emph{(Taken or Not)} accordingly.
 \end{itemize}
+
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{pspu}
+        \caption{Stack Pointer (SP) Peak Unit Diagram}
+        \label{fig:pspu}
+    \end{figure}
+\end{center}
+
+\section{Stack Pointer (SP) Peak Unit}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Current SP (32 bits)
+    \item Prev OPCodes (3$X$7 bits)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item Expected SP (32 bits): stack pointer to read from after eliminating hazards
+\end{itemize}
+
+\subsection{Logic}
+This unit peaks the value of the stack pointer on returning from a subroutine or an interrupt, in order to calculate the correct value of the address from which the original program counter read from memory. It checks for \emph{POP/PUSH} instructions and use the count to update the address.\\
+\textbf{NOTE:} In case we didn't use this unit, we will stall the pipe for three consecutive cycles to eliminate possible hazards.
 
 \begin{center}
     \begin{figure}[hp]
@@ -202,6 +229,7 @@ different blocks and the hazard solutions.
 \begin{itemize}
     \item Dest Regs: 2$X$4 bits (for destination selection)
     \item SRC Regs: 2$X$4 bits (for source selection)
+    \item Fetch Reg: 4 bits (for fetch branch register selection)
     \item WB values: 2$X$32 bits (for write back values)
     \item RESET: 1 bit (for registers clear).
     \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)
@@ -212,6 +240,7 @@ different blocks and the hazard solutions.
 \begin{itemize}
     \item OP1: 32 bits (value of first operand)
     \item OP2: 32 bits (value of second operand)
+    \item Fetch Value: 32 bits (value of branch address required by fetch)
     \item Instruction Address: 32 bits (value of branch address)
     \item OUT Port: 32 bits (IO output port)
 \end{itemize}
