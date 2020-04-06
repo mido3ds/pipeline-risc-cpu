@@ -518,7 +518,7 @@ IN  & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x \\
 \end{center}
 
 \begin{center}
-    \captionof{table}{One Operand Instruction Control Signals Part II\label{tab:1op}}
+    \captionof{table}{One Operand Instruction Control Signals Part II\label{tab:1op2}}
 \begin{tabular}{||p{20mm}| p{10mm}| p{10mm}| p{15mm}| p{10mm}| p{15mm}| p{10mm}||} 
 \hline
 Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal \\ [0.5ex] 
@@ -538,48 +538,48 @@ IN  & x & 1111 & 10 & 0 & 0 & 00 \\
 \end{center}
 
 
-%     \section{Two Operands}
-%     \item Notes:
-%     \begin{itemize}
-%         % Notes
-%         \item OP2_sel: 0 the register value and 1 the imm/ea value
-%     \end{itemize}
+\subsection{Two Operands}
+Notes:
+\begin{itemize}
+    % Notes
+    \item OP2\_selector: 0 the register value and 1 the imm/ea value.
+\end{itemize}
 
-%     \begin{center}
-%         \captionof{table}{Two Operands Instruction Control Signals 1\label{tab:1op}}
-%     \begin{tabular}{||c| c| c| c| p{40mm}||} 
-%     \hline
-%     Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
-%     \hline\hline
-%     ADD & IB[31:25] & 0011 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
-%     \hline
-%     SUB & IB[31:25] & 0100 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
-%     \hline
-%     AND & IB[31:25] & 0101 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
-%     \hline
-%     OR  & IB[31:25] & 0110 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
-%     \hline
+\begin{center}
+    \captionof{table}{Two Operands Instruction Control Signals Part I\label{tab:2op1}}
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{10mm}| p{15mm}||} 
+\hline
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+\hline\hline
+ADD & IB[31:25] & 0011 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+\hline
+SUB & IB[31:25] & 0100 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+\hline
+AND & IB[31:25] & 0101 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+\hline
+OR  & IB[31:25] & 0110 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+\hline
 
-%     \end{tabular}
-%     \end{center}
+\end{tabular}
+\end{center}
 
-%     \begin{center}
-%         \captionof{table}{Two Operands Instruction Control Signals 2\label{tab:1op}}
-%     \begin{tabular}{||c| c| c| c| p{40mm}||} 
-%     \hline
-%     Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
-%     \hline\hline
-%     ADD & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-%     \hline
-%     SUB & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-%     \hline
-%     AND & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-%     \hline
-%     OR  & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-%     \hline
+\begin{center}
+    \captionof{table}{Two Operands Instruction Control Signals Part II\label{tab:2op2}}
+\begin{tabular}{||p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\hline
+Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
+\hline\hline
+ADD & 1111 & 00 & 0 & 0 & 00 \\
+\hline
+SUB & 1111 & 00 & 0 & 0 & 00 \\
+\hline
+AND & 1111 & 00 & 0 & 0 & 00 \\
+\hline
+OR  & 1111 & 00 & 0 & 0 & 00 \\
+\hline
 
-%     \end{tabular}
-%     \end{center}
+\end{tabular}
+\end{center}
 
 
 %     \section{Immediate Operand}
