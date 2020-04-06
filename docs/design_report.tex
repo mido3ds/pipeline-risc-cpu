@@ -45,6 +45,7 @@
 
 \pagenumbering{arabic}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Introduction}
 
 \section{System Overview}
@@ -66,10 +67,11 @@ different blocks and the hazard solutions.
  Evram Youssef & 1) Control unit and its signals. \newline 2) Low level block design. \newline 3) Pipeline buffers. \\
  \hline
  Mahmoud Adas & 1) Low level block design. \newline 2) Pipeline buffers. \newline 3) Document typing and formatting. \\ 
- \hline\hline
+ \hline
 \end{tabular}
 \end{center}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Overall System}
 
 \section{Overall System Design Schema}
@@ -300,6 +302,7 @@ The register selector acts like a decoder to select the required operation and t
     \item The input operands of the ALU are multiplexed between forwarded data and register data, with selectors from data forwarding unit.
 \end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Instruction Format}
 
 \section{One Operand Operations}
@@ -424,7 +427,8 @@ The register selector acts like a decoder to select the required operation and t
 \end{tabular}
 \end{center}
 
-\part{Control Signals}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{Control Unit (Signals)}
 
 \section{Overview}
 
@@ -433,75 +437,77 @@ The register selector acts like a decoder to select the required operation and t
     
     \item It communicates with:
     \begin{itemize}
-        \item IF/ID buffer for reading the instruction bits.
-        \item ID/EX buffer for writing the appropriate Registers, ALUop and signals.
-        \item Register File, for Selecting the registers needed to be read (Rsrc1 and Rsrc2).
-        \item Hazards Units (HDU, Branch Address Unit, SP peak Unit) for sending enables and needed signals.
+        \item IF/ID buffer: for reading the instruction bits.
+        \item ID/EX buffer: for writing the appropriate registers, ALUop and signals.
+        \item Register file: for selecting the registers needed to be read (Rsrc1 and Rsrc2).
+        \item Hazards units (HDU and Branch Address Unit): for sending enables and needed signals.
     \end{itemize}
     
-    \item Its Interface:
+    \item Unit Interface:
     \begin{itemize}
-        \item IN: 
+    
+        \item Inputs: 
         \begin{itemize}
             \item Instruction Bits (32 bits)
             \item Interrupt bit (1 bit)
         \end{itemize}
-        \item OUT:
+        
+        \item Outputs:
         \begin{itemize}
             \item Rsrc2\_val (32 bits) for immediate values or effective addresses
-            \item Rsrc1\_selector (4 bits)
-            \item Rsrc2\_selector (4 bits)
-            \item Rdst1 (4 bits)
-            \item Rdst2 (4 bits) used only in case of swap
+            \item Rsrc1\_sel (4 bits)
+            \item Rsrc2\_sel (4 bits)
+            \item Rdst1\_sel (4 bits)
+            \item Rdst2\_sel (4 bits) used only in case of swap
             \item Branch/IO Enable (2 bits)
-            \item OP2\_selector (1 bit)
+            \item OP2\_sel (1 bit)
             \item SP Enable (1 bit)
-            \item OPCode (7 bits)
+            \item OpCode (7 bits)
             \item Branch Enable (1 bit)
             \item ALUop (4 bits)
             \item R/W Control Signal (2 bits)
         \end{itemize}
+        
     \end{itemize}
     
     \item Interpretation:
     \begin{itemize}
-        \item \textbf{Rsrc2\_val (32 bits):} it takes the same place/position at the ID/EX buffer, but its used in many different ways, it could be used as a Register Value extracted form register file, it could be used as an Immediate Value extracted from IF/ID buffer, it could hold the Stack Pointer address and it could hold the Address (EA) sent to the Memory for reading or writing, all of them depends on the OPCode.
-        \item \textbf{Rdst2 (4 bits):} this 4 bits is only used when dealing with a SWAP operation, thus we need Op1 and Op2 and their NEW selectors, we do not swap them at decode, it is the Execute job.
-        \item \textbf{OP2\_selector (1 bit):} Since the position of Rsrc2 (32 bits) at the ID/Ex buffer is used in different forms (reg/imm/ea) this selector is needed.
-        \item  \textbf{Branch/IO Enable (2 bits):} tells the Register file what operation of these are we executing (No/In/Out/Branch), but Branch Enable (1 bit): this enable bit interact with the Branch Address Unit, telling it what type of OPCode are we dealing with (branching or not).
+        \item \textbf{Rsrc2\_val (32 bits):} occupies a single place in the ID/EX buffer. However, it's used in many different ways. It can be used as a register value extracted form register file. it can be used as an immediate value extracted from IF/ID buffer. Also, it can hold the stack pointer address, as well as the effective address (EA) sent to the memory for reading or writing.
+        \item \textbf{Rdst2 (4 bits):} only used when dealing with a SWAP instruction, thus we need Op1 and Op2 and their new selectors.
+        \item \textbf{OP2\_sel (1 bit):} determines the value of Rsrc2 register in ID/EX buffer, whether it's immediate or register value.
+        \item  \textbf{Branch/IO Enable (2 bits):} informs the register file what operation of these are we executing (No/In/Out/Branch), however \emph{Branch Enable} (1 bit) interacts with the Branch Address Unit, informing it what type of OpCode are we dealing with (branching or not).
     \end{itemize}
 \end{itemize}
 
 \section{Control Signals}
 
 \begin{itemize}
-    \item Note that we've divided the operations into seven different types due to their similarities in nature:
+    \item In this section, instructions are divided into seven types based on the signals produced:
     \begin{itemize}
         \item One Operand (not,inc,dec,out,in).
         \item Two Operands (add,sub,and,or).
-        \item Imm Operand (iadd,shl,shr,ldm).
-        \item Memory (ldd,std).
-        \item Stacks (push,pop,call,ret,rti).
-        \item Jumpers (jz, jmp).
-        \item Specials (nop,swap,reset,int).
+        \item Immediate Operand (iadd,shl,shr,ldm).
+        \item Data (ldd,std).
+        \item Stack (push,pop,call,ret,rti).
+        \item Jump (jz, jmp).
+        \item Special (nop,swap,reset,int).
     \end{itemize}
 \end{itemize}    
     
-\subsection{One Operand}
-Notes:
+\subsection{One Operand Instructions}
 \begin{itemize}
-    \item IB[31:0]: are the instruction bits.
-    \item Inserting (1111) to Rsrc/Rdst selectors tells the register file to not output any register values.
+    \item IB[31:0] are the instruction bits.
+    \item Inserting (1111) to Rsrc/Rdst selectors informs the register file not to output any register values.
     \item 'x' indicates don't care.
     \item 0000 at the ALUop indicates no operation.
-    \item Rsrc1\_selector is the same as Rdst1\_selector.
+    \item Rsrc1\_sel is the same as Rdst1\_sel.
 \end{itemize}
 
 \begin{center}
     \captionof{table}{One Operand Instruction Control Signals Part I\label{tab:1op1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{10mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 value \\ [0.5ex] 
 \hline\hline
 NOT & IB[31:25] & 0111 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x  \\
 \hline
@@ -513,13 +519,12 @@ OUT & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x \\
 \hline
 IN  & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x \\
 \hline
-
 \end{tabular}
 \end{center}
 
 \begin{center}
     \captionof{table}{One Operand Instruction Control Signals Part II\label{tab:1op2}}
-\begin{tabular}{||p{20mm}| p{10mm}| p{10mm}| p{15mm}| p{10mm}| p{15mm}| p{10mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
 Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal \\ [0.5ex] 
 \hline\hline
@@ -533,265 +538,249 @@ OUT & x & 1111 & 01 & 0 & 0 & 00 \\
 \hline
 IN  & x & 1111 & 10 & 0 & 0 & 00 \\
 \hline
-
 \end{tabular}
 \end{center}
 
-
-\subsection{Two Operands}
-Notes:
+\subsection{Two Operand Instructions}
 \begin{itemize}
-    % Notes
-    \item OP2\_selector: 0 the register value and 1 the imm/ea value.
+    \item OP2\_sel: 0 the register value and 1 the imm/ea value.
 \end{itemize}
 
 \begin{center}
     \captionof{table}{Two Operands Instruction Control Signals Part I\label{tab:2op1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{10mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 value  \\ [0.5ex] 
 \hline\hline
-ADD & IB[31:25] & 0011 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+ADD & IB[31:25] & 0011 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x \\
 \hline
-SUB & IB[31:25] & 0100 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+SUB & IB[31:25] & 0100 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x \\
 \hline
-AND & IB[31:25] & 0101 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+AND & IB[31:25] & 0101 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x \\
 \hline
-OR  & IB[31:25] & 0110 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 \\
+OR  & IB[31:25] & 0110 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x \\
 \hline
-
 \end{tabular}
 \end{center}
 
 \begin{center}
     \captionof{table}{Two Operands Instruction Control Signals Part II\label{tab:2op2}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
+Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
 \hline\hline
-ADD & 1111 & 00 & 0 & 0 & 00 \\
+ADD & 0 & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-SUB & 1111 & 00 & 0 & 0 & 00 \\
+SUB & 0 & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-AND & 1111 & 00 & 0 & 0 & 00 \\
+AND & 0 & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-OR  & 1111 & 00 & 0 & 0 & 00 \\
+OR  & 0 & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-
 \end{tabular}
 \end{center}
 
-
-\subsection{Immediate Operand}
-Notes:
+\subsection{Immediate Operand Instructions}
 \begin{itemize}
     % Notes
-    \item Rsrc1\_selector is the same as Rdst1\_selector, in SHL and SHR cases, but in IADD case its a different register, and at LDM case there's no need for Rsrc it's just a destination.
+    \item Rsrc1\_sel is the same as Rdst1\_sel, in SHL and SHR cases. However, in IADD case, it's a different register and in LDM case, there's no need for Rsrc, it's just a destination.
     \item In IADD case, Rsrc != Rdst.
     \item In LDM case, there's no Rsrc, it's Rdst.
     \item Rsrc2\_val is the immediate value extracted from the IF/ID buffer.
     \item R/W memory (11) is write and (10) is read.
-    \item Sign extend Unit is used to adjust the (16 bits) immediate value to (32 bits).
-    \item SE: sign extend (0/1).
+    \item Sign extend unit is used to adjust the (16 bits) immediate value to (32 bits).
+    \item SE: sign extend enable (0/1).
 \end{itemize}
 
 \begin{center}
     \captionof{table}{Immediate Operand Instruction Control Signals Part I\label{tab:immop1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{10mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 value  \\ [0.5ex] 
 \hline\hline
-IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & 0XSE and IB[15:0] & 1 \\
+IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & 0XSE and IB[15:0] \\
 \hline
-SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] & 1 \\
+SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] \\
 \hline
-SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] & 1 \\
+SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] \\
 \hline
-LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] & 1 \\
+LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] \\
 \hline
 \end{tabular}
 \end{center}
 
 \begin{center}
     \captionof{table}{Immediate Operand Instruction Control Signals Part II\label{tab:immop2}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
+Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
 \hline\hline
-IADD & 1111 & 00 & 0 & 0 & 00  \\
+IADD & 1 & 1111 & 00 & 0 & 0 & 00  \\
 \hline
-SHL & 1111 & 00 & 0 & 0 & 00 \\
+SHL & 1 & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-SHR & 1111 & 00 & 0 & 0 & 00 \\
+SHR & 1 & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-LDM & 1111 & 00 & 0 & 0 & 11 \\
+LDM & 1 & 1111 & 00 & 0 & 0 & 11 \\
 \hline
-
 \end{tabular}
 \end{center}
 
-\subsection{Memory}
-Notes:
+\subsection{Data Instructions}
 \begin{itemize}
     % Notes
     \item Effective address does not need a sign extend, that's why it's always zero extended with only 12 bits.
-    \item OP2\_selector is 1 to pass the EA.
+    \item OP2\_sel is 1 to pass the EA.
     \item R/W memory (11) is write and (10) is read.
 \end{itemize}
 
 \begin{center}
-    \captionof{table}{Memory Instruction Control Signals Part I\label{tab:memop1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+    \captionof{table}{Data Instruction Control Signals Part I\label{tab:dop1}}
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val \\ [0.5ex] 
 \hline\hline
-LDD & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] & 1 \\
+LDD & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] \\
 \hline
-STD & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] & 1 \\
+STD & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] \\
 \hline
 \end{tabular}
 \end{center}
 
 \begin{center}
-    \captionof{table}{Memory Instruction Control Signals Part II\label{tab:memop2}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+    \captionof{table}{Data Instruction Control Signals Part II\label{tab:dop2}}
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
+Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable & R/W Control Signal  \\ [0.5ex] 
 \hline\hline
-LDD & 1111 & 00 & 0 & 0 & 10 \\
+LDD & 1 & 1111 & 00 & 0 & 0 & 10 \\
 \hline
-STD & 1111 & 00 & 0 & 0 & 11 \\
+STD & 1 & 1111 & 00 & 0 & 0 & 11 \\
 \hline
 \end{tabular}
 \end{center}
 
-\section{Stack}
-Notes:
+\section{Stack Instructions}
 \begin{itemize}
-    % Notes
-    \item Rsrc2\_val is the stack pointer as it's the address of the operation.
-    \item AluOp Inc2 and Dec2..., are used to manipulate the Stack Pointer, thus the output of the Alu will be the new Stack Pointer.
-    \item In case of Call, Rsrc1\_selector is none, as no Register is used, it is the PC that is gonna be pushed at the memory.
-    \item In case of Call, Rdst1\_selector, is the register holding the new address.
+    \item Rsrc2\_val is the stack pointer, as it's the address of the operation.
+    \item ALUop's Inc2 and Dec2 are used to manipulate the stack pointer, thus the output of the ALU will be the new stack pointer.
+    \item In case of Call, Rsrc1\_sel is none, as no register is used. It is the PC pushed at the memory.
+    \item In case of Call, Rdst1\_sel, is the register holding the new address.
     \item In case of Ret and Rti, no registers are affected, as the PC is updated at the fetch stage.
     \item R/W memory (11) is write and (10) is read.
 \end{itemize}
 
 \begin{center}
-    \captionof{table}{Stacks Instruction Control Signals Part I\label{tab:stackop1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+    \captionof{table}{Stack Instruction Control Signals Part I\label{tab:stackop1}}
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val \\ [0.5ex] 
 \hline\hline
-PUSH & IB[31:25] & 1011 & 0 and IB[27:25] & 1111 & 1111 & SP(32 bits) & 1 \\
+PUSH & IB[31:25] & 1011 & 0 and IB[27:25] & 1111 & 1111 & SP(32 bits) \\
 \hline
-POP & IB[31:25] & 1010 & 1111 & 1111 & 0 and IB[27:25] & SP(32 bits) & 1 \\
+POP & IB[31:25] & 1010 & 1111 & 1111 & 0 and IB[27:25] & SP(32 bits) \\
 \hline
-CALL & IB[31:25] & 1011 & 1111 & 1111 & 0 and IB[27:25] & SP(32 bits) & 1 \\
+CALL & IB[31:25] & 1011 & 1111 & 1111 & 0 and IB[27:25] & SP(32 bits) \\
 \hline
-RET & IB[31:25] & 1010 & 1111 & 1111 & 1111 & SP(32 bits) & 1 \\
+RET & IB[31:25] & 1010 & 1111 & 1111 & 1111 & SP(32 bits) \\
 \hline
-RTI & IB[31:25] & 1100 & 1111 & 1111 & 1111 & SP(32 bits) & 1 \\
+RTI & IB[31:25] & 1100 & 1111 & 1111 & 1111 & SP(32 bits) \\
 \hline
 \end{tabular}
 \end{center}
 
 \begin{center}
     \captionof{table}{Stacks Instruction Control Signals Part II\label{tab:stackop2}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable (JZ) & R/W Control Signal \\ [0.5ex] 
+Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable (JZ) & R/W Control Signal \\ [0.5ex] 
 \hline\hline
-PUSH & 1111 & 00 & 1 & 0 & 11 \\
+PUSH & 1 & 1111 & 00 & 1 & 0 & 11 \\
 \hline
-POP & 1111 & 00 & 0 & 0 & 10 \\
+POP & 1 & 1111 & 00 & 0 & 0 & 10 \\
 \hline
-CALL & 1111 & 00 & 0 & 0 & 11 \\
+CALL & 1 & 1111 & 00 & 0 & 0 & 11 \\
 \hline
-RET & 1111 & 00 & 0 & 0 & 10 \\
+RET & 1 & 1111 & 00 & 0 & 0 & 10 \\
 \hline
-RTI & 1111 & 00 & 0 & 0 & 10 \\
+RTI & 1 & 1111 & 00 & 0 & 0 & 10 \\
 \hline
 \end{tabular}
 \end{center}
 
-\section{Jumpers}
-Notes:
+\section{Jump Instructions}
 \begin{itemize}
-    % Notes
-    \item Rsrc1\_selector is the address we are jumping to, that's why we need to verify that our prediction at the JZ case is correct.
+    \item Rsrc1\_sel is the address we are jumping to, that's why we need to verify that our prediction at the JZ case is correct.
     \item Branch/IO Enable is (11) as it is a branching instruction.
     \item Branch enable (1) to detect if the JZ operated correctly.
 \end{itemize}
 
 \begin{center}
     \captionof{table}{Jumpers Instruction Control Signals Part I\label{tab:jop1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val \\ [0.5ex] 
 \hline\hline
-JMP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x \\
+JMP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x \\
 \hline
-JZ & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & x & x \\
+JZ & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & x \\
 \hline
 \end{tabular}
 \end{center}
 
 \begin{center}
     \captionof{table}{Jumpers Instruction Control Signals Part II\label{tab:jop2}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable (JZ) & R/W Control Signal  \\ [0.5ex] 
+Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable (JZ) & R/W Control Signal  \\ [0.5ex] 
 \hline\hline
-JMP & 1111 & 11 & 0 & 0 & 00 \\
+JMP & x & 1111 & 11 & 0 & 0 & 00 \\
 \hline
-JZ & 1111 & 11 & 0 & 1 & 00 \\
+JZ & x & 1111 & 11 & 0 & 1 & 00 \\
 \hline
 \end{tabular}
 \end{center}
 
-\section{Specials}
-Notes:
+\section{Special Instructions}
 \begin{itemize}
-    % Notes
-    \item SWAP: Rsrc1 = Rdst2 and Rsrc2 = Rdst1
-    \item There's no Int instruction, but there's a bit called Int, sent to the Control Unit as an input.
+    \item There's no interrupt instruction, but there's a bit called Interrupt, sent to the Control Unit as an input to indicate an interrupt signal was triggered.
 \end{itemize}
 
 \begin{center}
     \captionof{table}{Specials Instruction Control Signals Part I\label{tab:sop1}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val & OP2 selector  \\ [0.5ex] 
+Instruction & OPCode & ALUop & Rsrc1 selector & Rsrc2 selector & Rdst1 selector & Rsrc2 val \\ [0.5ex] 
 \hline\hline
-NOP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x \\
+NOP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x \\
 \hline
-SWAP & IB[31:25] & 0000 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[24:22] & x & 0 \\
+SWAP & IB[31:25] & 0000 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[24:22] & x \\
 \hline
-Reset & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x \\
+Reset & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x\\
 \hline
-Int & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x \\
+Int & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x \\
 \hline
 \end{tabular}
 \end{center}
 
 \begin{center}
     \captionof{table}{Specials Instruction Control Signals Part II\label{tab:sop2}}
-\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
+\begin{tabular}{||p{20mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}| p{15mm}||} 
 \hline
-Instruction & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable (JZ) & R/W Control Signals  \\ [0.5ex] 
+Instruction & OP2 selector & Rdst2 (swap) & Branch /IO Enable & SP Enable & Branch Enable (JZ) & R/W Control Signals  \\ [0.5ex] 
 \hline\hline
-NOP & 1111 & 00 & 0 & 0 & 00 \\
+NOP & x & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-SWAP & 0 and IB[27:25] & 00 & 0 & 0 & 11 \\
+SWAP & 0 & 0 and IB[27:25] & 00 & 0 & 0 & 11 \\
 \hline
-Reset & 1111 & 00 & 0 & 0 & 00 \\
+Reset & x & 1111 & 00 & 0 & 0 & 00 \\
 \hline
-Int & 1111 & 00 & 0 & 0 & 00 \\
+Int & x & 1111 & 00 & 0 & 0 & 00 \\
 \hline
 \end{tabular}
 \end{center}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Pipeline Stages}
 
 \section{Overview}
@@ -895,6 +884,7 @@ This section discusses the 5 stages of our system and their functionalities.
     \item Destination Register (4 bits)
 \end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Pipeline Hazards and solutions}
 
 \section{Structural Hazards}
