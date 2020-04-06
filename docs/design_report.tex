@@ -423,6 +423,7 @@ Control unit is responsible for generating the control signals that are used to 
     \item ALUop (4 bits)
     \item Interrupt Enable (1 bit)
     \item Memory R/W Enable (2 bits)
+    \item second operand selector (1 bit)
 \end{itemize}
 
 \textbf{TODO: Add related control signals for each instruction}
@@ -477,6 +478,7 @@ This section discusses the 5 stages of our system and their functionalities.
     \item Next Address Register (32 bits)
     \item Incremented PC Register (32 bits)
     \item Hashed Address Register (4 bits)
+    \item Interrupt Register (1 bit)
 \end{itemize}
 
 \subsection{Control Signals}
@@ -492,6 +494,7 @@ This section discusses the 5 stages of our system and their functionalities.
     \item Operand Registers (2$X$32 bits)
     \item Destination Register (4 bits)
     \item OpCode Register (7 bits)
+    \item R/W Register (2 bits)
 \end{itemize}
 
 \subsection{Control Signals}
@@ -509,6 +512,7 @@ This section discusses the 5 stages of our system and their functionalities.
     \item MEM IN Register (32 bits)
     \item Opcode Register (7 bits)
     \item Destination Register (4 bits)
+    \item R/W Register (2 bits)
 \end{itemize}
 
 \subsection{Control Signals}
