@@ -486,9 +486,13 @@ The register selector acts like a decoder to select the required operation and t
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
         NOT & IB[31:25] & 0111 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
+        \hline
         INC & IB[31:25] & 0001 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x  ----------------------- \\
+        \hline
         DEC & IB[31:25] & 0010 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
+        \hline
         OUT & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
+        \hline
         IN  & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
         \hline
 
@@ -502,9 +506,13 @@ The register selector acts like a decoder to select the required operation and t
         Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
         \hline\hline
         NOT & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         INC & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         DEC & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         OUT & 1111 & 01 & 0 & 0 & 00 ----------------------- \\
+        \hline
         IN  & 1111 & 10 & 0 & 0 & 00 ----------------------- \\
         \hline
 
@@ -526,10 +534,12 @@ The register selector acts like a decoder to select the required operation and t
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
         ADD & IB[31:25] & 0011 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
+        \hline
         SUB & IB[31:25] & 0100 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
+        \hline
         AND & IB[31:25] & 0101 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
+        \hline
         OR  & IB[31:25] & 0110 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[21:19] & x & 0 ----------------------- \\
-        
         \hline
 
         \end{tabular}
@@ -542,9 +552,12 @@ The register selector acts like a decoder to select the required operation and t
         Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
         \hline\hline
         ADD & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         SUB & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         AND & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-        OR & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
+        OR  & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         \hline
 
         \end{tabular}
@@ -560,6 +573,8 @@ The register selector acts like a decoder to select the required operation and t
             \item note that in LDM case, there's no Rsrc, its a Rdst.
             \item Rsrc2_val is the immediate value extracted from the IF/ID buffer.
             \item R/W memory (11) is write and (10) is read.
+            \item Sign extend Unit is used to adjust the (16 bits) immediate value to (32 bits).
+            \item SE: sign extend (0/1)
         \end{itemize}
 
         \begin{center}
@@ -568,11 +583,13 @@ The register selector acts like a decoder to select the required operation and t
         \hline
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
-        IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & IB[15:0] & 1 ----------------------- \\
-        SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
-        SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
-        LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
-        
+        IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & 0XSE and IB[15:0] & 1 ----------------------- \\
+        \hline
+        SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] & 1 ----------------------- \\
+        \hline
+        SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] & 1 ----------------------- \\
+        \hline
+        LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & 0XSE and IB[15:0] & 1 ----------------------- \\
         \hline
 
         \end{tabular}
@@ -585,8 +602,11 @@ The register selector acts like a decoder to select the required operation and t
         Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
         \hline\hline
         IADD & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         SHL & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         SHR & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
         LDM & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
         \hline
 
@@ -594,44 +614,78 @@ The register selector acts like a decoder to select the required operation and t
         \end{center}
 
 
-        
-        \section{Immediate Operand}
+
+        \section{Memory}
         \item Notes:
         \begin{itemize}
             % Notes
-            \item note that Rsrc_1_selector is the same as Rdst_1_selector, in SHL and SHR cases, but in IADD case its a different register, and at LDM case there's no need for Rsrc it's just a destination.
-            \item note that in IADD case, Rsrc != Rdst.
-            \item note that in LDM case, there's no Rsrc, its a Rdst.
-            \item Rsrc2_val is the immediate value extracted from the IF/ID buffer.
+            \item Effective address does not need a sign extend, that's why it's alway zero extended with only 12 bits.
+            \item OP2_sel is 1 to pass the EA.
             \item R/W memory (11) is write and (10) is read.
         \end{itemize}
 
         \begin{center}
-            \captionof{table}{Immediate Operand Instruction Control Signals 1\label{tab:1op}}
+            \captionof{table}{Memory Instruction Control Signals 1\label{tab:1op}}
         \begin{tabular}{||c| c| c| c| p{40mm}||} 
         \hline
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
-        IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & IB[15:0] & 1 ----------------------- \\
-        SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
-        SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
-        LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
-        
+        LDD& IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] & 1 ----------------------- \\
+        \hline
+        STD& IB[31:25] & 1111 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] & 1 ----------------------- \\
         \hline
 
         \end{tabular}
         \end{center}
 
         \begin{center}
-            \captionof{table}{Immediate Operand Instruction Control Signals 2\label{tab:1op}}
+            \captionof{table}{Memory Instruction Control Signals 2\label{tab:1op}}
         \begin{tabular}{||c| c| c| c| p{40mm}||} 
         \hline
         Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
         \hline\hline
-        IADD & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-        SHL & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-        SHR & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
-        LDM & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
+        LDD & 1111 & 00 & 0 & 0 & 10 ----------------------- \\
+        \hline
+        STD & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
+        \hline
+
+        \end{tabular}
+        \end{center}
+
+
+        
+        \section{Memory}
+        \item Notes:
+        \begin{itemize}
+            % Notes
+            \item Effective address does not need a sign extend, that's why it's alway zero extended with only 12 bits.
+            \item OP2_sel is 1 to pass the EA.
+            \item R/W memory (11) is write and (10) is read.
+        \end{itemize}
+
+        \begin{center}
+            \captionof{table}{Memory Instruction Control Signals 1\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
+        \hline\hline
+        LDD& IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] & 1 ----------------------- \\
+        \hline
+        STD& IB[31:25] & 1111 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] & 1 ----------------------- \\
+        \hline
+
+        \end{tabular}
+        \end{center}
+
+        \begin{center}
+            \captionof{table}{Memory Instruction Control Signals 2\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
+        \hline\hline
+        LDD & 1111 & 00 & 0 & 0 & 10 ----------------------- \\
+        \hline
+        STD & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
         \hline
 
         \end{tabular}
