@@ -48,33 +48,40 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Introduction}
 
-\section{System Overview}
-This document reports our design work of the 5-stage pipelined processor using Harvard
-architecture. We discuss the overall system blocks and connections, the functionalities of the
-different blocks and the hazard solutions. 
+\section{Abstract}
+This report describes our design work of the 5-stage pipelined processor, that follows Harvard architecture.
+
+This report contains:
+\begin{itemize}
+    \item the overall system blocks and connections.
+    \item the functionalities of the different blocks.
+    \item the hazard solutions.
+\end{itemize}
 
 \section{Task Distribution}
+Table \ref{tab:td} contains the task distribution.
+
 \begin{center}
     \captionof{table}{Task Distribution\label{tab:td}}
  \begin{tabular}{||c| p{100mm}||} 
  \hline
  Team Member & Tasks \\ [0.5ex] 
  \hline\hline
- Mohamed Shawky & 1) Overall system design. \newline 2) Hazard detection and handling. \newline 3) Document typing and formatting. \\
+ Mohamed Shawky & -- Overall system design. \newline -- Hazard detection and handling. \newline -- Document typing and formatting. \\
  \hline
- Remonda Talaat & 1) Instruction format. \newline 2) Interrupt Handling. \newline 3) Overall system design. \\
+ Remonda Talaat & -- Instruction format. \newline -- Interrupt Handling. \newline -- Overall system design. \\
  \hline
- Evram Youssef & 1) Control unit and its signals. \newline 2) Low level block design. \newline 3) Pipeline buffers. \\
+ Evram Youssef & -- Control unit and its signals. \newline -- Low level block design. \newline -- Pipeline buffers. \\
  \hline
- Mahmoud Adas & 1) Low level block design. \newline 2) Pipeline buffers. \newline 3) Document typing and formatting. \\ 
+ Mahmoud Adas & -- Low level block design. \newline -- Pipeline buffers. \newline -- Document typing and formatting. \\ 
  \hline
 \end{tabular}
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\part{Overall System}
-
+\part{Overall System Design}
 \section{Overall System Design Schema}
+Figure \ref{fig:overall} shows the overall system design in detail. Each unit is described in details in its section.
 \begin{center}
     \begin{figure}[hp]
         \centering
@@ -85,11 +92,11 @@ different blocks and the hazard solutions.
 \end{center}
 
 \section{Memory Specs}
+Because the design follows Harvard architecture, it uses 2 separate memory units, one for instructions and another one for both the data and stack.
 \begin{itemize}
-    \item We have 2 separate memory units, one for instructions and another for data and stack.
-    \item Instruction Memory:
+    \item Instructions Memory:
     \begin{itemize}
-        \item 2$^{32}$ $X$ 16 bits
+        \item 2$^{32}$ $\times$ 16 bits
         \item 16-bit bus
     \end{itemize}
     \item Data Memory:
@@ -125,6 +132,8 @@ different blocks and the hazard solutions.
     \item Else, Output = 000
 \end{itemize}
 
+\section{Dynamic Branch Prediction}
+Figure \ref{fig:bpu} shows the branch prediction unit.
 \begin{center}
     \begin{figure}[hp]
         \centering
@@ -133,8 +142,6 @@ different blocks and the hazard solutions.
         \label{fig:bpu}
     \end{figure}
 \end{center}
-
-\section{Dynamic Branch Prediction}
 
 \subsection{Inputs}
 \begin{itemize}
@@ -155,16 +162,8 @@ different blocks and the hazard solutions.
     \item Outputs the prediction bit \emph{(Taken or Not)} accordingly.
 \end{itemize}
 
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{pspu}
-        \caption{Stack Pointer (SP) Peak Unit Diagram}
-        \label{fig:pspu}
-    \end{figure}
-\end{center}
-
 \section{Stack Pointer (SP) Peak Unit}
+Figure \ref{fig:pspu} shows the stack pointer unit.
 
 \subsection{Inputs}
 \begin{itemize}
@@ -177,10 +176,22 @@ different blocks and the hazard solutions.
     \item Expected SP (32 bits): stack pointer to read from after eliminating hazards
 \end{itemize}
 
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{pspu}
+        \caption{Stack Pointer (SP) Peak Unit Diagram}
+        \label{fig:pspu}
+    \end{figure}
+\end{center}
+
 \subsection{Logic}
-This unit peaks the value of the stack pointer on returning from a subroutine or an interrupt, in order to calculate the correct value of the address from which the original program counter read from memory. It checks for \emph{POP/PUSH} instructions and use the count to update the address.\\
+This unit peaks the value of the stack pointer on returning from a subroutine or an interrupt, in order to calculate the correct value of the address from which the original program counter read from memory. It checks for \emph{POP/PUSH} instructions and use the count to update the address.
+
 \textbf{NOTE:} In case we didn't use this unit, we will stall the pipe for three consecutive cycles to eliminate possible hazards.
 
+\section{Branch Address Unit}
+Figure \ref{fig:bau} shows the branch address unit.
 \begin{center}
     \begin{figure}[hp]
         \centering
@@ -189,8 +200,6 @@ This unit peaks the value of the stack pointer on returning from a subroutine or
         \label{fig:bau}
     \end{figure}
 \end{center}
-
-\section{Branch Address Unit}
 
 \subsection{Inputs}
 \begin{itemize}
@@ -224,16 +233,8 @@ This unit peaks the value of the stack pointer on returning from a subroutine or
     \end{itemize}
 \end{itemize}
 
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{reg_file}
-        \caption{Register File Diagram}
-        \label{fig:reg_file}
-    \end{figure}
-\end{center}
-
 \section{Register File}
+Figure \ref{fig:reg_file} shows the register file.
 
 \subsection{Registers}
 \begin{itemize}
@@ -264,6 +265,15 @@ This unit peaks the value of the stack pointer on returning from a subroutine or
 
 \subsection{Logic}
 The register selector acts like a decoder to select the required operation and the register on which the operation performed.
+
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{reg_file}
+        \caption{Register File Diagram}
+        \label{fig:reg_file}
+    \end{figure}
+\end{center}
 
 \section{ALU}
 
@@ -431,10 +441,9 @@ The register selector acts like a decoder to select the required operation and t
 \part{Control Unit (Signals)}
 
 \section{Overview}
+Control unit is responsible for generating the control signals that are used to activate several operations throughout the pipeline. Also, it's responsible for the extraction of specific information from instruction bits.
 
 \begin{itemize}
-    \item Control unit is responsible for generating the control signals that are used to activate several operations throughout the pipeline. Also, it's responsible for the extraction of specific information from instruction bits.
-    
     \item It communicates with:
     \begin{itemize}
         \item IF/ID buffer: for reading the instruction bits.
@@ -480,20 +489,17 @@ The register selector acts like a decoder to select the required operation and t
 \end{itemize}
 
 \section{Control Signals}
-
+In this section, instructions are divided into seven types based on the signals produced:
 \begin{itemize}
-    \item In this section, instructions are divided into seven types based on the signals produced:
-    \begin{itemize}
-        \item One Operand (not,inc,dec,out,in).
-        \item Two Operands (add,sub,and,or).
-        \item Immediate Operand (iadd,shl,shr,ldm).
-        \item Data (ldd,std).
-        \item Stack (push,pop,call,ret,rti).
-        \item Jump (jz, jmp).
-        \item Special (nop,swap,reset,int).
-    \end{itemize}
-\end{itemize}    
-    
+    \item One Operand (not,inc,dec,out,in).
+    \item Two Operands (add,sub,and,or).
+    \item Immediate Operand (iadd,shl,shr,ldm).
+    \item Data (ldd,std).
+    \item Stack (push,pop,call,ret,rti).
+    \item Jump (jz, jmp).
+    \item Special (nop,swap,reset,int).
+\end{itemize}   
+
 \subsection{One Operand Instructions}
 \begin{itemize}
     \item IB[31:0] are the instruction bits.
@@ -627,6 +633,7 @@ LDM & 1 & 1111 & 00 & 0 & 0 & 11 \\
 \end{center}
 
 \subsection{Data Instructions}
+Note that:
 \begin{itemize}
     % Notes
     \item Effective address does not need a sign extend, that's why it's always zero extended with only 12 bits.
@@ -742,9 +749,7 @@ JZ & x & 1111 & 11 & 0 & 1 & 00 \\
 \end{center}
 
 \section{Special Instructions}
-\begin{itemize}
-    \item There's no interrupt instruction, but there's a bit called Interrupt, sent to the Control Unit as an input to indicate an interrupt signal was triggered.
-\end{itemize}
+There's no interrupt instruction, but there's a bit called Interrupt, sent to the Control Unit as an input to indicate an interrupt signal was triggered.
 
 \begin{center}
     \captionof{table}{Specials Instruction Control Signals Part I\label{tab:sop1}}
@@ -893,21 +898,22 @@ This section discusses the 5 stages of our system and their functionalities.
 The structural hazard occurs in data memory and register file.
 
 \subsection{Handling}
-The structural hazard in data memory is solved by using 2 memory units, one for instructions and one for data. Both have the same specs \emph{(previously mentioned)}. \\
+The structural hazard in data memory is solved by using 2 memory units, one for instructions and one for data. Both have the same specs \emph{(previously mentioned)}.
+
 However structural hazard in register file is handled by forcing the write back to happen in the first half of the clock cycle and the decode to happen in the second half.
 
 \section{Data Hazards}
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{hdu}
-        \caption{Hazard Detection Unit Diagram}
-        \label{fig:hdu}
-    \end{figure}
-\end{center}
 
 \subsection{Detection}
 \subsubsection{Hazard Detection Unit (HDU)}
+Figure \ref{fig:hdu} shows the hazard detection unit.
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{hdu}
+    \caption{Hazard Detection Unit Diagram}
+    \label{fig:hdu}
+\end{figure}
+
 HDU consists of 3 parts:
 \begin{itemize}
     \item \textbf{OPCode Checker:} checks the opcode of the current instruction to check whether it will cause data hazard or not, then activates the Register Comparator accordingly. Also, it checks for \emph{load-use case}, in order to activate the stall signal.
