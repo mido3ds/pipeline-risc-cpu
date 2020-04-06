@@ -476,6 +476,7 @@ The register selector acts like a decoder to select the required operation and t
             \item inserting (1111) to Rsrc/Rdst selectors tells the Register file to not output any register values.
             \item 'x' indicates don't care
             \item 0000 at the AluOP indicates no operation.
+            \item note that Rsrc_1_selector is the same as Rdst_1_selector.
         \end{itemize}
 
         \begin{center}
@@ -484,11 +485,11 @@ The register selector acts like a decoder to select the required operation and t
         \hline
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
-        NOT & IB[31:25] & 0111 & 0 and IB[24:22] & 1111 & 1111 & x & x ----------------------- \\
-        INC & IB[31:25] & 0001 & 0 and IB[24:22] & 1111 & 1111 & x & x  ----------------------- \\
-        DEC & IB[31:25] & 0010 & 0 and IB[24:22] & 1111 & 1111 & x & x ----------------------- \\
-        OUT & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 1111 & x & x ----------------------- \\
-        IN & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 1111 & x & x ----------------------- \\
+        NOT & IB[31:25] & 0111 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
+        INC & IB[31:25] & 0001 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x  ----------------------- \\
+        DEC & IB[31:25] & 0010 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
+        OUT & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
+        IN  & IB[31:25] & 0000 & 0 and IB[24:22] & 1111 & 0 and IB[24:22] & x & x ----------------------- \\
         \hline
 
         \end{tabular}
@@ -504,11 +505,13 @@ The register selector acts like a decoder to select the required operation and t
         INC & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         DEC & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         OUT & 1111 & 01 & 0 & 0 & 00 ----------------------- \\
-        IN & 1111 & 10 & 0 & 0 & 00 ----------------------- \\
+        IN  & 1111 & 10 & 0 & 0 & 00 ----------------------- \\
         \hline
 
         \end{tabular}
         \end{center}
+
+
         \section{Two Operands}
         \item Notes:
         \begin{itemize}
@@ -542,6 +545,93 @@ The register selector acts like a decoder to select the required operation and t
         SUB & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         AND & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         OR & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
+
+        \end{tabular}
+        \end{center}
+
+
+        \section{Immediate Operand}
+        \item Notes:
+        \begin{itemize}
+            % Notes
+            \item note that Rsrc_1_selector is the same as Rdst_1_selector, in SHL and SHR cases, but in IADD case its a different register, and at LDM case there's no need for Rsrc it's just a destination.
+            \item note that in IADD case, Rsrc != Rdst.
+            \item note that in LDM case, there's no Rsrc, its a Rdst.
+            \item Rsrc2_val is the immediate value extracted from the IF/ID buffer.
+            \item R/W memory (11) is write and (10) is read.
+        \end{itemize}
+
+        \begin{center}
+            \captionof{table}{Immediate Operand Instruction Control Signals 1\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
+        \hline\hline
+        IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & IB[15:0] & 1 ----------------------- \\
+        SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
+        SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
+        LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
+        
+        \hline
+
+        \end{tabular}
+        \end{center}
+
+        \begin{center}
+            \captionof{table}{Immediate Operand Instruction Control Signals 2\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
+        \hline\hline
+        IADD & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        SHL & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        SHR & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        LDM & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
+        \hline
+
+        \end{tabular}
+        \end{center}
+
+
+        
+        \section{Immediate Operand}
+        \item Notes:
+        \begin{itemize}
+            % Notes
+            \item note that Rsrc_1_selector is the same as Rdst_1_selector, in SHL and SHR cases, but in IADD case its a different register, and at LDM case there's no need for Rsrc it's just a destination.
+            \item note that in IADD case, Rsrc != Rdst.
+            \item note that in LDM case, there's no Rsrc, its a Rdst.
+            \item Rsrc2_val is the immediate value extracted from the IF/ID buffer.
+            \item R/W memory (11) is write and (10) is read.
+        \end{itemize}
+
+        \begin{center}
+            \captionof{table}{Immediate Operand Instruction Control Signals 1\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
+        \hline\hline
+        IADD& IB[31:25] & 0011 & 0 and IB[27:25] & 1111 & 0 and IB[24:22] & IB[15:0] & 1 ----------------------- \\
+        SHL & IB[31:25] & 1000 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
+        SHR & IB[31:25] & 1001 & 0 and IB[27:25] & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
+        LDM & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & IB[15:0] & 1 ----------------------- \\
+        
+        \hline
+
+        \end{tabular}
+        \end{center}
+
+        \begin{center}
+            \captionof{table}{Immediate Operand Instruction Control Signals 2\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
+        \hline\hline
+        IADD & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        SHL & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        SHR & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        LDM & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
         \hline
 
         \end{tabular}
