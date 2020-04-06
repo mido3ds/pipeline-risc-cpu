@@ -448,7 +448,7 @@ The register selector acts like a decoder to select the required operation and t
     \end{itemize}
     \item Notes:
     \begin{itemize}
-        \item Rsrc2_val (32 bits): it takes the same place/position at the ID/EX buffer, but its used in many different ways, it could be used as a Register Value extracted form register file, it could be used as an Immediate Value extracted from IF/ID buffer, and it could hold the Address (EA) sent to the Memory for reading or writing, all of them depends on the OpCode.
+        \item Rsrc2_val (32 bits): it takes the same place/position at the ID/EX buffer, but its used in many different ways, it could be used as a Register Value extracted form register file, it could be used as an Immediate Value extracted from IF/ID buffer, it could hold the Stack Ponter address and it could hold the Address (EA) sent to the Memory for reading or writing, all of them depends on the OpCode.
         \item Rdst_2 (4 bits): this 4 bits is only used when dealing with a SWAP operation, thus we need Op1 and Op2 and their NEW selectors, we do not swap them at decode, it is the Execute's job.
         \item Op2_Sel (1 bit): Since the position of Rsrc2 (32 bits) at the ID/Ex buffer is used in different forms (reg/imm/ea) this selector is needed.
         \item BranchIO signal (2 bits): tells the Register file what operation of these are we executing (No/In/Out/Branch), but Branch_Enable (1 bit): this enable bit interact with teh Branch Address Unit, telling it what type of OpCode are we dealing with (branching or not).
@@ -630,9 +630,9 @@ The register selector acts like a decoder to select the required operation and t
         \hline
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
-        LDD& IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] & 1 ----------------------- \\
+        LDD & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] & 1 ----------------------- \\
         \hline
-        STD& IB[31:25] & 1111 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] & 1 ----------------------- \\
+        STD & IB[31:25] & 0000 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] & 1 ----------------------- \\
         \hline
 
         \end{tabular}
@@ -652,42 +652,123 @@ The register selector acts like a decoder to select the required operation and t
         \end{tabular}
         \end{center}
 
-
-        
-        \section{Memory}
+        \section{Stacks}
         \item Notes:
         \begin{itemize}
             % Notes
-            \item Effective address does not need a sign extend, that's why it's alway zero extended with only 12 bits.
-            \item OP2_sel is 1 to pass the EA.
+            \item Rsrc2_val is the stack pointer as it's the address of the operation.
+            \item AluOp Inc2 and Dec2..., are used to manipulate the Stack Ponter, thus the output of the Alu will be the new Stack Pointer.
+            \item In case of Call, Rsrc1_sel is none, as no Register is used, it is the PC that is gonna be pushed at the memory.
+            \item In case of Call, Rdst1_Sel, is the register holding the new address.
+            \item In case of Ret and Rti, no registers are affected, as the PC is updated at the fetch stage.
             \item R/W memory (11) is write and (10) is read.
         \end{itemize}
 
         \begin{center}
-            \captionof{table}{Memory Instruction Control Signals 1\label{tab:1op}}
+            \captionof{table}{Stacks Instruction Control Signals 1\label{tab:1op}}
         \begin{tabular}{||c| c| c| c| p{40mm}||} 
         \hline
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
-        LDD& IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & 0x000 and IB[19:0] & 1 ----------------------- \\
+        PUSH & IB[31:25] & 1011 & 0 and IB[27:25] & 1111 & 1111 & SP(32 bits) & 1 ----------------------- \\
         \hline
-        STD& IB[31:25] & 1111 & 1111 & 1111 & 0 and IB[27:25] & 0x000 and IB[19:0] & 1 ----------------------- \\
+        POP & IB[31:25] & 1010 & 1111 & 1111 & 0 and IB[27:25] & SP(32 bits) & 1 ----------------------- \\
         \hline
-
+        CALL & IB[31:25] & 1011 & 1111 & 1111 & 0 and IB[27:25] & SP(32 bits) & 1 ----------------------- \\
+        \hline
+        RET & IB[31:25] & 1010 & 1111 & 1111 & 1111 & SP(32 bits) & 1 ----------------------- \\
+        \hline
+        RTI & IB[31:25] & 1100 & 1111 & 1111 & 1111 & SP(32 bits) & 1 ----------------------- \\
+        \hline
         \end{tabular}
         \end{center}
 
         \begin{center}
-            \captionof{table}{Memory Instruction Control Signals 2\label{tab:1op}}
+            \captionof{table}{Stacks Instruction Control Signals 2\label{tab:1op}}
         \begin{tabular}{||c| c| c| c| p{40mm}||} 
         \hline
-        Operation & Rdst_2 (swap) & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
+        Operation & Rdst_2(swap) & BranchIO & SP_enable & Branch_enable(JZ) & R/W Memory  \\ [0.5ex] 
         \hline\hline
-        LDD & 1111 & 00 & 0 & 0 & 10 ----------------------- \\
+        PUSH & 1111 & 00 & 1 & 0 & 11 ----------------------- \\
         \hline
-        STD & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
+        POP & 1111 & 00 & 0 & 0 & 10 ----------------------- \\
         \hline
+        CALL & 1111 & 00 & 0 & 0 & 11 ----------------------- \\
+        \hline
+        RET & 1111 & 00 & 0 & 0 & 10 ----------------------- \\
+        \hline
+        RTI & 1111 & 00 & 0 & 0 & 10 ----------------------- \\
+        \hline
+        \end{tabular}
+        \end{center}
 
+
+        \section{Jumpers}
+        \item Notes:
+        \begin{itemize}
+            % Notes
+            \item Rsrc1_sel is the address we are jumping to, that's why we need to verify that our prediction at the JZ case is correct.
+            \item BranchIO is (11) as it is a branching instruction.
+            \item Branch enable (1) tp detect if the JZ operated correctly.
+        \end{itemize}
+
+        \begin{center}
+            \captionof{table}{Jumpers Instruction Control Signals 1\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
+        \hline\hline
+        JMP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x ----------------------- \\
+        \hline
+        JZ & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & x & x ----------------------- \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+        \begin{center}
+            \captionof{table}{Jumpers Instruction Control Signals 2\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & Rdst_2(swap) & BranchIO & SP_enable & Branch_enable(JZ) & R/W Memory  \\ [0.5ex] 
+        \hline\hline
+        JMP & 1111 & 11 & 0 & 0 & 00 ----------------------- \\
+        \hline
+        JZ & 1111 & 11 & 0 & 1 & 00 ----------------------- \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+
+        \section{Specials}
+        \item Notes:
+        \begin{itemize}
+            % Notes
+            \item 
+        \end{itemize}
+
+        \begin{center}
+            \captionof{table}{Jumpers Instruction Control Signals 1\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
+        \hline\hline
+        JMP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x ----------------------- \\
+        \hline
+        JZ & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & x & x ----------------------- \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+        \begin{center}
+            \captionof{table}{Jumpers Instruction Control Signals 2\label{tab:1op}}
+        \begin{tabular}{||c| c| c| c| p{40mm}||} 
+        \hline
+        Operation & Rdst_2(swap) & BranchIO & SP_enable & Branch_enable(JZ) & R/W Memory  \\ [0.5ex] 
+        \hline\hline
+        JMP & 1111 & 11 & 0 & 0 & 00 ----------------------- \\
+        \hline
+        JZ & 1111 & 11 & 0 & 1 & 00 ----------------------- \\
+        \hline
         \end{tabular}
         \end{center}
 
