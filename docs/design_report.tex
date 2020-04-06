@@ -412,19 +412,108 @@ The register selector acts like a decoder to select the required operation and t
 \part{Control Signals}
 
 \section{Overview}
-Control unit is responsible for generating the control signals that are used to activate several operations throughout the pipeline. Also, it's responsible for the extraction of specific information from instruction bits.
+
 \begin{itemize}
-    \item Immediate values (16 bits)
-    \item Effective addresses (20 bits)
-    \item source registers (4 bits)
-    \item destination registers (4 bits)
-    \item OPCode (4:7 bits)
-    \item Branch/IO Enable (2 bits)
-    \item ALUop (4 bits)
-    \item Interrupt Enable (1 bit)
+    \item Control unit is responsible for generating the control signals that are used to activate several operations throughout the pipeline. Also, it's responsible for the extraction of specific information from instruction bits.
+    \item It communicates with:
+    \begin{itemize}
+        \item IF/ID buffer for reading the instruction bits.
+        \item ID/EX buffer for writing the apprpoiate Registers, AlyOP and signals.
+        \item Regisger File, for Selecting the registers needed to be read (Rsrc1 and Rsrc2).
+        \item Hazards Units (HDU, Branch Address Unit, SP peak Unit) for sending enables and needed signals
+    \end{itemize}
+    \item Its Interface:
+    \begin{itemize}
+        \item IN: 
+        \begin{itemize}
+            \item IB (32)
+            \item Int bit(1)
+        \end{itemize}
+    
+        \item OUT:
+        \begin{itemize}
+            \item Rsrc2_val (32) imm or EA
+            \item Rsrc 1_Select (4)
+            \item Rsrc 2_Select (4)
+            \item Rdst 1 (4)
+            \item Rdst 2 (4) //used only in case of swap
+            \item BranchIO Signal (2)
+            \item OP2_sel (1)
+            \item SP enable (1)
+            \item OpCode (7)
+            \item Branch enable (1)
+            \item ALU op (4)
+            \item R/W memo (2)
+        \end{itemize}
+    \end{itemize}
+    \item Notes:
+    \begin{itemize}
+        \item Rsrc2_val (32 bits): it takes the same place/position at the ID/EX buffer, but its used in many different ways, it could be used as a Register Value extracted form register file, it could be used as an Immediate Value extracted from IF/ID buffer, and it could hold the Address (EA) sent to the Memory for reading or writing, all of them depends on the OpCode.
+        \item Rdst_2 (4 bits): this 4 bits is only used when dealing with a SWAP operation, thus we need Op1 and Op2 and their NEW selectors, we do not swap them at decode, it is the Execute's job.
+        \item Op2_Sel (1 bit): Since the position of Rsrc2 (32 bits) at the ID/Ex buffer is used in different forms (reg/imm/ea) this selector is needed.
+        \item BranchIO signal (2 bits): tells the Register file what operation of these are we executing (No/In/Out/Branch), but Branch_Enable (1 bit): this enable bit interact with teh Branch Address Unit, telling it what type of OpCode are we dealing with (branching or not).
+    \end{itemize}
+    
 \end{itemize}
 
-\textbf{TODO: Add related control signals for each instruction}
+\section{Signals}
+
+\begin{itemize}
+    \item Note that we've divided the operations into seven different types due to their similarities in nature:
+    \begin{itemize}
+        \item One Operand (not,inc,dec,out,in)
+        \item Two Operands (add,sub,and,or)
+        \item Imm Operand (iadd,shl,shr,ldm)
+        \item Memory (ldd,std)
+        \item Stacks (push,pop,call,ret,rti)
+        \item Jumnpers (jz, jmp)
+        \item Specials (nop,swap,reset,int)
+    \end{itemize}
+    \section{One Operand}
+    \item Notes:
+    \begin{itemize}
+        \item IB[0:31]: is the instruction bits, where IB[31] is the Most Significant Bit.
+        \item inserting (1111) to Rsrc/Rdst selectors tells the Register file to not output any register values.
+        \item OP2_sel: 0 the register value and 1 the imm/ea value, even though its not used at this stage
+        \item 'x' indicates don't care
+        \item 0000 at the AluOP indicates no operation.
+    \end{itemize}
+
+    \begin{center}
+        \captionof{table}{One Operand Instruction Control Signals 1\label{tab:1op}}
+     \begin{tabular}{||c| c| c| c| p{40mm}||} 
+     \hline
+     Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
+     \hline\hline
+     NOT & IB[31:25] & 0111 & 0 and IB[24:21] & 1111 & 1111 & x & x ----------------------- \\
+     INC & IB[31:25] & 0001 & 0 and IB[24:21] & 1111 & 1111 & x & x  ----------------------- \\
+     DEC & IB[31:25] & 0010 & 0 and IB[24:21] & 1111 & 1111 & x & x ----------------------- \\
+     OUT & IB[31:25] & 0000 & 0 and IB[24:21] & 1111 & 1111 & x & x ----------------------- \\
+     IN & IB[31:25] & 0000 & 0 and IB[24:21] & 1111 & 1111 & x & x ----------------------- \\
+     \hline
+
+    \end{tabular}
+    \end{center}
+
+    \begin{center}
+        \captionof{table}{One Operand Instruction Control Signals 2\label{tab:1op}}
+     \begin{tabular}{||c| c| c| c| p{40mm}||} 
+     \hline
+     Operation & Rdst_2 & BranchIO & SP_enable & Branch_enable & R/W Memory  \\ [0.5ex] 
+     \hline\hline
+     NOT & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+     INC & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+     DEC & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+     OUT & 1111 & 01 & 0 & 0 & 00 ----------------------- \\
+     IN & 1111 & 10 & 0 & 0 & 00 ----------------------- \\
+     \hline
+
+    \end{tabular}
+    \end{center}
+\end{itemize}
+
+
+
 
 \part{Pipeline Stages}
 
