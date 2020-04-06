@@ -743,31 +743,40 @@ The register selector acts like a decoder to select the required operation and t
         \item Notes:
         \begin{itemize}
             % Notes
-            \item 
+            \item SWAP: Rsrc1 = Rdst2 and Rsrc2 = Rdst1
+            \item There's no Int instruction, but there's a bit called Int, sent to the Control Unit as an input.
         \end{itemize}
 
         \begin{center}
-            \captionof{table}{Jumpers Instruction Control Signals 1\label{tab:1op}}
+            \captionof{table}{Specials Instruction Control Signals 1\label{tab:1op}}
         \begin{tabular}{||c| c| c| c| p{40mm}||} 
         \hline
         Operation & OpCode & AluOp & Rsrc1_sel & Rsrc2_sel & Rdst1_sel & Rsrc2_val & OP2_sel  \\ [0.5ex] 
         \hline\hline
-        JMP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x ----------------------- \\
+        NOP & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x ----------------------- \\
         \hline
-        JZ & IB[31:25] & 0000 & 0 and IB[27:25] & 1111 & 1111 & x & x ----------------------- \\
+        SWAP & IB[31:25] & 0000 & 0 and IB[27:25] & 0 and IB[24:22] & 0 and IB[24:22] & x & 0 ----------------------- \\
+        \hline
+        Reset & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x ----------------------- \\
+        \hline
+        Int & IB[31:25] & 0000 & 1111 & 1111 & 1111 & x & x ----------------------- \\
         \hline
         \end{tabular}
         \end{center}
 
         \begin{center}
-            \captionof{table}{Jumpers Instruction Control Signals 2\label{tab:1op}}
+            \captionof{table}{Specials Instruction Control Signals 2\label{tab:1op}}
         \begin{tabular}{||c| c| c| c| p{40mm}||} 
         \hline
         Operation & Rdst_2(swap) & BranchIO & SP_enable & Branch_enable(JZ) & R/W Memory  \\ [0.5ex] 
         \hline\hline
-        JMP & 1111 & 11 & 0 & 0 & 00 ----------------------- \\
+        NOP & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         \hline
-        JZ & 1111 & 11 & 0 & 1 & 00 ----------------------- \\
+        SWAP & 0 and IB[27:25] & 00 & 0 & 0 & 11 ----------------------- \\
+        \hline
+        Reset & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
+        \hline
+        Int & 1111 & 00 & 0 & 0 & 00 ----------------------- \\
         \hline
         \end{tabular}
         \end{center}
