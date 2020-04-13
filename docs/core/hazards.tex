@@ -6,12 +6,10 @@ The structural hazard occurs in data memory and register file.
 \subsection{Handling}
 The structural hazard in data memory is solved by using 2 memory units, one for instructions and one for data. Both have the same specs \emph{(previously mentioned)}.
 
-However structural hazard in register file is handled by forcing the write back to happen in the first half of the clock cycle and the decode to happen in the second half.
+However, structural hazard in register file is handled by forcing the write back to happen in the first half of the clock cycle and register reading from decode and fetch to happen in the second half.
 
 \section{Data Hazards}
 
-\subsection{Detection}
-\subsubsection{Hazard Detection Unit (HDU)}
 Figure \ref{fig:hdu} shows the hazard detection unit.
 \begin{figure}[hp]
     \centering
@@ -20,11 +18,15 @@ Figure \ref{fig:hdu} shows the hazard detection unit.
     \label{fig:hdu}
 \end{figure}
 
+\subsection{Detection}
+
+\subsubsection{Hazard Detection Unit (HDU)}
+
 HDU consists of 3 parts:
 \begin{itemize}
-    \item \textbf{OPCode Checker:} checks the opcode of the current instruction to check whether it will cause data hazard or not, then activates the Register Comparator accordingly. Also, it checks for \emph{load-use case}, in order to activate the stall signal.
-    \item \textbf{Register Comparator:} compares the decode source registers with the destination registers of the execute and memory stages.
-    \item \textbf{Output Unit:} outputs stall signal in case of load and pop instructions and data forward unit enable in case of other data hazards.
+    \item \textbf{OPCode Checker:} checks the opcode of the current instruction to check whether it will cause data hazard or not. Also, it checks for \emph{load-use case}, in order to activate the stall signal.
+    \item \textbf{Register Comparator:} compares the decode source registers with the destination registers of the execute and memory stages. Also, it compares the execute source registers with the destination registers of the memory stage.
+    \item \textbf{Output Unit:} outputs stall signal in case of load and pop instructions (considering the branch special case). Also, it outputs ALU and decode operands selectors. 
 \end{itemize}
 
 \subsection{Handling}
