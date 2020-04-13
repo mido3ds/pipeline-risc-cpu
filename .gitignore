@@ -281,3 +281,6 @@ TSWLatexianTemp*
 #*Notes.bib
 
 out
+
+# python
+__pycache__
