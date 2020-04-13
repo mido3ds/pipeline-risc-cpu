@@ -34,6 +34,7 @@ Because the design follows Harvard architecture, it uses 2 separate memory units
     \item RESET Signal (1 bit)
     \item Interrupt Signal (1 bit)
     \item Current OPCode (7 bits)
+    \item Parallel Load PC Selector (1 bit)
 \end{itemize}
 
 \subsection{Outputs}
@@ -47,6 +48,7 @@ Because the design follows Harvard architecture, it uses 2 separate memory units
     \item If RESET == 1, Output = 010
     \item If Stall == 1, Output = 011
     \item If Interrupt == 1 $||$ OPCode == RET/RTI, Output = 100
+    \item PL PC Selector == 1, Output = 101
     \item Else, Output = 000
 \end{itemize}
 
@@ -188,16 +190,57 @@ The register selector acts like a decoder to select the required operation and t
     \item 0101 $-$ AND $-$ (first operand \&\& second operand)
     \item 0110 $-$ OR $-$ (first operand $||$ second operand)
     \item 0111 $-$ NOT $-$ (!first operand)
-    \item 1000 $-$ SHL $-$ (shift first operand to the left)
-    \item 1001 $-$ SHR $-$ (shift first operand to the right)
+    \item 1000 $-$ SHL $-$ (shift first operand to the left with the value of second operand)
+    \item 1001 $-$ SHR $-$ (shift first operand to the right with the value of second operand)
     \item 1010 $-$ INC2 $-$ (first operand + 2)
     \item 1011 $-$ DEC2 $-$ (first operand - 2)
-    \item 1100 $-$ INC4 $-$ (first operand + 4)
-    \item 1101 $-$ DEC4 $-$ (first operand - 4)
 \end{itemize}
 
 \subsection{Logic}
 \begin{itemize}
     \item ALU performs the operation and changes the CCR accordingly.
     \item The input operands of the ALU are multiplexed between forwarded data and register data, with selectors from data forwarding unit.
+\end{itemize}
+
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/pc_nav.png}
+        \caption{PC Navigator Diagram}
+        \label{fig:reg_file}
+    \end{figure}
+\end{center}
+
+\section{PC Navigator}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Interrupt Bit (1 bit)
+    \item OPCode Signals (2 bits): to check whether the operation is RET or RTI
+    \item Previous SP (32 bits): to increment or decrement it correspondingly to access Data Memory
+    \item MEM OUT (32 bits): loaded PC from memory
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item Stall Signal (1 bit)
+    \item New SP (32 bits)
+    \item PC Selector (1 bit): to enable PC parallel load from Data Memory
+    \item Loaded PC Value (32 bits)
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item The Operation Checker checks the OPCode Signals and Interrupt Bit to check whether the operation is RET, RTI or Interrupt and produces its signals accordingly:
+    \begin{itemize}
+        \item PC Return Enable is set.
+        \item Counter is set to $0$ for RET, $1$ for RTI and $2$ for Interrupt.
+        \item Operation Selector is issued to the Adder/Subtractor to change the value of SP.
+    \end{itemize}
+    \item Stall Counter counts the number of stalls produced by operation. It's set to $0$ for RET, $1$ for RTI and $2$ for Interrupt. It counts down a number of cycles and then release the stall.
+    \item Adder/Subtractor is used to update the SP every stall cycle, to get the right data from the memory.
+    \item PC Return issues a signal to the PC Control Unit to enable parallel load from data memory and passes the loaded PC value.
+    \item RET doesn't stall any cycles, as it only loads PC value from data memory.
+    \item RTI stall only one cycle, as it loads PC value from data memory and then loads CCR.
+    \item Interrupt stall two cycles, as it loads PC value from data memory, pushes CCR into stack and then pushes PC into stack.
 \end{itemize}
