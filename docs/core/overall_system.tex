@@ -1,0 +1,203 @@
+\section{Overall System Design Schema}
+Figure \ref{fig:overall} shows the overall system design in detail. Each unit is described in details in its section.
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=\textwidth]{images/overall_system}
+        \caption{Overall System Design}
+        \label{fig:overall}
+    \end{figure}
+\end{center}
+
+\section{Memory Specs}
+Because the design follows Harvard architecture, it uses 2 separate memory units, one for instructions and another one for both the data and stack.
+\begin{itemize}
+    \item Instructions Memory:
+    \begin{itemize}
+        \item 2$^{32}$ $\times$ 16 bits
+        \item 16-bit bus
+    \end{itemize}
+    \item Data Memory:
+    \begin{itemize}
+        \item 2$^{32}$ $\times$ 16 bits
+        \item 32-bit bus
+        \item SP starts at 2$^{32}$-1
+    \end{itemize}
+\end{itemize}
+
+\section{PC Control Unit}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item IF Flush (1 bit)
+    \item Stall Signal (1 bit)
+    \item RESET Signal (1 bit)
+    \item Interrupt Signal (1 bit)
+    \item Current OPCode (7 bits)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item PC Mux Selectors (3 bits)
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item If IF Flush == 1, Output = 001
+    \item If RESET == 1, Output = 010
+    \item If Stall == 1, Output = 011
+    \item If Interrupt == 1 $||$ OPCode == RET/RTI, Output = 100
+    \item Else, Output = 000
+\end{itemize}
+
+\section{Dynamic Branch Prediction}
+Figure \ref{fig:bpu} shows the branch prediction unit.
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/bpu}
+        \caption{Branch Prediction Unit Diagram}
+        \label{fig:bpu}
+    \end{figure}
+\end{center}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Hashed Address (4 bits)
+    \item Update Bit (1 bit): \emph{Taken or Not}  to update FSM
+    \item OPcode (4 bits)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item Taken (1 bit): predict whether the branch taken or not
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item Updates the FSM corresponding to the hashed address.
+    \item Checks whether the OPCode is of a conditional branch instruction.
+    \item Outputs the prediction bit \emph{(Taken or Not)} accordingly.
+\end{itemize}
+
+\section{Branch Address Unit}
+Figure \ref{fig:bau} shows the branch address unit.
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/bau}
+        \caption{Branch Address Unit Diagram}
+        \label{fig:bau}
+    \end{figure}
+\end{center}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Next PC Address (32 bits)
+    \item Instruction Address (32 bits)
+    \item Incremented PC Address (32 bits)
+    \item Hashed Address (4 bits)
+    \item OpCode (4 bits)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item IF Flush (1 bit)
+    \item Branch Address (32 bits)
+    \item Hashed Address (4 bits)
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item Check if OpCode is of a conditional branch instruction, if true:
+    \begin{itemize}
+        \item Check whether PC Next Address is equal to Instruction Address
+        \item If true:
+        \begin{itemize}
+            \item IF Flush = 0, Branch Address = Instruction Address
+        \end{itemize}
+        \item If false:
+        \begin{itemize}
+            \item IF Flush = 1, Branch Address = Instruction Address
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\section{Register File}
+Figure \ref{fig:reg_file} shows the register file.
+
+\subsection{Registers}
+\begin{itemize}
+    \item 8 general purpose registers
+    \item Stack pointer (SP) register
+    \item Program counter (PC) register
+\end{itemize}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Dest Regs: 2$X$4 bits (for destination selection)
+    \item SRC Regs: 2$X$4 bits (for source selection)
+    \item Fetch Reg: 4 bits (for fetch branch register selection)
+    \item WB values: 2$X$32 bits (for write back values)
+    \item RESET: 1 bit (for registers clear).
+    \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)
+    \item IN Port: 32 bits (IO input port)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item OP1: 32 bits (value of first operand)
+    \item OP2: 32 bits (value of second operand)
+    \item Fetch Value: 32 bits (value of branch address required by fetch)
+    \item Instruction Address: 32 bits (value of branch address)
+    \item OUT Port: 32 bits (IO output port)
+\end{itemize}
+
+\subsection{Logic}
+The register selector acts like a decoder to select the required operation and the register on which the operation performed.
+
+\begin{center}
+    \begin{figure}[hp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/reg_file}
+        \caption{Register File Diagram}
+        \label{fig:reg_file}
+    \end{figure}
+\end{center}
+
+\section{ALU}
+
+\subsection{Inputs}
+\begin{itemize}
+    \item ALUop: 4 bits (refer to ALU Operations below)
+    \item Operands: 2$X$32 bits (2 input operands)
+\end{itemize}
+
+\subsection{Outputs}
+\begin{itemize}
+    \item ALUout: 32 bits (operation result)
+\end{itemize}
+
+\subsection{ALU Operations}
+\begin{itemize}
+    \item 0000 $-$ NOP $-$ (no operation)
+    \item 0001 $-$ INC $-$ (first operand + 1)
+    \item 0010 $-$ DEC $-$ (first operand - 1)
+    \item 0011 $-$ ADD $-$ (first operand + second operand)
+    \item 0100 $-$ SUB $-$ (first operand - second operand)
+    \item 0101 $-$ AND $-$ (first operand \&\& second operand)
+    \item 0110 $-$ OR $-$ (first operand $||$ second operand)
+    \item 0111 $-$ NOT $-$ (!first operand)
+    \item 1000 $-$ SHL $-$ (shift first operand to the left)
+    \item 1001 $-$ SHR $-$ (shift first operand to the right)
+    \item 1010 $-$ INC2 $-$ (first operand + 2)
+    \item 1011 $-$ DEC2 $-$ (first operand - 2)
+    \item 1100 $-$ INC4 $-$ (first operand + 4)
+    \item 1101 $-$ DEC4 $-$ (first operand - 4)
+\end{itemize}
+
+\subsection{Logic}
+\begin{itemize}
+    \item ALU performs the operation and changes the CCR accordingly.
+    \item The input operands of the ALU are multiplexed between forwarded data and register data, with selectors from data forwarding unit.
+\end{itemize}
