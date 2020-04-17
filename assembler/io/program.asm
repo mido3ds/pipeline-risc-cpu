@@ -1,6 +1,6 @@
-;this is an example assembly program
+#this is an example assembly program
 
-;one operand instructions
+#one operand instructions
 NOP
 NOT R0
 INC r1
@@ -8,7 +8,7 @@ DEC R2
 OUT R3
 IN R4
 
-;two operand instructions
+#two operand instructions
 SWAP R6, R7
 ADD R7, R5, R0
 IADD R0, R4, 0110100101111010
@@ -18,14 +18,14 @@ or R5, R7, R0
 SHl R4, 0000000000000001
 SHR R7, 0000000000000111
 
-;memory instructions
+#memory instructions
 PUSH R4
 POP R5
 LDM R1, 0000010010011111
 LDD R0, 10000111110000001111
 STD R1, 00000000000000011111
 
-;branch instructions
+#branch instructions
 JZ R0
 JMP R1
 CALL R5
