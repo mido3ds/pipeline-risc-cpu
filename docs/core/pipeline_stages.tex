@@ -118,9 +118,8 @@ This section discusses the 5 stages of our system and their functionalities.
 
 \subsection{Interrupt Workflow}
 \begin{itemize}
-    \item Interrupt signal is passed to the PC Control Unit and IF/ID Buffer, the fetch stage is stalled through reloading the same PC value and the Interrupt Bit propagates through the whole pipe, until it reaches the memory stage. Through that, the pipe is totally frozen.
-    \item In the memory stage, the interrupt bit forces the data memory to out the values at addresses 2 \& 3, this value is passed to the PC Navigator to be loaded in PC.
-    \item The interrupt stalls the pipe two more cycles to be able to push both PC and CCR into stack.
+    \item Interrupt signal is passed to the PC Control Unit and IF/ID Buffer, the fetch stage is stalled for two cycles to fetch the interrupt address and the Interrupt Bit propagates through the whole pipe, until it reaches the memory stage.
+    \item In the memory stage, the interrupt stalls the pipe one cycles to be able to push both PC and CCR into stack.
 \end{itemize}
 
 \subsection{RTI Workflow}
