@@ -1,16 +1,15 @@
 # Program Assembler
-The assembler code for the proposed processor design.
+The assembler source code for this processor ISA. 
 
 ### Installation
-Python basic packages: `re` and `argparse`.
-```
-pip install re2
-pip install argparse
-```
+
+* python3
+* python3-pip
+
+`$ pip3 install --user re2 argparse` 
 
 ### Usage
-- First, add the program text file to `io` folder.
-- Second, run the assembler program using the following command:
-```
-python assembler.py --input_file <filename> --output_file <filename>
-```
+
+1. Add the program text file to `io` folder. 
+1. Run the assembler program
+`$ python3 assembler.py --input_file <filename> --output_file <filename>` 
