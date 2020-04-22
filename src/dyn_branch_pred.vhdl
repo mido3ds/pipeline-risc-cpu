@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity branch_addrs is
+entity dyn_branch_pred is
     port (
         hashed_address : in std_logic_vector(3 downto 0);
         -- Taken or not to update FSM
@@ -13,7 +13,7 @@ entity branch_addrs is
     );
 end entity;
 
-architecture rtl of branch_addrs is
+architecture rtl of dyn_branch_pred is
 begin
     -- 0.5.3 Logic
     -- Updates the FSM corresponding to the hashed address.
