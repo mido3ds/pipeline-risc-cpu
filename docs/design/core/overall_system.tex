@@ -120,6 +120,7 @@ Figure \ref{fig:bau} shows the branch address unit.
     \item IF Flush (1 bit)
     \item Branch Address (32 bits)
     \item Hashed Address (4 bits)
+    % TODO: why is Hashed address repeated?
 \end{itemize}
 
 \subsection{Logic}
@@ -136,6 +137,7 @@ Figure \ref{fig:bau} shows the branch address unit.
             \item IF Flush = 1, Branch Address = Instruction Address
         \end{itemize}
     \end{itemize}
+    % TODO: what heppens if OpCode is not branch?
 \end{itemize}
 
 \section{Register File}
@@ -143,17 +145,19 @@ Figure \ref{fig:reg_file} shows the register file.
 
 \subsection{Registers}
 \begin{itemize}
-    \item 8 general purpose registers
-    \item Stack pointer (SP) register
-    \item Program counter (PC) register
+    \item 8 general purpose registers each of size 32 bits
+    \item Stack pointer (SP) register (32 bits)
+    \item Program counter (PC) register (32 bits)
 \end{itemize}
 
 \subsection{Inputs}
 \begin{itemize}
-    \item Dest Regs: 2$X$4 bits (for destination selection)
-    \item SRC Regs: 2$X$4 bits (for source selection)
+    % TODO: what is the mapping of the selectors?
+    \item Dest Regs: 2$\times$4 bits (for destination selection)
+    \item SRC Regs: 2$\times$4 bits (for source selection)
+    % TODO: what is the address for PC and SP?
     \item Fetch Reg: 4 bits (for fetch branch register selection)
-    \item WB values: 2$X$32 bits (for write back values)
+    \item WB values: 2$\times$32 bits (for write back values)
     \item RESET: 1 bit (for registers clear).
     \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)
     \item IN Port: 32 bits (IO input port)
@@ -185,7 +189,7 @@ The register selector acts like a decoder to select the required operation and t
 \subsection{Inputs}
 \begin{itemize}
     \item ALUop: 4 bits (refer to ALU Operations below)
-    \item Operands: 2$X$32 bits (2 input operands)
+    \item Operands: 2$\times$32 bits (2 input operands)
 \end{itemize}
 
 \subsection{Outputs}
@@ -215,16 +219,16 @@ The register selector acts like a decoder to select the required operation and t
     \item The input operands of the ALU are multiplexed between forwarded data and register data, with selectors from data forwarding unit.
 \end{itemize}
 
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/pc_nav.png}
-        \caption{PC Navigator Diagram}
-        \label{fig:reg_file}
-    \end{figure}
-\end{center}
 
 \section{PC Navigator}
+Figure \ref{fig:pc_nav} shows the PC Navigator.
+
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/pc_nav.png}
+    \caption{PC Navigator Diagram}
+    \label{fig:pc_nav}
+\end{figure}
 
 \subsection{Inputs}
 \begin{itemize}
