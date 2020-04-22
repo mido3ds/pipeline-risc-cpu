@@ -4,31 +4,42 @@ use ieee.numeric_std.all;
 
 package common is
     -- opcodes
-    constant OPC_RET        : std_logic_vector(6 downto 0) := "0000100";
-    constant OPC_RTI        : std_logic_vector(6 downto 0) := "0000101";
+    constant OPC_RET              : std_logic_vector(6 downto 0) := "0000100";
+    constant OPC_RTI              : std_logic_vector(6 downto 0) := "0000101";
 
-    function to_vec(i : integer; size : integer            := 16) return std_logic_vector;
-    function to_vec(i : std_logic; size : integer          := 16) return std_logic_vector;
-    function to_vec(i : std_logic_vector; size : integer   := 16) return std_logic_vector;
-    function u_to_vec(i : unsigned; size : integer         := 16) return std_logic_vector;
+    function opcode_is_branch(opc : std_logic_vector) return boolean;
 
-    function to_std_logic(i : integer) return std_logic;
-    function to_std_logic(i : boolean) return std_logic;
+    function to_vec(i : integer; size : integer          := 16) return std_logic_vector;
+    function to_vec(i : std_logic; size : integer        := 16) return std_logic_vector;
+    function to_vec(i : std_logic_vector; size : integer := 16) return std_logic_vector;
+    function u_to_vec(i : unsigned; size : integer       := 16) return std_logic_vector;
 
-    function to_int(i       : std_logic_vector) return integer;
-    function to_int(i       : unsigned) return integer;
-    function to_int(i       : std_logic) return integer;
+    function to_std_logic(i       : integer) return std_logic;
+    function to_std_logic(i       : boolean) return std_logic;
 
-    function to_str(a       : std_logic_vector) return string;
-    function to_str(a       : unsigned) return string;
-    function to_str(a       : integer) return string;
-    function to_str(a       : std_logic) return string;
+    function to_int(i             : std_logic_vector) return integer;
+    function to_int(i             : unsigned) return integer;
+    function to_int(i             : std_logic) return integer;
 
-    function flip(v         : std_logic_vector) return std_logic_vector;
-    function multiply2(i    : std_logic_vector) return std_logic_vector;
+    function to_str(a             : std_logic_vector) return string;
+    function to_str(a             : unsigned) return string;
+    function to_str(a             : integer) return string;
+    function to_str(a             : std_logic) return string;
+
+    function flip(v               : std_logic_vector) return std_logic_vector;
+    function multiply2(i          : std_logic_vector) return std_logic_vector;
 end package;
 
 package body common is
+    function opcode_is_branch(opc : std_logic_vector) return boolean is
+    begin
+        if opc'length < 4 then
+            return false;
+        end if;
+
+        return opc(opc'left downto opc'left - 4 + 1) = "0000";
+    end function;
+
     function to_vec(i : integer; size : integer := 16) return std_logic_vector is
         variable tmp : unsigned(size - 1 downto 0);
     begin
