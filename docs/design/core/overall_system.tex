@@ -1,13 +1,13 @@
 \section{Overall System Design Schema}
 Figure \ref{fig:overall} shows the overall system design in detail. Each unit is described in details in its section.
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=\textwidth]{images/overall_system}
-        \caption{Overall System Design}
-        \label{fig:overall}
-    \end{figure}
-\end{center}
+
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=\textwidth]{images/overall_system.png}
+    \caption{Overall System Design}
+    \label{fig:overall}
+\end{figure}
+
 
 \section{Memory Specs}
 The cpu follows Harvard architecture and thus uses the following 2 separate memory units:
@@ -67,14 +67,12 @@ The cpu follows Harvard architecture and thus uses the following 2 separate memo
 
 \section{Dynamic Branch Prediction}
 Figure \ref{fig:bpu} shows the branch prediction unit.
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/bpu}
-        \caption{Branch Prediction Unit Diagram}
-        \label{fig:bpu}
-    \end{figure}
-\end{center}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/bpu.png}
+    \caption{Branch Prediction Unit Diagram}
+    \label{fig:bpu}
+\end{figure}
 
 \subsection{Inputs}
 \begin{itemize}
@@ -97,14 +95,12 @@ Figure \ref{fig:bpu} shows the branch prediction unit.
 
 \section{Branch Address Unit}
 Figure \ref{fig:bau} shows the branch address unit.
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/bau}
-        \caption{Branch Address Unit Diagram}
-        \label{fig:bau}
-    \end{figure}
-\end{center}
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/bau.png}
+    \caption{Branch Address Unit Diagram}
+    \label{fig:bau}
+\end{figure}
 
 \subsection{Inputs}
 \begin{itemize}
@@ -119,8 +115,7 @@ Figure \ref{fig:bau} shows the branch address unit.
 \begin{itemize}
     \item IF Flush (1 bit)
     \item Branch Address (32 bits)
-    \item Hashed Address (4 bits)
-    % TODO: why is Hashed address repeated?
+    \item Feedback Hashed Address (4 bits)
 \end{itemize}
 
 \subsection{Logic}
@@ -142,31 +137,42 @@ Figure \ref{fig:bau} shows the branch address unit.
 
 \section{Register File}
 Figure \ref{fig:reg_file} shows the register file.
+\begin{figure}[hp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/reg_file.png}
+    \caption{Register File Diagram}
+    \label{fig:reg_file}
+\end{figure}
 
 \subsection{Registers}
+All internal registers are 32bit in width. Each one has a 4bit address to select it, either for reading or writing.
 \begin{itemize}
-    \item 8 general purpose registers each of size 32 bits
-    \item Stack pointer (SP) register (32 bits)
-    \item Program counter (PC) register (32 bits)
+    \item 8 general purpose registers, addresses (0 to 7).
+    \item Stack pointer (SP) register with address = 8.
+    \item Program counter (PC) register with address = 9.
 \end{itemize}
 
 \subsection{Inputs}
 \begin{itemize}
-    % TODO: what is the mapping of the selectors?
     \item Dest Regs: 2$\times$4 bits (for destination selection)
+    % TODO what is the address of io?
     \item SRC Regs: 2$\times$4 bits (for source selection)
-    % TODO: what is the address for PC and SP?
     \item Fetch Reg: 4 bits (for fetch branch register selection)
     \item WB values: 2$\times$32 bits (for write back values)
-    \item RESET: 1 bit (for registers clear).
-    \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)
-    \item IN Port: 32 bits (IO input port)
+    \item RESET 1 bit: async, clears all registers.
+    \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)\\
+    BRANCH = 0\\
+    IO = 1\\
+    NOP = 2,3 % TODO: what to do in each state?
+    \item IN Port: 32 bits (IO input port).
+    % TODO: revise clock, is this right?
+    \item CLK: input operations are in falling edge, while output operations are in rising edge.
 \end{itemize}
 
 \subsection{Outputs}
 \begin{itemize}
-    \item OP1: 32 bits (value of first operand)
-    \item OP2: 32 bits (value of second operand)
+    \item OP1: 32 bits (value of first operand (src0))
+    \item OP2: 32 bits (value of second operand (src1))
     \item Fetch Value: 32 bits (value of branch address required by fetch)
     \item Instruction Address: 32 bits (value of branch address)
     \item OUT Port: 32 bits (IO output port)
@@ -174,15 +180,6 @@ Figure \ref{fig:reg_file} shows the register file.
 
 \subsection{Logic}
 The register selector acts like a decoder to select the required operation and the register on which the operation performed.
-
-\begin{center}
-    \begin{figure}[hp]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/reg_file}
-        \caption{Register File Diagram}
-        \label{fig:reg_file}
-    \end{figure}
-\end{center}
 
 \section{ALU}
 
