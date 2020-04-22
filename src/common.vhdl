@@ -3,25 +3,29 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 package common is
-    function to_vec(i : integer; size : integer                 := 16) return std_logic_vector;
-    function to_vec(i : std_logic; size : integer               := 16) return std_logic_vector;
-    function to_vec(i : std_logic_vector; size : integer        := 16) return std_logic_vector;
-    function u_to_vec(i : unsigned; size : integer              := 16) return std_logic_vector;
+    -- opcodes
+    constant OPC_RET        : std_logic_vector(6 downto 0) := "0000100";
+    constant OPC_RTI        : std_logic_vector(6 downto 0) := "0000101";
 
-    function to_std_logic(i     : integer) return std_logic;
-    function to_std_logic(i     : boolean) return std_logic;
+    function to_vec(i : integer; size : integer            := 16) return std_logic_vector;
+    function to_vec(i : std_logic; size : integer          := 16) return std_logic_vector;
+    function to_vec(i : std_logic_vector; size : integer   := 16) return std_logic_vector;
+    function u_to_vec(i : unsigned; size : integer         := 16) return std_logic_vector;
 
-    function to_int(i           : std_logic_vector) return integer;
-    function to_int(i           : unsigned) return integer;
-    function to_int(i           : std_logic) return integer;
+    function to_std_logic(i : integer) return std_logic;
+    function to_std_logic(i : boolean) return std_logic;
 
-    function to_str(a           : std_logic_vector) return string;
-    function to_str(a           : unsigned) return string;
-    function to_str(a           : integer) return string;
-    function to_str(a           : std_logic) return string;
+    function to_int(i       : std_logic_vector) return integer;
+    function to_int(i       : unsigned) return integer;
+    function to_int(i       : std_logic) return integer;
 
-    function flip(v             : std_logic_vector) return std_logic_vector;
-    function multiply2(i        : std_logic_vector) return std_logic_vector;
+    function to_str(a       : std_logic_vector) return string;
+    function to_str(a       : unsigned) return string;
+    function to_str(a       : integer) return string;
+    function to_str(a       : std_logic) return string;
+
+    function flip(v         : std_logic_vector) return std_logic_vector;
+    function multiply2(i    : std_logic_vector) return std_logic_vector;
 end package;
 
 package body common is
