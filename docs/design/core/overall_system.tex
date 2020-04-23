@@ -109,6 +109,7 @@ Figure \ref{fig:bau} shows the branch address unit.
     \item Incremented PC Address (32 bits)
     \item Hashed Address (4 bits)
     \item OpCode (4 bits)
+    \item CCR (3 bits)
 \end{itemize}
 
 \subsection{Outputs}
@@ -193,6 +194,7 @@ The register selector acts like a decoder to select the required operation and t
 \subsection{Outputs}
 \begin{itemize}
     \item ALUout: 32 bits (operation result)
+    \item CCR: 3 bits
 \end{itemize}
 
 \subsection{ALU Operations}

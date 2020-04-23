@@ -22,6 +22,7 @@ architecture tb of branch_adr_tb is
     signal hashed_adr          : std_logic_vector(3 downto 0);
     signal feedback_hashed_adr : std_logic_vector(3 downto 0);
     signal opcode              : std_logic_vector(3 downto 0);
+    signal ccr                 : std_logic_vector(2 downto 0);
 
     signal if_flush            : std_logic;
     signal branch_adr_sig      : std_logic_vector(31 downto 0);
@@ -37,7 +38,8 @@ begin
             feedback_hashed_adr => feedback_hashed_adr,
             opcode              => opcode,
             if_flush            => if_flush,
-            branch_adr          => branch_adr_sig
+            branch_adr          => branch_adr_sig,
+            ccr                 => ccr
         );
 
     main : process

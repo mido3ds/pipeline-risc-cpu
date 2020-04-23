@@ -10,6 +10,7 @@ entity branch_adr is
         incr_pc_adr         : in std_logic_vector(31 downto 0);
         hashed_adr          : in std_logic_vector(3 downto 0);
         opcode              : in std_logic_vector(3 downto 0);
+        ccr                 : in std_logic_vector(2 downto 0);
 
         if_flush            : out std_logic;
         branch_adr          : out std_logic_vector(31 downto 0);
