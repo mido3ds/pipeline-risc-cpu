@@ -209,14 +209,12 @@ pythontex-files-*/
 *.md5
 *.auxlock
 
-# todonotes
 *.tdo
 
 # vhistory
 *.hst
 *.ver
 
-# easy-todo
 *.lod
 
 # xcolor

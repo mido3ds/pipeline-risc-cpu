@@ -5,15 +5,15 @@ use work.common.all;
 
 entity branch_adr is
     port (
-        next_pc_adr : in std_logic_vector(31 downto 0);
-        instr_adr   : in std_logic_vector(31 downto 0);
-        incr_pc_adr : in std_logic_vector(31 downto 0);
-        hashed_adr  : in std_logic_vector(3 downto 0);
-        opcode      : in std_logic_vector(3 downto 0);
+        next_pc_adr         : in std_logic_vector(31 downto 0);
+        instr_adr           : in std_logic_vector(31 downto 0);
+        incr_pc_adr         : in std_logic_vector(31 downto 0);
+        hashed_adr          : in std_logic_vector(3 downto 0);
+        opcode              : in std_logic_vector(3 downto 0);
 
-        if_flush    : out std_logic;
-        branch_adr  : out std_logic_vector(31 downto 0)
-        -- hashed_adr  : out std_logic_vector(3 downto 0) TODO: why is it repeated?
+        if_flush            : out std_logic;
+        branch_adr          : out std_logic_vector(31 downto 0);
+        feedback_hashed_adr : out std_logic_vector(3 downto 0)
     );
 end entity;
 
@@ -28,11 +28,11 @@ begin
     --          IF Flush = 1, Branch Address = Instruction Address
     process (next_pc_adr, instr_adr, incr_pc_adr, hashed_adr, opcode)
     begin
-        if opcode_is_branch(opcode) then
+        if is_opcode_branch(opcode) then
             if_flush   <= to_std_logic(next_pc_adr /= instr_adr);
             branch_adr <= instr_adr;
         else
-            -- TODO: ???
+            -- TODO: what if not branch?
         end if;
     end process;
 end architecture;

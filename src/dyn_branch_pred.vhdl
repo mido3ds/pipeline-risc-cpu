@@ -20,6 +20,6 @@ begin
     -- Checks whether the OPCode is of a conditional branch instruction.
     -- Outputs the prediction bit (Taken or Not) accordingly.
 
-    -- TODO:
+    -- TODO: everything
     taken <= '1';
 end architecture;

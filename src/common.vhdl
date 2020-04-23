@@ -7,7 +7,26 @@ package common is
     constant OPC_RET              : std_logic_vector(6 downto 0) := "0000100";
     constant OPC_RTI              : std_logic_vector(6 downto 0) := "0000101";
 
-    function opcode_is_branch(opc : std_logic_vector) return boolean;
+    -- ALU operations
+    constant ALUOP_NOP            : std_logic_vector(3 downto 0) := "0000";
+    constant ALUOP_INC            : std_logic_vector(3 downto 0) := "0001";
+    constant ALUOP_DEC            : std_logic_vector(3 downto 0) := "0010";
+    constant ALUOP_ADD            : std_logic_vector(3 downto 0) := "0011";
+    constant ALUOP_SUB            : std_logic_vector(3 downto 0) := "0100";
+    constant ALUOP_AND            : std_logic_vector(3 downto 0) := "0101";
+    constant ALUOP_OR             : std_logic_vector(3 downto 0) := "0110";
+    constant ALUOP_NOT            : std_logic_vector(3 downto 0) := "0111";
+    constant ALUOP_SHL            : std_logic_vector(3 downto 0) := "1000";
+    constant ALUOP_SHR            : std_logic_vector(3 downto 0) := "1001";
+    constant ALUOP_INC2           : std_logic_vector(3 downto 0) := "1010";
+    constant ALUOP_DEC2           : std_logic_vector(3 downto 0) := "1011";
+
+    -- indices in ccr
+    constant CCR_ZERO             : integer                      := 0;
+    constant CCR_NEG              : integer                      := 1;
+    constant CCR_CARRY            : integer                      := 2;
+
+    function is_opcode_branch(opc : std_logic_vector) return boolean;
 
     function to_vec(i : integer; size : integer          := 16) return std_logic_vector;
     function to_vec(i : std_logic; size : integer        := 16) return std_logic_vector;
@@ -31,7 +50,7 @@ package common is
 end package;
 
 package body common is
-    function opcode_is_branch(opc : std_logic_vector) return boolean is
+    function is_opcode_branch(opc : std_logic_vector) return boolean is
     begin
         if opc'length < 4 then
             return false;

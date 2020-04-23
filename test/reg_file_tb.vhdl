@@ -66,7 +66,7 @@ begin
         set_stop_level(failure);
 
         if run("name_this_test_case") then
-            -- TODO
+            -- TODO: add tests
         end if;
 
         wait for CLK_PERD/2;
