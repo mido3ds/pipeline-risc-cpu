@@ -17,6 +17,13 @@ The assembler source code for the provided processor ISA.
 
 `$ pip3 install --user re2 argparse` 
 
+### File Structure
+
+- `assembler.py` : main assembler implementation.
+- `common.py` : general constants and hash tables for ISA.
+- `utils.py` : utilities for layout generation and file write.
+- `io` folder : contains input and output files.
+
 ### Usage
 
 1. Add the program text file to `io` folder. 
@@ -26,6 +33,6 @@ The assembler source code for the provided processor ISA.
 
 ### Examples
 
-An example output file is added to `io` folder. The output file `ram.hex` contains the whole layout of the ram (2^8 entries) with the corresponding HEX numbers of the provided instructions.
+An example output file is added to `io` folder. The output file `ram.hex` contains the whole layout of the instruction ram (2^8 entries) with the corresponding HEX numbers of the provided instructions at the corresponding address.
 
-To replicate the results run: `$ python3 assembler.py --input_file OneOperand.asm --output_file ram.hex` 
+To replicate the results run : `$ python3 assembler.py --input_file OneOperand.asm --output_file ram.hex` 
