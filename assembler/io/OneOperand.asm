@@ -9,9 +9,9 @@
 100
 
 .ORG 10
-setC           #C --> 1
+PUSH R4        #push R4 into stack
 NOP            #No change
-ClRC           #C --> 0
+SUB R4, R6, R2 #subtract R2 from R6 and store in R4
 NOT R1         #R1 =FFFFFFFF , C--> no change, N --> 1, Z --> 0
 inc R1         #R1 =00000000 , C --> 1 , N --> 0 , Z --> 1
 in R1          #R1= 5,add 5 on the in port,flags no change	
