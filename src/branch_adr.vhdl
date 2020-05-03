@@ -32,8 +32,6 @@ begin
         if is_opcode_branch(opcode) then
             if_flush   <= to_std_logic(next_pc_adr /= instr_adr);
             branch_adr <= instr_adr;
-        else
-            -- TODO: what if not branch?
         end if;
     end process;
 end architecture;

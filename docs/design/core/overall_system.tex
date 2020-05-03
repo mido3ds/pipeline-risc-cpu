@@ -150,7 +150,6 @@ All internal registers are 32bit in width. Each one has a 4bit address to select
 \begin{itemize}
     \item 8 general purpose registers, addresses (0 to 7).
     \item Stack pointer (SP) register with address = 8.
-    \item Program counter (PC) register with address = 9.
 \end{itemize}
 
 \subsection{Inputs}
@@ -161,10 +160,11 @@ All internal registers are 32bit in width. Each one has a 4bit address to select
     \item Fetch Reg: 4 bits (for fetch branch register selection)
     \item WB values: 2$\times$32 bits (for write back values)
     \item RESET 1 bit: async, clears all registers.
-    \item Branch/IO: 2 bits (to determine whether the operation is IO or branch)\\
-    BRANCH = 0\\
-    IO = 1\\
-    NOP = 2,3 % TODO: what to do in each state?
+    \item BR\_IO\_ENBL: 2 bits (to determine whether the operation is IO or branch)\\
+    00 = Do Nothing\\
+    01 = In\\
+    10 = Out\\
+    11 = Branch\\
     \item IN Port: 32 bits (IO input port).
     % TODO: revise clock, is this right?
     \item CLK: input operations are in falling edge, while output operations are in rising edge.
@@ -188,7 +188,6 @@ The register selector acts like a decoder to select the required operation and t
 \begin{itemize}
     \item ALUop: 4 bits (refer to ALU Operations below)
     \item Operands: 2$\times$32 bits (2 input operands)
-    % TODO: works with clock?
 \end{itemize}
 
 \subsection{Outputs}

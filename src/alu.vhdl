@@ -5,7 +5,6 @@ use work.common.all;
 
 entity alu is
     port (
-        -- TODO: assumed no clk
         op   : in std_logic_vector(3 downto 0);
         a, b : in std_logic_vector(31 downto 0);
         ccr  : out std_logic_vector(2 downto 0);
