@@ -18,9 +18,9 @@ end entity;
 architecture rtl of pc_control is
 begin
     pc_mux_selectors <= "001" when if_flush = '1' else
-        "010" when rst = '1' else
-        "011" when stall = '1' else
-        "100" when (interrupt = '1' or opcode = OPC_RET or opcode = OPC_RTI) else
-        "101" when parallel_load_pc_selector = '1' else
+        "010" when parallel_load_pc_selector = '1' else
+        "011" when rst = '1' else
+        "100" when opcode = OPC_CALL else
+        "101" when (stall = '1' or interrupt = '1') else
         "000";
 end architecture;

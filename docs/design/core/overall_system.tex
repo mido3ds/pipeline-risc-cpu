@@ -58,10 +58,10 @@ The cpu follows Harvard architecture and thus uses the following 2 separate memo
 \subsection{Logic}
 \begin{itemize}
     \item If IF Flush == 1, Output = 001
-    \item If RESET == 1, Output = 010
-    \item If Stall == 1, Output = 011
-    \item If Interrupt == 1 $||$ OPCode == RET/RTI, Output = 100
-    \item PL PC Selector == 1, Output = 101
+    \item If PL PC Selector == 1, Output = 010
+    \item If RESET == 1, Output = 011
+    \item If OPCode == Call, Output = 100
+    \item If Stall == 1, Output = 101
     \item Else, Output = 000
 \end{itemize}
 
