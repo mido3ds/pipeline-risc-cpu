@@ -24,6 +24,42 @@ entity fetch_stage is
 end entity;
 
 architecture rtl of fetch_stage is
+    signal pc          : std_logic_vector(31 downto 0);
+    signal mem_rd      : std_logic := '1';
+    signal mem_wr      : std_logic := '0';
+    signal mem_data_in : std_logic_vector(15 downto 0) := (others => '0');
+
 begin
-    null;
+
+    inst_mem : entity work.ram(rtl) generic map (NUM_WORDS => 256, WORD_LENGTH => 16, ADR_LENGTH => 8)
+    port map(
+        clk      => clk,
+        rd       => mem_rd,
+        wr       => mem_wr,
+        rst      => rst,
+        data_in  => mem_data_in,
+        address  => pc,
+        data_out => instruction_bits
+    );
+    
+    process (clk, rst)
+    begin
+        if rst = '1' then
+            null;
+        elsif rising_edge(clk) then
+            if if_flush = '1' then
+                pc <= branch_address;
+            elsif parallel_load_pc_selector = '1' then
+                pc <= loaded_pc_value;
+            elsif rst = '1' then
+                pc <= (others => '0'); -- to be corrected
+            elsif opcode = OPC_CALL then
+                pc <= (others => '0'); -- to be corrected
+            elsif (stall = '1' or interrupt = '1') then
+                pc <= pc;
+            else
+                pc <= std_logic_vector(unsigned(pc) + 1);
+            end if;
+        end if;
+    end process;
 end architecture;
