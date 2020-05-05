@@ -155,7 +155,6 @@ All internal registers are 32bit in width. Each one has a 4bit address to select
 \subsection{Inputs}
 \begin{itemize}
     \item Dest Regs: 2$\times$4 bits (for destination selection)
-    % TODO what is the address of io?
     \item SRC Regs: 2$\times$4 bits (for source selection)
     \item Fetch Reg: 4 bits (for fetch branch register selection)
     \item WB values: 2$\times$32 bits (for write back values)
@@ -166,8 +165,7 @@ All internal registers are 32bit in width. Each one has a 4bit address to select
     10 = Out\\
     11 = Branch\\
     \item IN Port: 32 bits (IO input port).
-    % TODO: revise clock, is this right?
-    \item CLK: input operations are in falling edge, while output operations are in rising edge.
+    \item CLK: input operations are in rising edge, while output operations are in falling edge.
 \end{itemize}
 
 \subsection{Outputs}
@@ -180,7 +178,30 @@ All internal registers are 32bit in width. Each one has a 4bit address to select
 \end{itemize}
 
 \subsection{Logic}
-The register selector acts like a decoder to select the required operation and the register on which the operation performed.
+The register selector acts like a decoder to select the required operation and the register on which the operation performed. It operates in the following manner:
+\begin{itemize}
+    \item if RESET == 1, then:
+    \begin{itemize}
+        \item All registers are set to 0.
+    \end{itemize}
+    \item Else if BR\_IO\_ENBL == 01, then:
+    \begin{itemize}
+        \item Input from IN Port to first Dest Reg.
+    \end{itemize}
+    \item Else if BR\_IO\_ENBL == 10, then:
+    \begin{itemize}
+        \item Output from first Src Reg to OUT Port.
+    \end{itemize}
+    \item Else if BR\_IO\_ENBL == 11, then:
+    \begin{itemize}
+        \item Output from first Src Reg to Instruction Address.
+    \end{itemize}
+    \item Else if BR\_IO\_ENBL == 00, then:
+    \begin{itemize}
+        \item Do normal read/write operations based on Src and Dest Regs, as well as WB values.
+    \end{itemize}
+\end{itemize}
+
 
 \section{ALU}
 
