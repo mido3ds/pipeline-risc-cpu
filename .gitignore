@@ -282,3 +282,6 @@ out
 
 # python
 __pycache__
+	
+#modelsim files
+src/*.vhdl.bak

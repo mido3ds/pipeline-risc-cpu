@@ -5,9 +5,9 @@ use work.common.all;
 
 entity hdu is
     port (
-        opcode_decode                       : in std_logic_vector(3 downto 0);
-        opcode_execute                      : in std_logic_vector(3 downto 0);
-        opcode_memory                       : in std_logic_vector(3 downto 0);
+        opcode_decode                       : in std_logic_vector(6 downto 0);
+        opcode_execute                      : in std_logic_vector(6 downto 0);
+        opcode_memory                       : in std_logic_vector(6 downto 0);
         decode_src_reg_1                    : in std_logic_vector(3 downto 0);
         decode_src_reg_2                    : in std_logic_vector(3 downto 0);
         exe_dst_reg                         : in std_logic_vector(3 downto 0);
@@ -52,6 +52,73 @@ end entity;
 
 
 architecture rtl of hdu is
+
+--This function returns 1 if the OPCODE sent will NOT cause a Data hazards
+    function source_hazard( OPCODE : std_logic_vector(6 downto 0))
+                            return std_logic is
+        begin
+
+            if (    OPCODE              = "0000000" --nop
+                or  OPCODE(6 downto 3)  = "1010" --pop
+                or  OPCODE(6 downto 3)  = "1011" --ldm
+                or  OPCODE(6 downto 3)  = "1100" --ldd
+                or  OPCODE              = "0000100" --ret
+                or  OPCODE              = "0000101" --rti
+                or  OPCODE              = "1111000" --in
+                ) then
+                    return '1';
+                else
+                    return '0';
+            end if;
+        end function;
+
+--these instructions JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT will not cause data dependency at the destination part
+    function destination_hazard( OPCODE : std_logic_vector(6 downto 0))
+                            return std_logic is
+        begin
+
+            if (    OPCODE              = "0000001" --JZ
+                or  OPCODE              = "0000010" --JMP
+                or  OPCODE              = "0000011" --CALL
+                or  OPCODE(6 downto 3)  = "1001"    --PUSH
+                or  OPCODE              = "0000100" --ret
+                or  OPCODE              = "0000101" --rti
+                or  OPCODE(6 downto 3)  = "1101"    --STD
+                or  OPCODE              = "1111100" --OUT
+                ) then
+                    return '1';
+                else
+                    return '0';
+            end if;
+        end function;
+
+--is this opcode a Load or Pop instructions?
+    function load_or_pop( OPCODE : std_logic_vector(6 downto 0))
+                            return std_logic is
+        begin
+
+            if (    OPCODE(6 downto 3)  = "1100" --LDD
+                or  OPCODE(6 downto 3)  = "1010" --POP
+                ) then
+                    return '1';
+                else
+                    return '0';
+            end if;
+        end function;
+
+--are these two registers equal ?
+function are_equal(     reg1 : std_logic_vector(3 downto 0);
+                        reg2 : std_logic_vector(3 downto 0))
+                            return std_logic is
+        begin
+            if ( reg1 = reg2 ) then
+                    return '1';
+                else
+                    return '0';
+            end if;
+        end function;
 begin
     
+    
+
 end architecture;
