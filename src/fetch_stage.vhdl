@@ -33,7 +33,7 @@ architecture rtl of fetch_stage is
 
 begin
 
-    inst_mem : entity work.ram(rtl) generic map (NUM_WORDS => 256, WORD_LENGTH => 16, ADR_LENGTH => 32)
+    inst_mem : entity work.instr_mem(rtl) generic map (NUM_WORDS => 256, WORD_LENGTH => 16, ADR_LENGTH => 32)
     port map(
         clk      => clk,
         rd       => mem_rd,
