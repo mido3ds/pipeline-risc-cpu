@@ -1,3 +1,4 @@
+import os
 from glob import glob
 from os.path import dirname, isfile, join
 
@@ -11,6 +12,12 @@ test_path = join(dirname(__file__), '..', "test")
 
 
 def isignored(p):
+    if 'main_tb.vhdl' in p and os.environ['RUN_MAIN'] != '1':
+        return False
+
+    if 'instr_mem.vhdl' in p and os.environ['RUN_MAIN'] == '1':
+        p = p.replace('src', 'out')
+
     with open(p, 'r') as f:
         ignored = '--%IGNORE%--' in f.readline()
         if ignored:

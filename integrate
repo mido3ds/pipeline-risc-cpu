@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e -o pipefail
+
+if [[ ! "$1" = "" ]]; then
+    mkdir -p out
+    ./scripts/asm <$1 | awk '{print NR-1 " => " "\"" $0 "\","}' | sed -e '/--%REPLACE%--/{r /dev/stdin' -e 'd;}' src/instr_mem.vhdl >out/instr_mem.vhdl
+    exec env RUN_MAIN=1 ./run-test main_tb
+else
+    echo "Usage: "$0" /path/to/input.asm"
+    exit 1
+fi
