@@ -24,14 +24,16 @@ entity fetch_stage is
 end entity;
 
 architecture rtl of fetch_stage is
-    signal pc          : std_logic_vector(31 downto 0);
-    signal mem_rd      : std_logic := '1';
-    signal mem_wr      : std_logic := '0';
-    signal mem_data_in : std_logic_vector(15 downto 0) := (others => '0');
+    signal pc           : std_logic_vector(31 downto 0);
+    signal len_bit      : std_logic := '0'; 
+    signal mem_rd       : std_logic := '1';
+    signal mem_wr       : std_logic := '0';
+    signal mem_data_in  : std_logic_vector(15 downto 0) := (others => '0');
+    signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
 
 begin
 
-    inst_mem : entity work.ram(rtl) generic map (NUM_WORDS => 256, WORD_LENGTH => 16, ADR_LENGTH => 8)
+    inst_mem : entity work.ram(rtl) generic map (NUM_WORDS => 256, WORD_LENGTH => 16, ADR_LENGTH => 32)
     port map(
         clk      => clk,
         rd       => mem_rd,
@@ -39,26 +41,42 @@ begin
         rst      => rst,
         data_in  => mem_data_in,
         address  => pc,
-        data_out => instruction_bits
+        data_out => mem_data_out
     );
     
     process (clk, rst)
     begin
         if rst = '1' then
             null;
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
+            -- decide PC next address
             if if_flush = '1' then
-                pc <= branch_address;
+                pc <= (others => '0'); -- to be corrected
             elsif parallel_load_pc_selector = '1' then
-                pc <= loaded_pc_value;
+                pc <= (others => '0'); -- to be corrected
             elsif rst = '1' then
                 pc <= (others => '0'); -- to be corrected
-            elsif opcode = OPC_CALL then
+            elsif mem_data_out(14 downto 8) = OPC_CALL then
                 pc <= (others => '0'); -- to be corrected
             elsif (stall = '1' or interrupt = '1') then
-                pc <= pc;
+                pc <= (others => '0'); -- to be corrected
             else
                 pc <= std_logic_vector(unsigned(pc) + 1);
+            end if;
+            -- decide whether the instruction is 32 or 64 bits
+            if mem_data_out(0) = '1' then
+                inst_length_bit <= '1';
+                len_bit <= '1';
+            else
+                inst_length_bit <= '0';
+                len_bit <= '0';
+            end if;
+            -- instruction output
+            if len_bit = '0' then
+                instruction_bits(31 downto 16) <= mem_data_out;
+                instruction_bits(15 downto 0) <= (others => '0');
+            else
+                instruction_bits(15 downto 0) <= mem_data_out;
             end if;
         end if;
     end process;
