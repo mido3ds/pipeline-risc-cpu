@@ -16,7 +16,7 @@ architecture tb of instr_mem_tb is
     signal clk               : std_logic := '0';
 
     constant NUM_WORDS       : integer   := 65536;
-    constant ADR_LENGTH      : integer   := 8;
+    constant ADR_LENGTH      : integer   := 32;
     constant WORD_LENGTH     : integer   := 16;
 
     signal rd, wr, rst       : std_logic;
@@ -42,20 +42,20 @@ begin
         wr      <= '0';
         rd      <= '0';
         rst     <= '0';
-        address <= x"00";
+        address <= x"00000000";
         data_in <= x"0000";
         wait for CLK_PERD/2;
 
         if run("one_word") then
             wr      <= '1';
             rd      <= '0';
-            address <= x"00";
+            address <= x"00000000";
             data_in <= input_case;
             wait for CLK_PERD;
 
             wr      <= '0';
             rd      <= '1';
-            address <= x"00";
+            address <= x"00000000";
             wait for CLK_PERD;
             check_equal(data_out, input_case, "data_out is input_case");
         end if;
@@ -63,23 +63,23 @@ begin
         if run("two_words") then
             wr      <= '1';
             rd      <= '0';
-            address <= x"00";
+            address <= x"00000000";
             data_in <= input_case;
             wait for CLK_PERD;
             wr      <= '1';
             rd      <= '0';
-            address <= x"01";
+            address <= x"00000001";
             data_in <= input_case2;
             wait for CLK_PERD;
 
             wr      <= '0';
             rd      <= '1';
-            address <= x"00";
+            address <= x"00000000";
             wait for CLK_PERD;
             check_equal(data_out, input_case, "data_out is input_case");
             wr      <= '0';
             rd      <= '1';
-            address <= x"01";
+            address <= x"00000001";
             wait for CLK_PERD;
             check_equal(data_out, input_case2, "data_out is input_case2");
         end if;
@@ -107,23 +107,23 @@ begin
         if run("rst") then
             wr      <= '1';
             rd      <= '0';
-            address <= x"00";
+            address <= x"00000000";
             data_in <= input_case;
             wait for CLK_PERD;
             wr      <= '1';
             rd      <= '0';
-            address <= x"01";
+            address <= x"00000001";
             data_in <= input_case2;
             wait for CLK_PERD;
 
             wr      <= '0';
             rd      <= '1';
-            address <= x"00";
+            address <= x"00000000";
             wait for CLK_PERD;
             check_equal(data_out, input_case, "data_out is input_case");
             wr      <= '0';
             rd      <= '1';
-            address <= x"01";
+            address <= x"00000001";
             wait for CLK_PERD;
             check_equal(data_out, input_case2, "data_out is input_case2");
 
@@ -144,7 +144,7 @@ begin
         if run("rd_and_wr") then
             wr      <= '1';
             rd      <= '1';
-            address <= x"00";
+            address <= x"00000000";
             data_in <= input_case;
             wait for 2 * CLK_PERD;
             check_equal(data_out, input_case, "data_out is input_case");
