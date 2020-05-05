@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.common.all;
 
 library vunit_lib;
 context vunit_lib.vunit_context;
@@ -28,7 +29,7 @@ architecture tb of reg_file_tb is
 
     signal rst         : std_logic;
 
-    signal br_io_nop   : std_logic_vector(1 downto 0);  -- STATE
+    signal br_io_enbl  : std_logic_vector(1 downto 0);  -- STATE
 
     signal op0_value   : std_logic_vector(31 downto 0); -- OP
     signal op1_value   : std_logic_vector(31 downto 0);
@@ -52,7 +53,7 @@ begin
             wb1_value   => wb1_value,
             in_value    => in_value,
             rst         => rst,
-            br_io_nop   => br_io_nop,
+            br_io_enbl  => br_io_enbl,
             op0_value   => op0_value,
             op1_value   => op1_value,
             fetch_value => fetch_value,
@@ -65,8 +66,94 @@ begin
         test_runner_setup(runner, runner_cfg);
         set_stop_level(failure);
 
-        if run("name_this_test_case") then
-            -- TODO: add tests
+        rst        <= '1';
+        br_io_enbl <= "00";
+        wait for 1 ps;
+        rst <= '0';
+
+        if run("rst") then
+            wait until rising_edge(clk);
+
+            for i in 0 to 4 loop
+                src0_adr   <= to_vec(i, src0_adr'length);
+                src1_adr   <= to_vec(i + 4, src1_adr'length);
+                br_io_enbl <= "00";
+                wait for CLK_PERD;
+                check_equal(op0_value, to_vec(0, op0_value'length));
+                check_equal(op1_value, to_vec(0, op1_value'length));
+            end loop;
+        end if;
+
+        if run("write_read") then
+            br_io_enbl <= "00";
+            for i in 0 to 4 loop
+                -- write
+                wb0_value <= to_vec(i, wb0_value'length);
+                dst0_adr  <= to_vec(i, dst0_adr'length);
+
+                wb1_value <= to_vec(i + 4, wb1_value'length);
+                dst1_adr  <= to_vec(i + 4, dst1_adr'length);
+                -- read
+                src0_adr  <= to_vec(i, src0_adr'length);
+                src1_adr  <= to_vec(i + 4, src1_adr'length);
+
+                wait until falling_edge(clk);
+                wait for 1 ps;
+
+                check_equal(op0_value, to_vec(i, op0_value'length));
+                check_equal(op1_value, to_vec(i + 4, op1_value'length));
+            end loop;
+        end if;
+
+        if run("br") then
+            info("fill regs");
+            br_io_enbl <= "00";
+            for i in 0 to 4 loop
+                -- write
+                wb0_value <= to_vec(i, wb0_value'length);
+                dst0_adr  <= to_vec(i, dst0_adr'length);
+
+                wb1_value <= to_vec(i + 4, wb1_value'length);
+                dst1_adr  <= to_vec(i + 4, dst1_adr'length);
+                -- read
+                src0_adr  <= to_vec(i, src0_adr'length);
+                src1_adr  <= to_vec(i + 4, src1_adr'length);
+
+                wait until falling_edge(clk);
+                wait for 1 ps;
+
+                check_equal(op0_value, to_vec(i, op0_value'length));
+                check_equal(op1_value, to_vec(i + 4, op1_value'length));
+            end loop;
+
+            info("check instr_adr output");
+            br_io_enbl <= "11";
+            for i in 0 to 8 loop
+                src0_adr <= to_vec(i, src0_adr'length);
+                wait for CLK_PERD;
+                check_equal(instr_adr, to_vec(i, instr_adr'length));
+            end loop;
+        end if;
+
+        if run("io") then
+            for i in 0 to 8 loop
+                -- write
+                br_io_enbl <= "01";
+                dst0_adr   <= to_vec(i, dst0_adr'length);
+                in_value   <= to_vec(i, in_value'length);
+
+                wait until rising_edge(clk);
+                wait for 1 ps;
+
+                -- read
+                br_io_enbl <= "10";
+                src0_adr   <= to_vec(i, src0_adr'length);
+
+                wait until falling_edge(clk);
+                wait for 1 ps;
+
+                check_equal(out_value, to_vec(i, out_value'length));
+            end loop;
         end if;
 
         wait for CLK_PERD/2;

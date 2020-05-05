@@ -72,7 +72,7 @@ begin
             for i in 0 to 8 loop
                 in_reg(to_vec(i, 4), to_vec(0, 32));
             end loop;
-        elsif rising_edge(clk) then -- in
+        elsif rising_edge(clk) then -- write
             case br_io_enbl is
                 when "00" =>
                     in_reg(dst0_adr, wb0_value);
@@ -82,7 +82,7 @@ begin
                 when others =>
                     null;
             end case;
-        elsif falling_edge(clk) then -- out
+        elsif falling_edge(clk) then -- read
             case br_io_enbl is
                 when "00" =>
                     out_reg(src0_adr, op0_value);
