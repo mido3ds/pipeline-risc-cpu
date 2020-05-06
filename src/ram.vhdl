@@ -41,4 +41,10 @@ begin
             end if;
         end if;
     end process;
+
+    process (address)
+    begin
+        assert unsigned(address) < NUM_WORDS
+        report "address=" & to_str(to_int(address)) & "exceeds NUM_WORDS=" & to_str(NUM_WORDS) severity warning;
+    end process;
 end architecture;

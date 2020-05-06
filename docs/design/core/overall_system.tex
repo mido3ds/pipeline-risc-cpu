@@ -15,28 +15,23 @@ The cpu follows Harvard architecture and thus uses the following 2 separate memo
     \item Instructions Memory: Read-only, stores instructions.
     \begin{itemize}
         \item \textbf{Word Width}: 16 bits.
-        \item \textbf{Address Bus Width}: 32 bits.\\
-        \textit{For simulation}, this memory will ignore bits from (31 to 8) inclusive, and only work with bits from (7 to 0) inclusive.
+        \item \textbf{Address Bus Width}: 11 bits.
         \item \textbf{Data Bus Width}: 16 bits.
-        \item \textbf{Total Number of Words}: $2^{32}$ words = 4,294,967,296 words = 8,589,934,592 bytes.\\
-        \textit{For simulation}, this memory will only have: $2^{8}$ words = 256 words = 512 bytes.
-        \item \textbf{Valid Address Range}: From 0x0000 inclusive to 0xFFFF inclusive.
+        \item \textbf{Total Number of Words}: $2^{11}$ words = 2048 words = 4096 bytes = 4KB.
+        \item \textbf{Valid Address Range}: From 0x000 inclusive to 0x7FF inclusive.
     \end{itemize}
     \item Data Memory: Read-Write, stores data and the stack.
     \begin{itemize}
         \item \textbf{Word Width}: 16 bits.
-        \item \textbf{Address Bus Width}: 32 bits.\\
-        \textit{For simulation}, this memory will ignore bits from (31 to 10) inclusive, and only work with bits from (9 to 0) inclusive.
+        \item \textbf{Address Bus Width}: 11 bits.
         \item \textbf{Data Bus Width}: 32 bits.\\
         The higher bits (31 downto 16) are data at address A~.\\
         The lower bits (15 downto 0) are data at address A+1~.\\
         where $A ~mod~ 2 = 0$~.\\
         On read, data-memory loads data bus with data from A and A+1~.\\
         On write, data-memory stores data from data bus to both A and A+1 addresses.
-        \item \textbf{Total Number of Words}: $2^{32}$ words = 4,294,967,296 words = 8,589,934,592 bytes.\\
-        \textit{For simulation}, this memory will only have: $2^{10}$ words = 1,024 words = 2,048 bytes.
-        \item \textbf{Valid Address Range}: Even Adresses From 0x0000\_0000 inclusive to 0xFFFF\_FFFF exclusive. Formaly $A \in $[0x0000\_0000, 0xFFFF\_FFFF) and $A ~mod~ 2 = 0$~.\\
-        \textit{For simulation}, range will become: Even Addresses From 0x0000\_0000 inclusive to 0x0000\_0400 exclusive. Formaly $A \in $[0x0000\_0000, 0x0000\_0400) and $A ~mod~ 2 = 0$~.
+        \item \textbf{Total Number of Words}: $2^{11}$ words = 2048 words = 4096 bytes = 4KB.
+        \item \textbf{Valid Address Range}: Even Adresses From 0x000 inclusive to 0x7FF exclusive. Formaly $A \in $[0x000, 0x7FF) and $A ~mod~ 2 = 0$~.\\
     \end{itemize}
 \end{itemize}
 
