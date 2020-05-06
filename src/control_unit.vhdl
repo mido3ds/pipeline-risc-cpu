@@ -7,10 +7,10 @@ entity control_unit is
     port (
         
         IB                  : in std_logic_vector(31 downto 0);
-        interrupt           : in std_logic;
-        reset               : in std_logic;
+        --interrupt           : in std_logic;
+        --reset               : in std_logic;
 
-        OpCode              : out std_logic_vector(6 downto 0);
+        --OpCode              : out std_logic_vector(6 downto 0);
         ALUOp               : out std_logic_vector(3 downto 0);
         Rsrc1_sel           : out std_logic_vector(3 downto 0);
         Rsrc2_sel           : out std_logic_vector(3 downto 0);
@@ -48,7 +48,7 @@ begin
     
     --base conditions
     --OpCode is simple..
-    OpCode <= IB(31 downto 25);
+    --OpCode <= IB(31 downto 25);
     
     --Rdst2_sel
     with IB(31 downto 28) select Rdst2_sel <=
