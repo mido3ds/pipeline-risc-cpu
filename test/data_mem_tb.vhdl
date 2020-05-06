@@ -35,6 +35,9 @@ begin
         set_stop_level(failure);
 
         info("reset");
+        rst <= '1';
+        wait for 1 ps;
+        rst <= '0';
         wr      <= '0';
         rd      <= '0';
         address <= x"0000" & x"0000";

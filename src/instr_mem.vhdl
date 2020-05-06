@@ -25,7 +25,6 @@ entity instr_mem is
     );
 end entity;
 
--- both wr and rd are in falling edge
 architecture rtl of instr_mem is
     type DataType is array(0 to NUM_WORDS - 1) of std_logic_vector(data_in'range);
     signal data : DataType := (
@@ -41,12 +40,12 @@ begin
             for i in data'range loop
                 data(i) <= to_vec(0, data(i)'length);
             end loop;
-        elsif falling_edge(clk) then
+        else
             if rd = '1' then
                 data_out <= data(to_int(address));
             end if;
 
-            if wr = '1' then
+            if falling_edge(clk) and wr = '1' then
                 data(to_int(address)) <= data_in;
             end if;
         end if;
