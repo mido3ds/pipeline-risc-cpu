@@ -6,6 +6,7 @@ package common is
     -- opcodes
     constant OPC_RET              : std_logic_vector(6 downto 0) := "0000100";
     constant OPC_RTI              : std_logic_vector(6 downto 0) := "0000101";
+    constant OPC_CALL             : std_logic_vector(6 downto 0) := "0000011";
 
     -- ALU operations
     constant ALUOP_NOP            : std_logic_vector(3 downto 0) := "0000";

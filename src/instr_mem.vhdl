@@ -3,15 +3,19 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.common.all;
 
-entity ram is
-    --NUM_WORDS: maximum number (and no more) of words you want the ram to hold.
+entity instr_mem is
+    --NUM_WORDS: maximum number (and no more) of words you want the instr_mem to hold.
     --ADR_LENGTH: number of adress bits, ADR_LENGTH <= ceil(log2(NUM_WORDS)).
-    --WORD_LENGTH: number of bits of data bus and the word stored in one address in ram.
-    generic (NUM_WORDS, WORD_LENGTH, ADR_LENGTH : integer);
+    --WORD_LENGTH: number of bits of data bus and the word stored in one address in instr_mem.
+    generic (
+        NUM_WORDS   : integer := 4*1024;
+        ADR_LENGTH  : integer := 11;
+        WORD_LENGTH : integer := 16
+    );
 
     port (
-        -- wr: write to ram through data_in
-        -- rd: read from ram to data_out
+        -- wr: write to instr_mem through data_in
+        -- rd: read from instr_mem to data_out
         clk, rd, wr : in std_logic;
         -- rst: async 0 parallel load to all latches
         rst         : in std_logic;
@@ -21,9 +25,14 @@ entity ram is
     );
 end entity;
 
-architecture rtl of ram is
+architecture rtl of instr_mem is
     type DataType is array(0 to NUM_WORDS - 1) of std_logic_vector(data_in'range);
-    signal data : DataType;
+    signal data : DataType := (
+    --%REPLACE%--
+    -- please don't remove the previouse line; it could be replaced (by a script) 
+    -- with the contents of ram before compiling the file
+    others => (others => 'U')
+    );
 begin
     process (clk, rd, wr, address, data_in, rst)
     begin
@@ -40,11 +49,5 @@ begin
                 data(to_int(address)) <= data_in;
             end if;
         end if;
-    end process;
-
-    process (address)
-    begin
-        assert unsigned(address) < NUM_WORDS
-        report "address=" & to_str(to_int(address)) & "exceeds NUM_WORDS=" & to_str(NUM_WORDS) severity warning;
     end process;
 end architecture;

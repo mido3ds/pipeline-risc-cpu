@@ -1,32 +1,37 @@
 #!/usr/sbin/env python3
+'''
+Input from stdin: assembly program.
+Output to stdout: instructions memory content in binary, each line contains 16 (0 or 1) each is encoded as ASCII byte.
+Usage: ./asm </path/to/input/assembly >/path/to/binary/output
+'''
 import re
 import sys
 
 # dictionary of opcodes for all instructions
 OP_CODES_TABLE = {
-    "not" : "1111001",
-    "inc" : "1111010",
-    "dec" : "1111011",
-    "out" : "1111100",
-    "in" : "1111000",
-    "swap" : "0001",
-    "add" : "0010",
-    "iadd" : "1000",
-    "sub" : "0011",
-    "and" : "0100",
-    "or" : "0101",
-    "shl" : "0110",
-    "shr" : "0111",
-    "push" : "1001",
-    "pop" : "1010",
-    "ldm" : "1011",
-    "ldd" : "1100",
-    "std" : "1101",
-    "jz" : "0000001",
-    "jmp" : "0000010",
-    "call" : "0000011",
-    "ret" : "0000100",
-    "rti" : "0000101"
+    "not": "1111001",
+    "inc": "1111010",
+    "dec": "1111011",
+    "out": "1111100",
+    "in": "1111000",
+    "swap": "0001",
+    "add": "0010",
+    "iadd": "1000",
+    "sub": "0011",
+    "and": "0100",
+    "or": "0101",
+    "shl": "0110",
+    "shr": "0111",
+    "push": "1001",
+    "pop": "1010",
+    "ldm": "1011",
+    "ldd": "1100",
+    "std": "1101",
+    "jz": "0000001",
+    "jmp": "0000010",
+    "call": "0000011",
+    "ret": "0000100",
+    "rti": "0000101"
 }
 
 # instruction distribution
@@ -57,15 +62,15 @@ def assemble():
         assemble RAM words
         and save them to output text.
     """
-    ### initialize variables
+    # initialize variables
     in_file = sys.stdin
     ram_entries = dict()
     ram_div = ''
 
-    ### loop over every line in the input program
+    # loop over every line in the input program
     for line in in_file:
 
-        ## remove comments
+        # remove comments
         com_idx = line.find("#")
         if (com_idx != -1):
             if (com_idx != 0):
@@ -73,14 +78,14 @@ def assemble():
             else:
                 continue
 
-        ## split words by delimiters        
-        line_words = re.split(';|,| |\n', line)    
+        # split words by delimiters
+        line_words = re.split(';|,| |\n', line)
         line_words = [x for x in line_words if x != '']
         if (len(line_words) == 0):
-            continue  
+            continue
 
-        ## parse instruction
-        inst =  line_words[0].lower() 
+        # parse instruction
+        inst = line_words[0].lower()
 
         # check for memory organization
         if (inst == ".org"):
@@ -91,78 +96,96 @@ def assemble():
         elif (inst == "nop"):
             ram_entries[ram_div].append("0000000000000000")
 
-        # handle 1-operand instruction    
+        # handle 1-operand instruction
         elif (inst in INST_1OP):
             new_entry = OP_CODES_TABLE[inst]
-            new_entry = "0" + new_entry + REGISTERS[line_words[1].upper()] + "00000"
+            new_entry = "0" + new_entry + \
+                REGISTERS[line_words[1].upper()] + "00000"
             ram_entries[ram_div].append(new_entry)
 
-        # handle 2-operand instruction     
+        # handle 2-operand instruction
         elif (inst in INST_2OP):
             new_entry = OP_CODES_TABLE[inst]
             if (inst == "swap"):
                 new_entry = "0" + new_entry + REGISTERS[line_words[1].upper()] + \
                             REGISTERS[line_words[2].upper()] + "00000"
-                ram_entries[ram_div].append(new_entry)            
+                ram_entries[ram_div].append(new_entry)
             elif (inst in ["add", "sub", "and", "or"]):
                 new_entry = "0" + new_entry + REGISTERS[line_words[1].upper()] + \
-                            REGISTERS[line_words[2].upper()] + REGISTERS[line_words[3].upper()] + "00"
-                ram_entries[ram_div].append(new_entry)            
-            elif (inst in ["shl", "shr"]):
-                new_entry = "1" + new_entry + REGISTERS[line_words[1].upper()] + bin(int(line_words[2],16))[2:][:8]
+                            REGISTERS[line_words[2].upper()] + \
+                    REGISTERS[line_words[3].upper()] + "00"
                 ram_entries[ram_div].append(new_entry)
-                ram_entries[ram_div].append(bin(int(line_words[2],16))[2:][8:]+"00000000")
+            elif (inst in ["shl", "shr"]):
+                new_entry = "1" + new_entry + \
+                    REGISTERS[line_words[1].upper()] + \
+                    bin(int(line_words[2], 16))[2:][:8]
+                ram_entries[ram_div].append(new_entry)
+                ram_entries[ram_div].append(
+                    bin(int(line_words[2], 16))[2:][8:]+"00000000")
             else:
                 new_entry = "1" + new_entry + REGISTERS[line_words[1].upper()] + \
-                            REGISTERS[line_words[2].upper()] + bin(int(line_words[3],16))[2:][:5]
+                            REGISTERS[line_words[2].upper()] + \
+                    bin(int(line_words[3], 16))[2:][:5]
                 ram_entries[ram_div].append(new_entry)
-                ram_entries[ram_div].append(bin(int(line_words[3],16))[2:][5:]+"00000") 
+                ram_entries[ram_div].append(
+                    bin(int(line_words[3], 16))[2:][5:]+"00000")
 
-        # handle memory instruction   
+        # handle memory instruction
         elif (inst in INST_MEM):
             new_entry = OP_CODES_TABLE[inst]
             if (inst in ["push", "pop"]):
-                new_entry = "0" + new_entry + REGISTERS[line_words[1].upper()] + "00000000"
+                new_entry = "0" + new_entry + \
+                    REGISTERS[line_words[1].upper()] + "00000000"
                 ram_entries[ram_div].append(new_entry)
             elif (inst in ["ldd", "std"]):
-                new_entry = "1" + new_entry + REGISTERS[line_words[1].upper()] + bin(int(line_words[2],16))[2:][:8]
+                new_entry = "1" + new_entry + \
+                    REGISTERS[line_words[1].upper()] + \
+                    bin(int(line_words[2], 16))[2:][:8]
                 ram_entries[ram_div].append(new_entry)
-                ram_entries[ram_div].append(bin(int(line_words[2],16))[2:][8:]+"0000")
+                ram_entries[ram_div].append(
+                    bin(int(line_words[2], 16))[2:][8:]+"0000")
             else:
-                new_entry = "1" + new_entry + REGISTERS[line_words[1].upper()] + bin(int(line_words[2],16))[2:][:8]
+                new_entry = "1" + new_entry + \
+                    REGISTERS[line_words[1].upper()] + \
+                    bin(int(line_words[2], 16))[2:][:8]
                 ram_entries[ram_div].append(new_entry)
-                ram_entries[ram_div].append(bin(int(line_words[2],16))[2:][8:]+"00000000") 
+                ram_entries[ram_div].append(
+                    bin(int(line_words[2], 16))[2:][8:]+"00000000")
 
-        # handle branch instruction     
+        # handle branch instruction
         elif (inst in INST_BR):
             new_entry = OP_CODES_TABLE[inst]
             if (inst in ["jz", "jmp", "call"]):
-                new_entry = "0" + new_entry + REGISTERS[line_words[1].upper()] + "00000"
+                new_entry = "0" + new_entry + \
+                    REGISTERS[line_words[1].upper()] + "00000"
                 ram_entries[ram_div].append(new_entry)
             else:
                 new_entry = "0" + new_entry + "00000000"
                 ram_entries[ram_div].append(new_entry)
-                for i in range(3): # add three NOPs after RET and RTI for hazard avoidance
+                for i in range(3):  # add three NOPs after RET and RTI for hazard avoidance
                     ram_entries[ram_div].append("0000000000000000")
 
         # handle pc addresses
         else:
             try:
-                new_entry = bin(int(inst,16))[2:]
+                new_entry = bin(int(inst, 16))[2:]
                 if (len(new_entry) > 16):
                     pad_len = 32-len(new_entry)
                     split_idx = len(new_entry)-16
-                    ram_entries[ram_div].append("0"*pad_len+new_entry[:split_idx])
+                    ram_entries[ram_div].append(
+                        "0"*pad_len+new_entry[:split_idx])
                     ram_entries[ram_div].append(new_entry[split_idx:])
                 else:
                     pad_len = 16-len(new_entry)
                     ram_entries[ram_div].append("0"*16)
                     ram_entries[ram_div].append("0"*pad_len+new_entry[:])
             except:
-                continue            
+                continue
 
-    ram_layout = gen_layout(ram_entries) # generate full ram layout from processed instructions
-    write_bin(ram_layout, sys.stdout) # write output hex files
+    # generate full ram layout from processed instructions
+    ram_layout = gen_layout(ram_entries)
+    write_bin(ram_layout, sys.stdout)  # write output hex files
+
 
 def gen_layout(ram_entries):
     """
@@ -170,14 +193,15 @@ def gen_layout(ram_entries):
         Parameters:
         ram_entries (dict): dictionary of processed instructions.
     """
-    ram_layout = [hex(int('0', 2))] * (2**8) # initialize layout with zeros
+    ram_layout = [hex(int('0', 2))] * (2**8)  # initialize layout with zeros
     # loop over all RAM blocks
     for block in ram_entries.keys():
         idx = int(block, 16)
         # insert all block content in RAM layout
-        for i in range(idx,idx+len(ram_entries[block])):
+        for i in range(idx, idx+len(ram_entries[block])):
             ram_layout[i] = hex(int(ram_entries[block][i-idx], 2))
     return ram_layout
+
 
 def write_bin(ram_layout, output_txt):
     """
@@ -185,11 +209,12 @@ def write_bin(ram_layout, output_txt):
         Parameters:
         ram_layout (list): list of instructions in RAM layout.
         output_txt (string): name of outut text.
-    """            
+    """
     out_file = sys.stdout
     for entry in ram_layout:
         out_file.write('{:016b}'.format(int(entry, 16)))
         out_file.write("\n")
     out_file.close()
+
 
 assemble()

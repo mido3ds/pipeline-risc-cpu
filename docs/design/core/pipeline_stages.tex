@@ -38,7 +38,11 @@ This section discusses the 5 stages of our system and their functionalities.
 \end{itemize}
 
 \section{Intermediate Buffers}
+Each buffer has internal latches. 
+The buffer updates its latches when any input changes, regardless of clock. 
+The buffer outputs the value of the internal latches at the \textbf{rising edge} of the clock.
 
+Flush signal takes precedence over stall signal. That's it, if the buffer received both flush and stall, it must flush its internal buffers.
 \subsection{IF/ID Buffer}
 \subsubsection{Registers}
 \begin{itemize}

@@ -11,20 +11,30 @@ entity data_mem_tb is
 end entity;
 
 architecture tb of data_mem_tb is
-    constant CLK_FREQ                 : integer   := 100e6; -- 100 MHz
-    constant CLK_PERD                 : time      := 1000 ms / CLK_FREQ;
+    constant CLK_FREQ        : integer   := 100e6; -- 100 MHz
+    constant CLK_PERD        : time      := 1000 ms / CLK_FREQ;
 
-    signal clk                        : std_logic := '0';
+    signal clk               : std_logic := '0';
 
-    signal rd, wr, rst                : std_logic;
-    signal address, data_in, data_out : std_logic_vector(31 downto 0);
+    constant WORD_LENGTH     : integer   := 16;
+    constant ADR_LENGTH      : integer   := 11;
+    constant NUM_WORDS       : integer   := 4 * 1024;
+
+    signal rd, wr, rst       : std_logic;
+    signal data_in, data_out : std_logic_vector(WORD_LENGTH * 2 - 1 downto 0);
+    signal address           : std_logic_vector(ADR_LENGTH - 1 downto 0);
 begin
     clk <= not clk after CLK_PERD / 2;
 
     data_mem : entity work.data_mem
         port map(
-            rd => rd, wr => wr, address => address, clk => clk, rst => rst,
-            data_in => data_in, data_out => data_out
+            rd       => rd,
+            wr       => wr,
+            address  => address,
+            clk      => clk,
+            rst      => rst,
+            data_in  => data_in,
+            data_out => data_out
         );
 
     main : process
@@ -35,33 +45,36 @@ begin
         set_stop_level(failure);
 
         info("reset");
+        rst <= '1';
+        wait for 1 ps;
+        rst     <= '0';
         wr      <= '0';
         rd      <= '0';
-        address <= x"0000" & x"0000";
+        address <= to_vec(0, address'length);
         data_in <= input_case & x"0000";
 
         if run("one_word") then
             wr      <= '1';
             rd      <= '0';
-            address <= x"0000" & x"0000";
+            address <= to_vec(0, address'length);
             data_in <= input_case & input_case2;
             wait for CLK_PERD;
 
             wr      <= '0';
             rd      <= '1';
-            address <= x"0000" & x"0000";
+            address <= to_vec(0, address'length);
             wait for CLK_PERD;
             check_equal(data_out, input_case & input_case2, "data_out is input_case");
 
             wr      <= '1';
             rd      <= '0';
-            address <= x"0000" & x"0000";
+            address <= to_vec(0, address'length);
             data_in <= input_case2 & input_case;
             wait for CLK_PERD;
 
             wr      <= '0';
             rd      <= '1';
-            address <= x"0000" & x"0000";
+            address <= to_vec(0, address'length);
             wait for CLK_PERD;
             check_equal(data_out, input_case2 & input_case, "data_out is input_case");
         end if;
@@ -69,45 +82,45 @@ begin
         if run("two_words") then
             wr      <= '1';
             rd      <= '0';
-            address <= x"0000" & x"0000";
+            address <= to_vec(0, address'length);
             data_in <= input_case & input_case;
             wait for CLK_PERD;
             wr      <= '1';
             rd      <= '0';
-            address <= x"0000" & x"0002";
+            address <= to_vec(2, address'length);
             data_in <= input_case2 & input_case;
             wait for CLK_PERD;
 
             wr      <= '0';
             rd      <= '1';
-            address <= x"0000" & x"0000";
+            address <= to_vec(0, address'length);
             wait for CLK_PERD;
             check_equal(data_out, input_case & input_case, "data_out is input_case");
             wr      <= '0';
             rd      <= '1';
-            address <= x"0000" & x"0002";
+            address <= to_vec(2, address'length);
             wait for CLK_PERD;
             check_equal(data_out, input_case2 & input_case, "data_out is input_case2");
         end if;
 
         if run("all_zeroes") then
             info("zeroing ram");
-            for i in 0 to 16#00000400# - 1 loop
+            for i in 0 to WORD_LENGTH - 1 loop
                 if i mod 2 = 0 then
                     wr      <= '1';
                     rd      <= '0';
-                    address <= x"0000" & std_logic_vector(to_unsigned(i, 16));
+                    address <= to_vec(i, address'length);
                     data_in <= x"0000" & x"0000";
                     wait for CLK_PERD;
                 end if;
             end loop;
 
             info("testing all ram is zeroed");
-            for i in 0 to 16#00000400# - 1 loop
+            for i in 0 to WORD_LENGTH - 1 loop
                 if i mod 2 = 0 then
                     wr      <= '0';
                     rd      <= '1';
-                    address <= x"0000" & std_logic_vector(to_unsigned(i, 16));
+                    address <= to_vec(i, address'length);
                     wait for CLK_PERD;
                     check_equal(data_out, std_logic_vector(to_unsigned(0, 32)), "data_out is zero");
                 end if;
