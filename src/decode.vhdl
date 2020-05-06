@@ -5,6 +5,8 @@ use work.common.all;
 
 entity decode_stage is
     port (
+
+        clk                 : in std_logic;
         
         --------NOTE: ANY THING THAT WILL BE ADDED, ADD IT TO THE TOP
         --------------AND ADJUST THE LENGTHES ONLY..............
@@ -17,6 +19,12 @@ entity decode_stage is
         ----------------------129 bits
         IF_ID_buffer        : in std_logic_vector(128 downto 0);
         
+
+        --I don't know from where! but I need Zero_flag
+        Zero_flag           : in std_logic;
+        if_flush            : out std_logic;
+        branch_adr          : out std_logic_vector(31 downto 0);
+        feedback_hashed_adr : out std_logic_vector(3 downto 0);
         --alu_op......85:82.....done
         --op1 32......81:50....will_see 
         --op2 32......49:18....will_see
@@ -60,6 +68,7 @@ begin
     
     --OpCode
     ID_EX_buffer(9 downto 3) <= IF_ID_buffer(128 downto 122);
+
 
 
 
