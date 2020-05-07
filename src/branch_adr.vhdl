@@ -21,7 +21,7 @@ entity branch_adr is
         zero_flag           : in std_logic;
 
         if_flush            : out std_logic;
-        branch_adr          : out std_logic_vector(31 downto 0);
+        branch_adr_correct          : out std_logic_vector(31 downto 0);
         feedback_hashed_adr : out std_logic_vector(3 downto 0)
     );
 end entity;
@@ -39,14 +39,14 @@ begin
     begin
         if Branch_enable = '1' then
             if zero_flag = '1' then
-                branch_adr <= instr_adr;
+                branch_adr_correct <= instr_adr;
                 if (instr_adr = next_pc_adr) then
                     if_flush <= '0';
                 else
                     if_flush <= '1';
                 end if;
             else
-                branch_adr <= incr_pc_adr;
+                branch_adr_correct <= incr_pc_adr;
                 if (incr_pc_adr = next_pc_adr) then
                     if_flush <= '0';
                 else

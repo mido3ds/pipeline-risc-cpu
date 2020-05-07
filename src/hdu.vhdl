@@ -30,6 +30,7 @@ end entity;
 --does opcode_execute WB? DO WE WRITE
 --      JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT...don't
 --      DST1_HAZARD = 1
+
 --does opcode_memory WB? DO WE WRITE
 --      JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT...don't
 --      DST2_HAZARD = 1

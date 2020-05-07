@@ -21,8 +21,7 @@ entity control_unit is
         Op2_sel             : out std_logic;
         Branch_IO           : out std_logic_vector(1 downto 0);
         Branch_enable       : out std_logic;
-        R_W_control         : out std_logic_vector(1 downto 0);
-        SP_extract          : out std_logic
+        R_W_control         : out std_logic_vector(1 downto 0)
     );
 end entity;
 
@@ -124,8 +123,18 @@ begin
                     '0' & IB(24 downto 22) when "0100", --and
                     '0' & IB(24 downto 22) when "0101", --or
                     '0' & IB(24 downto 22) when "0001", --swap
+                    "1000" when "1001", --push
+                    "1000" when "1010", --pop
+                    "1111" when others;
+
+    with IB(31 downto 25) select Rsrc2_sel <=
+                    "1000" when "0000011", --call
+                    "1000" when "0000100", --ret
+                    "1000" when "0000101", --rti
                     "1111" when others;
     
+
+
     --Rdst1_sel
     with IB(31 downto 25) select Rdst1_sel <=
                     '0' & IB(24 downto 22) when "1111001", --not
@@ -154,41 +163,20 @@ begin
                     
                     "1111" when others;
 
-    --R_source_2 value
-    --with IB(31 downto 25) select Rsrc2_val <=
-    --                "1111" when "0000011", --call
-    --                "1111" when "0000100", --ret
-    --                "1111" when "0000101", --rti
-
-    --                "1111" when others;
+   
 
     with IB(31 downto 28) select Rsrc2_val <=
+                    --IMM
                     sign_extend(IB(15 downto 0)) when "1000", --iadd
                     sign_extend(IB(15 downto 0)) when "0110", --shl
                     sign_extend(IB(15 downto 0)) when "0111", --shr
                     sign_extend(IB(15 downto 0)) when "1011", --ldm
-
+                    --EA
                     X"000" & IB(19 downto 0) when "1100", --ldd
                     X"000" & IB(19 downto 0) when "1101", --std
 
-                    --"1111" when "1001", --push
-                    --"1111" when "1010", --pop
-
                     X"00000000" when others;
 
-
-    --SP extract
-    with IB(31 downto 25) select SP_extract <=
-                    '1' when "0000011", --call
-                    '1' when "0000100", --ret
-                    '1' when "0000101", --rti
-                    '0' when others;
-
-    with IB(31 downto 28) select SP_extract <=
-                    '1' when "1001", --push
-                    '1' when "1010", --pop
-
-                    '0' when others;
 
     --which output to expect, the reg_file or our ea/imm
     with IB(31 downto 28) select Op2_sel <=
@@ -198,9 +186,6 @@ begin
                     '1' when "1011", --ldm
                     '1' when "1100", --ldd
                     '1' when "1101", --std
-                    --Since REG file will extract SP for us, we can't out 1
-                    --'1' when "1001", --push
-                    --'1' when "1010", --pop
                     '0' when others;
 
     with IB(31 downto 25) select Branch_IO <=
