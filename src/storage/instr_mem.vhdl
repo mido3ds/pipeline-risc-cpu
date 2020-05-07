@@ -8,7 +8,7 @@ entity instr_mem is
     --ADR_LENGTH: number of adress bits, ADR_LENGTH <= ceil(log2(NUM_WORDS)).
     --WORD_LENGTH: number of bits of data bus and the word stored in one address in instr_mem.
     generic (
-        NUM_WORDS   : integer := 4*1024;
+        NUM_WORDS   : integer := 4 * 1024;
         ADR_LENGTH  : integer := 11;
         WORD_LENGTH : integer := 16
     );

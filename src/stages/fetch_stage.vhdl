@@ -25,25 +25,23 @@ end entity;
 
 architecture rtl of fetch_stage is
     signal pc           : std_logic_vector(31 downto 0);
-    signal len_bit      : std_logic := '0'; 
-    signal mem_rd       : std_logic := '1';
-    signal mem_wr       : std_logic := '0';
+    signal len_bit      : std_logic                     := '0';
+    signal mem_rd       : std_logic                     := '1';
+    signal mem_wr       : std_logic                     := '0';
     signal mem_data_in  : std_logic_vector(15 downto 0) := (others => '0');
     signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
-
 begin
+    inst_mem : entity work.instr_mem(rtl)
+        port map(
+            clk      => clk,
+            rd       => mem_rd,
+            wr       => mem_wr,
+            rst      => rst,
+            data_in  => mem_data_in,
+            address  => pc,
+            data_out => mem_data_out
+        );
 
-    inst_mem : entity work.instr_mem(rtl) generic map (NUM_WORDS => 256, WORD_LENGTH => 16, ADR_LENGTH => 32)
-    port map(
-        clk      => clk,
-        rd       => mem_rd,
-        wr       => mem_wr,
-        rst      => rst,
-        data_in  => mem_data_in,
-        address  => pc,
-        data_out => mem_data_out
-    );
-    
     process (clk, rst)
     begin
         if rst = '1' then
@@ -66,15 +64,15 @@ begin
             -- decide whether the instruction is 32 or 64 bits
             if mem_data_out(0) = '1' then
                 inst_length_bit <= '1';
-                len_bit <= '1';
+                len_bit         <= '1';
             else
                 inst_length_bit <= '0';
-                len_bit <= '0';
+                len_bit         <= '0';
             end if;
             -- instruction output
             if len_bit = '0' then
                 instruction_bits(31 downto 16) <= mem_data_out;
-                instruction_bits(15 downto 0) <= (others => '0');
+                instruction_bits(15 downto 0)  <= (others => '0');
             else
                 instruction_bits(15 downto 0) <= mem_data_out;
             end if;
