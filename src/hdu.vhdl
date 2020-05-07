@@ -12,7 +12,7 @@ entity hdu is
         decode_src_reg_2                    : in std_logic_vector(3 downto 0);
         exe_dst_reg                         : in std_logic_vector(3 downto 0);
         mem_dst_reg                         : in std_logic_vector(3 downto 0);
-        ALU_selction                        : out std_logic;
+        --ALU_selction                        : out std_logic;
         operand_1_select                    : out std_logic_vector(1 downto 0);
         operand_2_select                    : out std_logic_vector(1 downto 0);
         Stall_signal                        : out std_logic
@@ -56,7 +56,7 @@ architecture rtl of hdu is
 
 --This function returns 1 if the OPCODE sent will NOT cause a Data hazards
     function source_hazard( OPCODE : std_logic_vector(6 downto 0))
-                            return std_logic is
+                            return boolean is
         begin
 
             if (    OPCODE              = "0000000" --nop
@@ -67,15 +67,15 @@ architecture rtl of hdu is
                 or  OPCODE              = "0000101" --rti
                 or  OPCODE              = "1111000" --in
                 ) then
-                    return '1';
+                    return false;
                 else
-                    return '0';
+                    return true;
             end if;
         end function;
 
 --these instructions JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT will not cause data dependency at the destination part
     function destination_hazard( OPCODE : std_logic_vector(6 downto 0))
-                            return std_logic is
+                            return boolean is
         begin
 
             if (    OPCODE              = "0000001" --JZ
@@ -87,39 +87,70 @@ architecture rtl of hdu is
                 or  OPCODE(6 downto 3)  = "1101"    --STD
                 or  OPCODE              = "1111100" --OUT
                 ) then
-                    return '1';
+                    return false;
                 else
-                    return '0';
+                    return true;
             end if;
         end function;
 
 --is this opcode a Load or Pop instructions?
     function load_or_pop( OPCODE : std_logic_vector(6 downto 0))
-                            return std_logic is
+                            return boolean is
         begin
 
             if (    OPCODE(6 downto 3)  = "1100" --LDD
                 or  OPCODE(6 downto 3)  = "1010" --POP
                 ) then
-                    return '1';
+                    return false;
                 else
-                    return '0';
+                    return true;
             end if;
         end function;
 
 --are these two registers equal ?
 function are_equal(     reg1 : std_logic_vector(3 downto 0);
                         reg2 : std_logic_vector(3 downto 0))
-                            return std_logic is
+                            return boolean is
         begin
             if ( reg1 = reg2 ) then
-                    return '1';
+                    return true;
                 else
-                    return '0';
+                    return false;
             end if;
         end function;
 begin
     
     
+    --Load Pop Use cases
+    Stall_signal <= '1' when    source_hazard(opcode_decode)
+                            and not  load_or_pop (opcode_execute)
+                            and (are_equal(decode_src_reg_1 , exe_dst_reg)
+                                    or are_equal(decode_src_reg_2 , exe_dst_reg))
+                        else '0';
+
+    operand_1_select <= "01" when  source_hazard(opcode_decode)
+                                and not  load_or_pop (opcode_execute)
+                                and destination_hazard(opcode_execute)
+                                and are_equal(decode_src_reg_1 , exe_dst_reg) else
+
+                        "10" when source_hazard(opcode_decode)
+                                and not  load_or_pop (opcode_execute)
+                                and not destination_hazard(opcode_execute)
+                                and destination_hazard(opcode_memory)
+                                and are_equal(decode_src_reg_1 , mem_dst_reg) else
+                        "00";
+
+    operand_2_select <= "01" when  source_hazard(opcode_decode)
+                                and not  load_or_pop (opcode_execute)
+                                and destination_hazard(opcode_execute)
+                                and are_equal(decode_src_reg_2 , exe_dst_reg) else
+
+                        "10" when source_hazard(opcode_decode)
+                                and not  load_or_pop (opcode_execute)
+                                and not destination_hazard(opcode_execute)
+                                and destination_hazard(opcode_memory)
+                                and are_equal(decode_src_reg_2 , mem_dst_reg) else
+                        "00";
+
 
 end architecture;
