@@ -112,7 +112,8 @@ begin
                     '0' & IB(27 downto 25) when "1001", --push
                     "1111" when "1010", --pop
                     "1111" when "1011", --ldm
-                    '0' & IB(27 downto 25) when "1100", --ldd
+                    --'0' & IB(27 downto 25) when "1100", --ldd
+                    "1111" when "1100", --ldd
                     "1111" when "1101", --std
                     "1111" when others;
 
@@ -155,7 +156,8 @@ begin
                     '0' & IB(27 downto 25) when "0110", --shl
                     '0' & IB(27 downto 25) when "0111", --shr
                     '0' & IB(27 downto 25) when "1011", --ldm
-                    "1111" when "1100", --ldd
+                    --"1111" when "1100", --ldd
+                    '0' & IB(27 downto 25) when "1100", --ldd
                     '0' & IB(27 downto 25) when "1101", --std
                     "1111" when "1001", --push
                     '0' & IB(27 downto 25) when "1010", --pop
