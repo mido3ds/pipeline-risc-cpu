@@ -32,6 +32,7 @@ entity execute_stage is
         --Memory address is Rsrc2 (operand_2)
         --initial_mem_address         : in std_logic_vector(31 downto 0);
 
+        r_w_control                 : in std_logic_vector(1 downto 0);
 
         destination_register_in_1   : in std_logic_vector(3  downto 0);
         --Second one is used only in swap
@@ -47,6 +48,7 @@ entity execute_stage is
         --propagation
         opCode_out                  : out std_logic_vector(6  downto 0);
         int_bit_out                 : out std_logic;
+        r_w_control_out             : out std_logic_vector(1 downto 0);
         --write back addresses
         destination_register_out_1  : out std_logic_vector(3  downto 0);
         destination_register_out_2  : out std_logic_vector(3  downto 0);
@@ -119,7 +121,7 @@ begin
     --Propagated Signals
     opCode_out               <= opCode_in;
     int_bit_out              <= int_bit_in;
-    
+    r_w_control_out             <= r_w_control;
     destination_register_out_1 <= destination_register_in_1;
     destination_register_out_2 <= destination_register_in_2;
 
