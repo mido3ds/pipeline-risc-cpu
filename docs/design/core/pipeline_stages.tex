@@ -64,6 +64,7 @@ Flush signal takes precedence over stall signal. That's it, if the buffer receiv
 \begin{itemize}
     \item Operand Registers (2$X$32 bits)
     \item Destination Register (4 bits)
+    \item Destination Register Value (32 bits)
     \item OpCode Register (7 bits)
     \item R/W Register (2 bits)
     \item Interrupt Register (1 bit)
@@ -73,7 +74,6 @@ Flush signal takes precedence over stall signal. That's it, if the buffer receiv
 \begin{itemize}
     \item Stall (IN): freeze buffer (1 bit)
     \item Destination Register (OUT) (4 bits)
-    \item Output Values (OUT) (32 bits)
 \end{itemize}
 
 \subsection{EX/M Buffer}
@@ -83,6 +83,7 @@ Flush signal takes precedence over stall signal. That's it, if the buffer receiv
     \item MEM IN Register (32 bits)
     \item Opcode Register (7 bits)
     \item Destination Register (4 bits)
+    \item Destination Register Value (32 bits)
     \item R/W Register (2 bits)
     \item Interrupt Register (1 bit)
 \end{itemize}
@@ -90,7 +91,6 @@ Flush signal takes precedence over stall signal. That's it, if the buffer receiv
 \subsubsection{Control Signals}
 \begin{itemize}
     \item Destination Register (OUT) (4 bits)
-    \item Output Values (OUT) (32 bits)
 \end{itemize}
 
 \subsection{M/WB Buffer}
