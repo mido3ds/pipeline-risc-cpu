@@ -21,7 +21,7 @@ entity branch_adr is
         zero_flag           : in std_logic;
 
         if_flush            : out std_logic;
-        branch_adr_correct          : out std_logic_vector(31 downto 0);
+        branch_adr_correct  : out std_logic_vector(31 downto 0);
         feedback_hashed_adr : out std_logic_vector(3 downto 0)
     );
 end entity;

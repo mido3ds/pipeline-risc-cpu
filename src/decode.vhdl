@@ -12,6 +12,7 @@ entity decode_stage is
         --------------AND ADJUST THE LENGTHES ONLY..............
         --reset bit....133
         --hashed_address 4 bits....:132:129
+
         --Ib 32 bits.......128:97
         --next address(proposed) 32......96:65
         --incremented pc 32...........64:33
@@ -26,6 +27,16 @@ entity decode_stage is
         if_flush            : out std_logic;
         branch_adr_update   : out std_logic_vector(31 downto 0);
         feedback_hashed_adr : out std_logic_vector(3 downto 0);
+
+
+        alu_op : in std_logic_vector (3 downto 0);
+        in_operand0     : in std_logic_vector(32 - 1 downto 0);
+        in_operand1     : in std_logic_vector(32 - 1 downto 0);
+        in_destination_0  : in std_logic_vector(4 - 1 downto 0);
+        in_destination_1  : in std_logic_vector(4 - 1 downto 0);
+        in_opcode       : in std_logic_vector(7 - 1 downto 0);
+        in_r_w          : in std_logic_vector(1 downto 0);
+        in_interrupt    : in std_logic;
 
         --alu_op......85:82.....done
         --op1 32......81:50....will_see 
