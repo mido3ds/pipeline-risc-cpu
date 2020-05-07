@@ -285,3 +285,4 @@ __pycache__
 	
 #modelsim files
 src/*.vhdl.bak
+src/sub_main.vhdl
