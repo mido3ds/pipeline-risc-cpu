@@ -53,9 +53,22 @@ architecture rtl of decode_stage is
             Rsrc2_val         => --will_see
             Op2_sel           => --will_see
             Branch_IO         => --register file
-            Branch_enable     => --branch predictor
+            Branch_enable     => --signal branch_enable
             R_W_control       => ID_EX_buffer (2 downto 1),
             SP_extract        => --will_see
+        );
+
+    branch_address_0 : entity work.branch_adr
+        port map(
+            next_pc_adr => IF_ID_buffer(96 downto 65),
+            instr_adr => --register file
+            incr_pc_adr => IF_ID_buffer(64 downto 33),
+            hashed_adr => --will be discussed later with shawky
+            Branch_enable => --signal branch_enable
+            zero_flag => --register file
+            if_flush => if_flush,
+            branch_adr => branch_adr,
+            feedback_hashed_adr => feedback_hashed_adr
         );
 begin
 

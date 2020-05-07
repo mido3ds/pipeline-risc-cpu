@@ -87,7 +87,6 @@ begin
                 when "00" =>
                     out_reg(src0_adr, op0_value);
                     out_reg(src1_adr, op1_value);
-                    out_reg(fetch_adr, fetch_value);
                 when "01" =>
                     null;
                 when "10" =>
@@ -95,6 +94,7 @@ begin
                 when others =>
                     out_reg(src0_adr, instr_adr);
             end case;
+            out_reg(fetch_adr, fetch_value);
         end if;
     end process;
 end architecture;
