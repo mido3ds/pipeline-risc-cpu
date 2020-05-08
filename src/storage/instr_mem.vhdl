@@ -4,13 +4,8 @@ use ieee.numeric_std.all;
 use work.common.all;
 
 entity instr_mem is
-    --NUM_WORDS: maximum number (and no more) of words you want the instr_mem to hold.
-    --ADR_LENGTH: number of adress bits, ADR_LENGTH <= ceil(log2(NUM_WORDS)).
-    --WORD_LENGTH: number of bits of data bus and the word stored in one address in instr_mem.
     generic (
-        NUM_WORDS   : integer := 4 * 1024;
-        ADR_LENGTH  : integer := 11;
-        WORD_LENGTH : integer := 16
+        ADR_LENGTH : integer
     );
 
     port (
@@ -19,14 +14,14 @@ entity instr_mem is
         clk, rd, wr : in std_logic;
         -- rst: async 0 parallel load to all latches
         rst         : in std_logic;
-        data_in     : in std_logic_vector(WORD_LENGTH - 1 downto 0);
+        data_in     : in std_logic_vector(MEM_WORD_LENGTH - 1 downto 0);
         address     : in std_logic_vector(ADR_LENGTH - 1 downto 0);
-        data_out    : out std_logic_vector(WORD_LENGTH - 1 downto 0)
+        data_out    : out std_logic_vector(MEM_WORD_LENGTH - 1 downto 0)
     );
 end entity;
 
 architecture rtl of instr_mem is
-    type DataType is array(0 to NUM_WORDS - 1) of std_logic_vector(data_in'range);
+    type DataType is array(0 to MEM_NUM_WORDS - 1) of std_logic_vector(data_in'range);
     signal data : DataType := (
     --%REPLACE%--
     -- please don't remove the previouse line; it could be replaced (by a script) 

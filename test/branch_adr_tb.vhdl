@@ -20,12 +20,11 @@ architecture tb of branch_adr_tb is
     signal instr_adr           : std_logic_vector(31 downto 0);
     signal incr_pc_adr         : std_logic_vector(31 downto 0);
     signal hashed_adr          : std_logic_vector(3 downto 0);
-    signal feedback_hashed_adr : std_logic_vector(3 downto 0);
-    signal opcode              : std_logic_vector(3 downto 0);
-    signal ccr                 : std_logic_vector(2 downto 0);
-
+    signal Branch_enable       : std_logic;
+    signal zero_flag           : std_logic;
     signal if_flush            : std_logic;
-    signal branch_adr_sig      : std_logic_vector(31 downto 0);
+    signal branch_adr_correct  : std_logic_vector(31 downto 0);
+    signal feedback_hashed_adr : std_logic_vector(3 downto 0);
 begin
     clk <= not clk after CLK_PERD / 2;
 
@@ -35,11 +34,11 @@ begin
             instr_adr           => instr_adr,
             incr_pc_adr         => incr_pc_adr,
             hashed_adr          => hashed_adr,
-            feedback_hashed_adr => feedback_hashed_adr,
-            opcode              => opcode,
+            Branch_enable       => Branch_enable,
+            zero_flag           => zero_flag,
             if_flush            => if_flush,
-            branch_adr          => branch_adr_sig,
-            ccr                 => ccr
+            branch_adr_correct  => branch_adr_correct,
+            feedback_hashed_adr => feedback_hashed_adr
         );
 
     main : process

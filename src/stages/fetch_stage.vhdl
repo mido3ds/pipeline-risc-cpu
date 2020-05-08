@@ -32,6 +32,7 @@ architecture rtl of fetch_stage is
     signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
 begin
     inst_mem : entity work.instr_mem(rtl)
+        generic map (ADR_LENGTH => 32)
         port map(
             clk      => clk,
             rd       => mem_rd,

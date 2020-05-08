@@ -27,6 +27,10 @@ package common is
     constant CCR_NEG              : integer                      := 1;
     constant CCR_CARRY            : integer                      := 2;
 
+    -- memories and caches
+    constant MEM_NUM_WORDS        : integer                      := 2 * 1024;
+    constant MEM_WORD_LENGTH      : integer                      := 16;
+
     function is_opcode_branch(opc : std_logic_vector) return boolean;
 
     function to_vec(i : integer; size : integer          := 16) return std_logic_vector;

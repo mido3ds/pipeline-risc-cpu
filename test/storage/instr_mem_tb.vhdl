@@ -16,17 +16,16 @@ architecture tb of instr_mem_tb is
 
     signal clk               : std_logic := '0';
 
-    constant NUM_WORDS       : integer   := 4 * 1024;
     constant ADR_LENGTH      : integer   := 11;
-    constant WORD_LENGTH     : integer   := 16;
 
     signal rd, wr, rst       : std_logic;
-    signal data_in, data_out : std_logic_vector(WORD_LENGTH - 1 downto 0);
+    signal data_in, data_out : std_logic_vector(MEM_WORD_LENGTH - 1 downto 0);
     signal address           : std_logic_vector(ADR_LENGTH - 1 downto 0);
 begin
     clk <= not clk after CLK_PERD / 2;
 
     instr_mem : entity work.instr_mem
+        generic map(ADR_LENGTH => ADR_LENGTH)
         port map(
             rd       => rd,
             wr       => wr,
@@ -38,8 +37,8 @@ begin
         );
 
     main : process
-        constant input_case  : std_logic_vector(WORD_LENGTH - 1 downto 0) := x"A59F";
-        constant input_case2 : std_logic_vector(WORD_LENGTH - 1 downto 0) := x"5fff";
+        constant input_case  : std_logic_vector(MEM_WORD_LENGTH - 1 downto 0) := x"A59F";
+        constant input_case2 : std_logic_vector(MEM_WORD_LENGTH - 1 downto 0) := x"5fff";
     begin
         test_runner_setup(runner, runner_cfg);
         set_stop_level(failure);
@@ -92,7 +91,7 @@ begin
 
         if run("all_zeroes") then
             info("zeroing instr_mem");
-            for i in 0 to NUM_WORDS - 1 loop
+            for i in 0 to MEM_NUM_WORDS - 1 loop
                 wr      <= '1';
                 rd      <= '0';
                 address <= to_vec(1, address'length);
@@ -101,12 +100,12 @@ begin
             end loop;
 
             info("testing all instr_mem is zeroed");
-            for i in 0 to NUM_WORDS - 1 loop
+            for i in 0 to MEM_NUM_WORDS - 1 loop
                 wr      <= '0';
                 rd      <= '1';
                 address <= to_vec(1, address'length);
                 wait for CLK_PERD;
-                check_equal(data_out, std_logic_vector(to_unsigned(0, WORD_LENGTH)), "data_out is zero");
+                check_equal(data_out, std_logic_vector(to_unsigned(0, MEM_WORD_LENGTH)), "data_out is zero");
             end loop;
         end if;
 
@@ -138,12 +137,12 @@ begin
             rst <= '0';
 
             info("testing all instr_mem is zeroed");
-            for i in 0 to NUM_WORDS - 1 loop
+            for i in 0 to MEM_NUM_WORDS - 1 loop
                 wr      <= '0';
                 rd      <= '1';
                 address <= to_vec(1, address'length);
                 wait for CLK_PERD;
-                check_equal(data_out, std_logic_vector(to_unsigned(0, WORD_LENGTH)), "data_out is zero");
+                check_equal(data_out, std_logic_vector(to_unsigned(0, MEM_WORD_LENGTH)), "data_out is zero");
             end loop;
         end if;
 

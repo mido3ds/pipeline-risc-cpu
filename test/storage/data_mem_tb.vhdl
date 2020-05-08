@@ -16,17 +16,16 @@ architecture tb of data_mem_tb is
 
     signal clk               : std_logic := '0';
 
-    constant WORD_LENGTH     : integer   := 16;
     constant ADR_LENGTH      : integer   := 11;
-    constant NUM_WORDS       : integer   := 4 * 1024;
 
     signal rd, wr, rst       : std_logic;
-    signal data_in, data_out : std_logic_vector(WORD_LENGTH * 2 - 1 downto 0);
+    signal data_in, data_out : std_logic_vector(MEM_WORD_LENGTH * 2 - 1 downto 0);
     signal address           : std_logic_vector(ADR_LENGTH - 1 downto 0);
 begin
     clk <= not clk after CLK_PERD / 2;
 
     data_mem : entity work.data_mem
+        generic map(ADR_LENGTH => ADR_LENGTH)
         port map(
             rd       => rd,
             wr       => wr,
@@ -105,7 +104,7 @@ begin
 
         if run("all_zeroes") then
             info("zeroing ram");
-            for i in 0 to WORD_LENGTH - 1 loop
+            for i in 0 to MEM_WORD_LENGTH - 1 loop
                 if i mod 2 = 0 then
                     wr      <= '1';
                     rd      <= '0';
@@ -116,7 +115,7 @@ begin
             end loop;
 
             info("testing all ram is zeroed");
-            for i in 0 to WORD_LENGTH - 1 loop
+            for i in 0 to MEM_WORD_LENGTH - 1 loop
                 if i mod 2 = 0 then
                     wr      <= '0';
                     rd      <= '1';
