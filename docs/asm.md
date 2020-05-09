@@ -10,7 +10,6 @@ The assembler script for this processor's ISA.
 
 ### Usage
 
-1. Add the program text file to `io` folder. 
 1. Run the assembler program
 
-`$ ./scripts/asm < /path/to/input > /path/to/output` 
+`$ ./scripts/asm < /path/to/input.asm > /path/to/output.binary` 
