@@ -20,7 +20,7 @@ main() {
     run-daemon
     
     echo "run tests for project.$TEST"
-    docker exec -w "$PWD" -e RUN_MAIN=$RUN_MAIN ghdld_arch python3 scripts/vunit-main.py project.$TEST -p 5 -x out/report.xml  --minimal --keep-compiling --gtkwave-fmt vcd -o out -q
+    docker exec -w "$PWD" -e RUN_MAIN=$RUN_MAIN ghdld_arch python3 scripts/vunit-main.py project.$TEST -p 5 -x out/report.xml  --minimal --keep-compiling --gtkwave-fmt ghw -o out -q
 }
 
 if [[ "$1" = "" ]]; then

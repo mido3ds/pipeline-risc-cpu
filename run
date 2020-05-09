@@ -24,7 +24,7 @@ main() {
         sed -i 's/\$(GHDL) -r /timeout 2s .\//' Makefile.${UNIT}
         
         make -f Makefile.${UNIT} all GHDLFLAGS='-g -Wbinding -Wreserved -Wlibrary -Wvital-generic -Wdelayed-checks -Wbody -Wspecs -Wunused --mb-comments --std=08 --ieee=synopsys -fexplicit'
-        make -f Makefile.${UNIT} run GHDLRUNFLAGS+=--vcd=waves/${UNIT}.vcd GHDLRUNFLAGS+=--stop-time=1000ns GHDLRUNFLAGS+=--assert-level=failure # if in test mode, assert-level=error
+        make -f Makefile.${UNIT} run GHDLRUNFLAGS+=--vcd=waves/${UNIT}.vcd GHDLRUNFLAGS+=--wave=waves/${UNIT}.ghw GHDLRUNFLAGS+=--stop-time=1000ns GHDLRUNFLAGS+=--assert-level=failure # if in test mode, assert-level=error
     "
 }
 
