@@ -10,11 +10,11 @@ fi
 
 mkdir -p out/gtkwave-saves/
 
-num_files=`find out | grep -E '.vcd|.ghw' | grep $UNIT | wc -l`
+num_files=`find out | grep -E '.ghw' | grep $UNIT | wc -l`
 
 if [[ "$num_files" -gt "1" ]]; then
     echo Warning trying to open multiple waves!
-    find out | grep -E '.vcd|.ghw' | grep $UNIT
+    find out | grep -E '.ghw' | grep $UNIT
 elif [[ "$num_files" -eq "0" ]]; then
     echo No file that matches $UNIT!
     exit 1
@@ -24,6 +24,6 @@ SAV=${2-out/gtkwave-saves/${UNIT}.sav}
 
 touch ${SAV}
 
-find out | grep -E '.vcd|.ghw' | grep $UNIT | xargs echo gtkwave -a ${SAV}
+find out | grep -E '.ghw' | grep $UNIT | xargs echo gtkwave -a ${SAV}
 
-find out | grep -E '.vcd|.ghw' | grep $UNIT | xargs gtkwave -a ${SAV} & disown
+find out | grep -E '.ghw' | grep $UNIT | xargs gtkwave -a ${SAV} & disown
