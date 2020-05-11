@@ -7,8 +7,8 @@ entity fetch_stage is
     port (
         clk                          : in std_logic;
         rst                          : in std_logic;
-        interrupt                    : in std_logic;
 
+        in_interrupt                 : in std_logic;
         in_if_flush                  : in std_logic;
         in_stall                     : in std_logic;
         in_parallel_load_pc_selector : in std_logic;
@@ -16,7 +16,7 @@ entity fetch_stage is
         in_branch_address            : in std_logic_vector(31 downto 0);
         in_hashed_address            : in std_logic_vector(3 downto 0);
 
-        out_int_bit                  : out std_logic;
+        out_interrupt                : out std_logic;
         out_inst_length_bit          : out std_logic; -- 16 or 32 bits
         out_instruction_bits         : out std_logic_vector(31 downto 0);
         out_predicted_address        : out std_logic_vector(31 downto 0);
@@ -45,7 +45,16 @@ begin
             data_out => mem_data_out
         );
 
-    inc_pc <= to_vec(to_int(pc) + 1, inc_pc'length);
+    out_inc_pc <= to_vec(to_int(pc) + 1, out_inc_pc'length);
+
+    -- TODO
+    --out_interrupt <= ???
+
+    -- TODO
+    --out_predicted_address <= ???
+
+    -- TODO
+    --out_hashed_address <= ???
 
     process (clk, rst)
     begin
@@ -55,31 +64,31 @@ begin
             -- decide PC next address
             if in_if_flush = '1' then
                 pc <= (others => '0'); -- to be corrected
-            elsif parallel_load_pc_selector = '1' then
+            elsif in_parallel_load_pc_selector = '1' then
                 pc <= (others => '0'); -- to be corrected
             elsif rst = '1' then
                 pc <= (others => '0'); -- to be corrected
             elsif mem_data_out(14 downto 8) = OPC_CALL then
                 pc <= (others => '0'); -- to be corrected
-            elsif (stall = '1' or interrupt = '1') then
+            elsif (in_stall = '1' or in_interrupt = '1') then
                 pc <= (others => '0'); -- to be corrected
             else
                 pc <= std_logic_vector(unsigned(pc) + 1);
             end if;
             -- decide whether the instruction is 32 or 64 bits
             if mem_data_out(0) = '1' then
-                inst_length_bit <= '1';
-                len_bit         <= '1';
+                out_inst_length_bit <= '1';
+                len_bit             <= '1';
             else
-                inst_length_bit <= '0';
-                len_bit         <= '0';
+                out_inst_length_bit <= '0';
+                len_bit             <= '0';
             end if;
             -- instruction output
             if len_bit = '0' then
-                instruction_bits(31 downto 16) <= mem_data_out;
-                instruction_bits(15 downto 0)  <= (others => '0');
+                out_instruction_bits(31 downto 16) <= mem_data_out;
+                out_instruction_bits(15 downto 0)  <= (others => '0');
             else
-                instruction_bits(15 downto 0) <= mem_data_out;
+                out_instruction_bits(15 downto 0) <= mem_data_out;
             end if;
         end if;
     end process;
