@@ -27,9 +27,10 @@ begin
         test_runner_setup(runner, runner_cfg);
         set_stop_level(failure);
 
-        if run("todo") then
+        -- This testcase doesnt enject any data 
+        -- into memories, it expects that the memory be loaded by `integrate` script
+        if run("integration") then
             -- TODO
-            assert true;
         end if;
 
         wait for CLK_PERD/2;
