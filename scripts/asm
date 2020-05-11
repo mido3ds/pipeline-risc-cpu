@@ -72,7 +72,7 @@ def assemble():
     ram_entries['0'] = []
 
     # loop over every line in the input program
-    for line in in_file:
+    for line_number, line in enumerate(in_file):
 
         # remove comments
         com_idx = line.find("#")
@@ -184,7 +184,8 @@ def assemble():
                     ram_entries[ram_div].append("0"*16)
                     ram_entries[ram_div].append("0"*pad_len+new_entry[:])
             except:
-                continue
+                print("invalid instruction", inst, 'in line', line_number+1, file=sys.stderr)
+                exit(1)
 
     # generate full ram layout from processed instructions
     ram_layout = gen_layout(ram_entries)
