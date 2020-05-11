@@ -5,21 +5,23 @@ use work.common.all;
 
 entity fetch_stage is
     port (
-        clk                       : in std_logic;
-        rst                       : in std_logic;
-        interrupt                 : in std_logic;
-        if_flush                  : in std_logic;
-        stall                     : in std_logic;
-        parallel_load_pc_selector : in std_logic;
-        loaded_pc_value           : in std_logic_vector(31 downto 0);
-        branch_address            : in std_logic_vector(31 downto 0);
-        in_hashed_address         : in std_logic_vector(3 downto 0);
-        int_bit                   : out std_logic;
-        inst_length_bit           : out std_logic; -- 16 or 32 bits
-        instruction_bits          : out std_logic_vector(31 downto 0);
-        predicted_address         : out std_logic_vector(31 downto 0);
-        out_hashed_address        : out std_logic_vector(3 downto 0);
-        inc_pc                    : out std_logic_vector(31 downto 0)
+        clk                          : in std_logic;
+        rst                          : in std_logic;
+        interrupt                    : in std_logic;
+
+        in_if_flush                  : in std_logic;
+        in_stall                     : in std_logic;
+        in_parallel_load_pc_selector : in std_logic;
+        in_loaded_pc_value           : in std_logic_vector(31 downto 0);
+        in_branch_address            : in std_logic_vector(31 downto 0);
+        in_hashed_address            : in std_logic_vector(3 downto 0);
+
+        out_int_bit                  : out std_logic;
+        out_inst_length_bit          : out std_logic; -- 16 or 32 bits
+        out_instruction_bits         : out std_logic_vector(31 downto 0);
+        out_predicted_address        : out std_logic_vector(31 downto 0);
+        out_hashed_address           : out std_logic_vector(3 downto 0);
+        out_inc_pc                   : out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -43,7 +45,7 @@ begin
             data_out => mem_data_out
         );
 
-    inc_pc <= to_vec(to_int(pc)+1, inc_pc'length);
+    inc_pc <= to_vec(to_int(pc) + 1, inc_pc'length);
 
     process (clk, rst)
     begin
@@ -51,7 +53,7 @@ begin
             null;
         elsif falling_edge(clk) then
             -- decide PC next address
-            if if_flush = '1' then
+            if in_if_flush = '1' then
                 pc <= (others => '0'); -- to be corrected
             elsif parallel_load_pc_selector = '1' then
                 pc <= (others => '0'); -- to be corrected

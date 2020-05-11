@@ -15,7 +15,7 @@ entity branch_adr is
         hashed_adr          : in std_logic_vector(3 downto 0);
         --enable this unit
         --opcode              : in std_logic_vector(6 downto 0);
-        Branch_enable       : in std_logic;
+        branch_enable       : in std_logic;
 
         --only zero flag is needed
         zero_flag           : in std_logic;
@@ -35,9 +35,9 @@ begin
     --          IF Flush = 0, Branch Address = Instruction Address
     --     - If false:
     --          IF Flush = 1, Branch Address = Instruction Address
-    process (Branch_enable)
+    process (branch_enable)
     begin
-        if Branch_enable = '1' then
+        if branch_enable = '1' then
             if zero_flag = '1' then
                 branch_adr_correct <= instr_adr;
                 if (instr_adr = next_pc_adr) then
