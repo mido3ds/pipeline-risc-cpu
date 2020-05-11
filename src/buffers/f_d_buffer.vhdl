@@ -4,21 +4,23 @@ use ieee.numeric_std.all;
 
 entity f_d_buffer is
     port (
-        flush, stall, clk : in std_logic;
+        clk            : in std_logic;
 
-        in_instr          : in std_logic_vector(31 downto 0);
-        in_next_adr       : in std_logic_vector(31 downto 0);
-        in_inc_pc         : in std_logic_vector(31 downto 0);
-        in_hashed_adr     : in std_logic_vector(3 downto 0);
-        in_interrupt      : in std_logic;
-        in_reset          : in std_logic;  
+        in_flush       : in std_logic;
+        in_stall       : in std_logic;
+        in_instr       : in std_logic_vector(31 downto 0);
+        in_next_adr    : in std_logic_vector(31 downto 0);
+        in_inc_pc      : in std_logic_vector(31 downto 0);
+        in_hashed_adr  : in std_logic_vector(3 downto 0);
+        in_interrupt   : in std_logic;
+        in_reset       : in std_logic;
 
-        out_instr         : out std_logic_vector(31 downto 0);
-        out_next_adr      : out std_logic_vector(31 downto 0);
-        out_inc_pc        : out std_logic_vector(31 downto 0);
-        out_hashed_adr    : out std_logic_vector(3 downto 0);
-        out_interrupt     : out std_logic;
-        out_reset          : out std_logic
+        out_instr      : out std_logic_vector(31 downto 0);
+        out_next_adr   : out std_logic_vector(31 downto 0);
+        out_inc_pc     : out std_logic_vector(31 downto 0);
+        out_hashed_adr : out std_logic_vector(3 downto 0);
+        out_interrupt  : out std_logic;
+        out_reset      : out std_logic
     );
 end entity;
 
@@ -31,16 +33,16 @@ architecture rtl of f_d_buffer is
     signal interrupt  : std_logic;
     signal reset      : std_logic;
 begin
-    process (flush, stall, in_instr, in_next_adr, in_inc_pc, in_hashed_adr, in_interrupt, in_reset)
+    process (in_flush, in_stall, in_instr, in_next_adr, in_inc_pc, in_hashed_adr, in_interrupt, in_reset)
     begin
-        if flush = '1' then
+        if in_flush = '1' then
             instr      <= (others => '0');
             next_adr   <= (others => '0');
             inc_pc     <= (others => '0');
             hashed_adr <= (others => '0');
             interrupt  <= '0';
             reset      <= '0';
-        elsif stall = '0' then
+        elsif in_stall = '0' then
             instr      <= in_instr;
             next_adr   <= in_next_adr;
             inc_pc     <= in_inc_pc;
