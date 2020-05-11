@@ -67,6 +67,10 @@ def assemble():
     ram_entries = dict()
     ram_div = ''
 
+    # assume it's org 0 if not specified
+    ram_div = '0'
+    ram_entries['0'] = []
+
     # loop over every line in the input program
     for line in in_file:
 
