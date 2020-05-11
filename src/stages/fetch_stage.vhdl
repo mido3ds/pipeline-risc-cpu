@@ -19,7 +19,7 @@ entity fetch_stage is
         instruction_bits          : out std_logic_vector(31 downto 0);
         predicted_address         : out std_logic_vector(31 downto 0);
         out_hashed_address        : out std_logic_vector(3 downto 0);
-        current_pc_value          : out std_logic_vector(31 downto 0)
+        inc_pc                    : out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -32,7 +32,7 @@ architecture rtl of fetch_stage is
     signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
 begin
     inst_mem : entity work.instr_mem(rtl)
-        generic map (ADR_LENGTH => 32)
+        generic map(ADR_LENGTH => 32)
         port map(
             clk      => clk,
             rd       => mem_rd,
@@ -42,6 +42,8 @@ begin
             address  => pc,
             data_out => mem_data_out
         );
+
+    inc_pc <= to_vec(to_int(pc)+1, inc_pc'length);
 
     process (clk, rst)
     begin
