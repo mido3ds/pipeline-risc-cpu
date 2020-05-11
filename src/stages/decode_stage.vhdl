@@ -80,6 +80,9 @@ begin
             feedback_hashed_adr => out_feedback_hashed_adr
         );
 
+    --TODO
+    --dxb_dest_value <= ???
+
     --- Bits that don't acquire processing:
     --interrupt
     dxb_interrupt                        <= fdb_interrupt;
