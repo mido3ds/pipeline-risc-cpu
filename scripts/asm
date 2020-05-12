@@ -100,6 +100,10 @@ def assemble():
         elif (inst == "nop"):
             ram_entries[ram_div].append("0000000000000000")
 
+        # handle END instruction
+        elif (inst == "end"):
+            ram_entries[ram_div].append("1110000000000000")
+
         # handle 1-operand instruction
         elif (inst in INST_1OP):
             new_entry = OP_CODES_TABLE[inst]
@@ -160,6 +164,8 @@ def assemble():
         elif (inst in INST_BR):
             new_entry = OP_CODES_TABLE[inst]
             if (inst in ["jz", "jmp", "call"]):
+                if (inst == "jz"):  # add NOP before each JZ for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
                 new_entry = "0" + new_entry + \
                     REGISTERS[line_words[1].upper()] + "00000"
                 ram_entries[ram_div].append(new_entry)

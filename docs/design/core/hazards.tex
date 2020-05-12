@@ -66,3 +66,11 @@ Occurs only at Fetch Stage, due to wrong branch prediction at Decode stage.
 
 \subsubsection{Dynamic Branch Prediction}
 We use 2-bit branch predictor, which is a hash table of \emph{Finite State Machines} (FSMs) to predict whether the branch will be taken (1) or not (0) at each individual branch address.
+
+\section{Software Solutions}
+
+There are some specialized software solutions done by the compiler. It can be summarized in:
+\begin{itemize}
+    \item Insertion of 3 NOPs after each RTI or RET operation to avoid unnecessary instruction fetch.
+    \item Insertion of 1 NOP before each JZ operation to avoid data hazards in CCR.
+\end{itemize}
