@@ -85,7 +85,12 @@ begin
     process (clk, rst)
     begin
         if rst = '1' then
-            null;
+            pc           <= (others => '1');
+            mem_data_in  <= (others => '1');
+            mem_data_out <= (others => '1');
+            len_bit      <= '0';
+            mem_rd       <= '1';
+            mem_wr       <= '0';
         elsif falling_edge(clk) then
             -- decide PC next address
             if in_if_flush = '1' then
