@@ -21,7 +21,20 @@ entity fetch_stage is
         out_instruction_bits         : out std_logic_vector(31 downto 0);
         out_predicted_address        : out std_logic_vector(31 downto 0);
         out_hashed_address           : out std_logic_vector(3 downto 0);
-        out_inc_pc                   : out std_logic_vector(31 downto 0)
+        out_inc_pc                   : out std_logic_vector(31 downto 0);
+
+        -- testing signals
+
+        -- '1' if testbench is taking control now of the memory and regs
+        tb_controls                  : in std_logic;
+
+        -- to mem
+        tb_mem_rd                    : in std_logic;
+        tb_mem_wr                    : in std_logic;
+        tb_mem_data_in               : in std_logic_vector(15 downto 0);
+        tb_mem_adr                   : in std_logic_vector(31 downto 0);
+        -- from mem
+        tb_mem_data_out              : out std_logic_vector(15 downto 0)
     );
 end entity;
 
@@ -32,20 +45,33 @@ architecture rtl of fetch_stage is
     signal mem_wr       : std_logic                     := '0';
     signal mem_data_in  : std_logic_vector(15 downto 0) := (others => '0');
     signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
+
+    --> inst_mem
+    signal im_rd        : std_logic;
+    signal im_wr        : std_logic;
+    signal im_data_in   : std_logic_vector(mem_data_in'range);
+    signal im_adr       : std_logic_vector(pc'range);
 begin
     inst_mem : entity work.instr_mem(rtl)
         generic map(ADR_LENGTH => 32)
         port map(
             clk      => clk,
-            rd       => mem_rd,
-            wr       => mem_wr,
+            rd       => im_rd,
+            wr       => im_wr,
             rst      => rst,
-            data_in  => mem_data_in,
-            address  => pc,
+            data_in  => im_data_in,
+            address  => im_adr,
             data_out => mem_data_out
         );
+    --IN
+    im_rd           <= tb_mem_rd when tb_controls = '1' else mem_rd;
+    im_wr           <= tb_mem_wr when tb_controls = '1' else mem_wr;
+    im_data_in      <= tb_mem_data_in when tb_controls = '1' else mem_data_in;
+    im_adr          <= tb_mem_adr when tb_controls = '1' else pc;
+    --OUT
+    tb_mem_data_out <= mem_data_out;
 
-    out_inc_pc <= to_vec(to_int(pc) + 1, out_inc_pc'length);
+    out_inc_pc      <= to_vec(to_int(pc) + 1, out_inc_pc'length);
 
     -- TODO
     --out_interrupt <= ???
