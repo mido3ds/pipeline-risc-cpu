@@ -16,6 +16,7 @@ entity decode_stage is
         fdb_hashed_adr          : in std_logic_vector(3 downto 0);
         fdb_interrupt           : in std_logic;
         fdb_reset               : in std_logic;
+        fdb_inst_length         : in std_logic;                     -- TODO: use this
 
         -- From Register File
         rf_op0_value            : in std_logic_vector(31 downto 0); -- OP

@@ -24,7 +24,7 @@ architecture rtl of main is
 
     -- fetch_stage --> f_d_buffer
     signal fs_fdb_interrupt              : std_logic;
-    signal fs_fdb_inst_length_bit        : std_logic; -- 16 or 32 bits, TODO: input to f_d_buffer??
+    signal fs_fdb_inst_length_bit        : std_logic;
     signal fs_fdb_instruction_bits       : std_logic_vector(31 downto 0);
     signal fs_fdb_predicted_address      : std_logic_vector(31 downto 0);
     signal fs_fdb_hashed_address         : std_logic_vector(3 downto 0);
@@ -32,6 +32,7 @@ architecture rtl of main is
 
     -- f_d_buffer --> decode_stage
     signal fdb_ds_instr                  : std_logic_vector(31 downto 0);
+    signal fdb_ds_inst_length_bit        : std_logic;
     signal fdb_ds_next_adr               : std_logic_vector(31 downto 0);
     signal fdb_ds_inc_pc                 : std_logic_vector(31 downto 0);
     signal fdb_ds_hashed_adr             : std_logic_vector(3 downto 0);
@@ -84,23 +85,25 @@ begin
     f_d_buffer : entity work.f_d_buffer
         port map(
             --IN
-            clk            => clk,
+            clk             => clk,
 
-            in_flush       => fsi_if_flush,
-            in_stall       => fsi_stall,
-            in_instr       => fs_fdb_instruction_bits,
-            in_next_adr    => fs_fdb_predicted_address,
-            in_inc_pc      => fs_fdb_inc_pc,
-            in_hashed_adr  => fs_fdb_hashed_address,
-            in_interrupt   => fs_fdb_interrupt,
-            in_reset       => rst,
+            in_flush        => fsi_if_flush,
+            in_stall        => fsi_stall,
+            in_instr        => fs_fdb_instruction_bits,
+            in_inst_length  => fs_fdb_inst_length_bit,
+            in_next_adr     => fs_fdb_predicted_address,
+            in_inc_pc       => fs_fdb_inc_pc,
+            in_hashed_adr   => fs_fdb_hashed_address,
+            in_interrupt    => fs_fdb_interrupt,
+            in_reset        => rst,
             --OUT
-            out_instr      => fdb_ds_instr,
-            out_next_adr   => fdb_ds_next_adr,
-            out_inc_pc     => fdb_ds_inc_pc,
-            out_hashed_adr => fdb_ds_hashed_adr,
-            out_interrupt  => fdb_ds_interrupt,
-            out_reset      => fdb_ds_reset
+            out_instr       => fdb_ds_instr,
+            out_inst_length => fdb_ds_inst_length_bit,
+            out_next_adr    => fdb_ds_next_adr,
+            out_inc_pc      => fdb_ds_inc_pc,
+            out_hashed_adr  => fdb_ds_hashed_adr,
+            out_interrupt   => fdb_ds_interrupt,
+            out_reset       => fdb_ds_reset
         );
 
     decode_stage : entity work.decode_stage
@@ -108,7 +111,7 @@ begin
             --IN
             clk                     => clk,
 
-            in_zero_flag            => 'U', --TODO
+            in_zero_flag            => 'U', --TODO: from execute_stage
 
             fdb_instr               => fdb_ds_instr,
             fdb_next_adr            => fdb_ds_next_adr,
@@ -116,6 +119,7 @@ begin
             fdb_hashed_adr          => fdb_ds_hashed_adr,
             fdb_interrupt           => fdb_ds_interrupt,
             fdb_reset               => fdb_ds_reset,
+            fdb_inst_length         => fdb_ds_inst_length_bit,
 
             rf_op0_value            => rf_ds_op0_value,
             rf_op1_value            => rf_ds_op1_value,
