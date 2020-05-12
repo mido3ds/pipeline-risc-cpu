@@ -4,8 +4,9 @@ use ieee.numeric_std.all;
 
 entity d_x_buffer is
     port (
-        clk, stall     : in std_logic;
+        clk            : in std_logic;
 
+        in_stall       : in std_logic;
         in_alu_op      : in std_logic_vector (3 downto 0);
         in_operand0    : in std_logic_vector(32 - 1 downto 0);
         in_operand1    : in std_logic_vector(32 - 1 downto 0);
@@ -39,9 +40,9 @@ architecture rtl of d_x_buffer is
     signal interrupt     : std_logic;
     signal alu_op        : std_logic_vector(3 downto 0);
 begin
-    process (stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_dest_value, in_opcode, in_r_w, in_interrupt)
+    process (in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_dest_value, in_opcode, in_r_w, in_interrupt)
     begin
-        if stall = '0' then
+        if in_stall = '0' then
             operand0      <= in_operand0;
             operand1      <= in_operand1;
             destination_0 <= in_dest_0;

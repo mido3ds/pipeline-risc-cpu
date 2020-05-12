@@ -14,9 +14,11 @@ entity main is
 end entity;
 
 architecture rtl of main is
+    -- hdu --> fetch_stage,f_d_buffer,d_x_buffer
+    signal hdu_stall                     : std_logic;
+
     --> fetch_stage
     signal fsi_if_flush                  : std_logic;
-    signal fsi_stall                     : std_logic;
     signal fsi_parallel_load_pc_selector : std_logic;
     signal fsi_loaded_pc_value           : std_logic_vector(31 downto 0);
     signal fsi_branch_address            : std_logic_vector(31 downto 0);
@@ -59,6 +61,17 @@ architecture rtl of main is
     -- reg_file --> decode_stage
     signal rf_ds_op0_value               : std_logic_vector(31 downto 0);
     signal rf_ds_op1_value               : std_logic_vector(31 downto 0);
+
+    -- d_x_buffer --> execute_stage
+    signal dxb_xs_alu_op                 : std_logic_vector (3 downto 0);
+    signal dxb_xs_operand0               : std_logic_vector(32 - 1 downto 0);
+    signal dxb_xs_operand1               : std_logic_vector(32 - 1 downto 0);
+    signal dxb_xs_dest_0                 : std_logic_vector(4 - 1 downto 0);
+    signal dxb_xs_dest_1                 : std_logic_vector(4 - 1 downto 0);
+    signal dxb_xs_dest_value             : std_logic_vector(32 - 1 downto 0);
+    signal dxb_xs_opcode                 : std_logic_vector(7 - 1 downto 0);
+    signal dxb_xs_r_w                    : std_logic_vector(1 downto 0);
+    signal dxb_xs_interrupt              : std_logic;
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -68,7 +81,7 @@ begin
 
             in_interrupt                 => interrupt,
             in_if_flush                  => fsi_if_flush,
-            in_stall                     => fsi_stall,
+            in_stall                     => hdu_stall,
             in_parallel_load_pc_selector => fsi_parallel_load_pc_selector,
             in_loaded_pc_value           => fsi_loaded_pc_value,
             in_branch_address            => fsi_branch_address,
@@ -88,7 +101,7 @@ begin
             clk             => clk,
 
             in_flush        => fsi_if_flush,
-            in_stall        => fsi_stall,
+            in_stall        => hdu_stall,
             in_instr        => fs_fdb_instruction_bits,
             in_inst_length  => fs_fdb_inst_length_bit,
             in_next_adr     => fs_fdb_predicted_address,
@@ -173,7 +186,33 @@ begin
     --         -- out_value   => ????? --TODO
     --     );
 
-    --TODO: d_x_buffer
+    d_x_buffer : entity work.d_x_buffer
+        port map(
+            --IN
+            clk            => clk,
+
+            in_stall       => hdu_stall,
+            in_alu_op      => ds_dxb_alu_op,
+            in_operand0    => ds_dxb_operand0,
+            in_operand1    => ds_dxb_operand1,
+            in_dest_0      => ds_dxb_dest_0,
+            in_dest_1      => ds_dxb_dest_1,
+            in_dest_value  => ds_dxb_dest_value,
+            in_opcode      => ds_dxb_opcode,
+            in_r_w         => ds_dxb_r_w,
+            in_interrupt   => ds_dxb_interrupt,
+            -- OUT
+            out_alu_op     => dxb_xs_alu_op,
+            out_operand0   => dxb_xs_operand0,
+            out_operand1   => dxb_xs_operand1,
+            out_dest_0     => dxb_xs_dest_0,
+            out_dest_1     => dxb_xs_dest_1,
+            out_dest_value => dxb_xs_dest_value,
+            out_opcode     => dxb_xs_opcode,
+            out_r_w        => dxb_xs_r_w,
+            out_interrupt  => dxb_xs_interrupt
+        );
+
     --TODO: execute_stage
     --TODO: x_m_buffer
     --TODO: mem_stage
