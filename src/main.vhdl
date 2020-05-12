@@ -1,15 +1,27 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.common.all;
 
 entity main is
     port (
         clk, rst, interrupt : in std_logic;
         in_value            : in std_logic_vector(31 downto 0);
-        out_value           : out std_logic_vector(31 downto 0)
+        out_value           : out std_logic_vector(31 downto 0);
 
         -- testing signals
-        --TODO
+
+        -- '1' if testbench is taking control now of the memory and regs
+        tb_controls         : in std_logic;
+
+        -- to reg_file
+        tb_rf_src0_adr      : in std_logic_vector(3 downto 0);
+        tb_rf_dst0_adr      : in std_logic_vector(3 downto 0);
+        tb_rf_dst0_value    : in std_logic_vector(31 downto 0);
+        -- from reg_file
+        rf_tb_dst0_value    : out std_logic_vector(31 downto 0)
+
+        --TODO: data_mem and instr_mem
     );
 end entity;
 
@@ -72,6 +84,15 @@ architecture rtl of main is
     signal dxb_xs_opcode                 : std_logic_vector(7 - 1 downto 0);
     signal dxb_xs_r_w                    : std_logic_vector(1 downto 0);
     signal dxb_xs_interrupt              : std_logic;
+
+    --> reg_file
+    signal rf_dst0_adr                   : std_logic_vector(3 downto 0);
+    signal rf_dst1_adr                   : std_logic_vector(3 downto 0);
+    signal rf_src0_adr                   : std_logic_vector(3 downto 0);
+    signal rf_src1_adr                   : std_logic_vector(3 downto 0);
+    signal rf_wb0_value                  : std_logic_vector(31 downto 0);
+    signal rf_br_io_enbl                 : std_logic_vector(1 downto 0);
+    signal rf_rst                        : std_logic;
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -162,20 +183,20 @@ begin
     --     port map(
     --         --IN
     --         clk         => clk,
-    --         rst         => ds_rf_rst,
+    --         rst         => rf_rst,
 
-    --         -- dst0_adr    => ?????, --TODO
-    --         -- dst1_adr    => ?????, --TODO
-    --         src0_adr    => ds_rf_src0_adr,
-    --         src1_adr    => ds_rf_src1_adr,
+    --         dst0_adr    => rf_dst0_adr,
+    --         dst1_adr    => rf_dst1_adr,
+    --         src0_adr    => rf_src0_adr,
+    --         src1_adr    => rf_src1_adr,
     --         -- fetch_adr   => ?????, --TODO
 
-    --         -- wb0_value   => ?????, --TODO
+    --         wb0_value   => rf_wb0_value,
     --         -- wb1_value   => ?????, --TODO
 
-    --         -- in_value    => ?????, --TODO
+    --         in_value    => in_value,
 
-    --         br_io_enbl  => ds_rf_br_io_enbl,
+    --         br_io_enbl  => rf_br_io_enbl,
     --         --OUT
     --         op0_value   => rf_ds_op0_value,
     --         op1_value   => rf_ds_op1_value,
@@ -183,8 +204,18 @@ begin
     --         -- fetch_value => ?????, --TODO
     --         -- instr_adr   => ?????, --TODO
 
-    --         -- out_value   => ????? --TODO
+    --         out_value   => out_value
     --     );
+    --IN
+    rf_rst           <= rst or ds_rf_rst;
+    -- rf_dst0_adr <= tb_rf_dst0_adr when tb_controls = '1' else ????; --TODO
+    -- rf_dst1_adr <= (others => '1') when tb_controls = '1' else ????; --TODO
+    rf_src0_adr      <= tb_rf_src0_adr when tb_controls = '1' else ds_rf_src0_adr;
+    rf_src1_adr      <= (others => '1') when tb_controls = '1' else ds_rf_src1_adr;
+    -- rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ????; --TODO
+    rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
+    --OUT
+    rf_tb_dst0_value <= rf_ds_op0_value;
 
     d_x_buffer : entity work.d_x_buffer
         port map(
