@@ -145,6 +145,34 @@ begin
         );
 
     --TODO: reg_file
+    -- reg_file : entity work.reg_file
+    --     port map(
+    --         --IN
+    --         clk         => clk,
+    --         rst         => ds_rf_rst,
+
+    --         -- dst0_adr    => ?????, --TODO
+    --         -- dst1_adr    => ?????, --TODO
+    --         src0_adr    => ds_rf_src0_adr,
+    --         src1_adr    => ds_rf_src1_adr,
+    --         -- fetch_adr   => ?????, --TODO
+
+    --         -- wb0_value   => ?????, --TODO
+    --         -- wb1_value   => ?????, --TODO
+
+    --         -- in_value    => ?????, --TODO
+
+    --         br_io_enbl  => ds_rf_br_io_enbl,
+    --         --OUT
+    --         op0_value   => rf_ds_op0_value,
+    --         op1_value   => rf_ds_op1_value,
+
+    --         -- fetch_value => ?????, --TODO
+    --         -- instr_adr   => ?????, --TODO
+
+    --         -- out_value   => ????? --TODO
+    --     );
+
     --TODO: d_x_buffer
     --TODO: execute_stage
     --TODO: x_m_buffer
