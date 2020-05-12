@@ -19,9 +19,17 @@ entity main is
         tb_rf_dst0_adr      : in std_logic_vector(3 downto 0);
         tb_rf_dst0_value    : in std_logic_vector(31 downto 0);
         -- from reg_file
-        rf_tb_dst0_value    : out std_logic_vector(31 downto 0)
+        rf_tb_dst0_value    : out std_logic_vector(31 downto 0);
 
-        --TODO: data_mem and instr_mem
+        -- to instr_mem
+        tb_im_rd            : in std_logic;
+        tb_im_wr            : in std_logic;
+        tb_im_data_in       : in std_logic_vector(15 downto 0);
+        tb_im_adr           : in std_logic_vector(31 downto 0);
+        -- from instr_mem
+        tb_im_data_out      : out std_logic_vector(15 downto 0)
+
+        --TODO: data_mem and ccr
     );
 end entity;
 
@@ -113,7 +121,15 @@ begin
             out_instruction_bits         => fs_fdb_instruction_bits,
             out_predicted_address        => fs_fdb_predicted_address,
             out_hashed_address           => fs_fdb_hashed_address,
-            out_inc_pc                   => fs_fdb_inc_pc
+            out_inc_pc                   => fs_fdb_inc_pc,
+
+            -- testing
+            tb_controls                  => tb_controls,
+            tb_mem_rd                    => tb_im_rd,
+            tb_mem_wr                    => tb_im_wr,
+            tb_mem_data_in               => tb_im_data_in,
+            tb_mem_adr                   => tb_im_adr,
+            tb_mem_data_out              => tb_im_data_out
         );
 
     f_d_buffer : entity work.f_d_buffer
