@@ -5,155 +5,145 @@ use work.common.all;
 
 entity execute_stage is
     port (
-        clk                        : in std_logic;
-        --reset is a signal propagated through buffers
-        --rst                         : in std_logic;
 
-        -- choose the alu inputs from the alu selectors
-        operand_1                  : in std_logic_vector(31 downto 0);
-        operand_2                  : in std_logic_vector(31 downto 0);
-        --data forwarded from ALU -> ALU
-        forwarded_data_1           : in std_logic_vector(31 downto 0);
-        forwarded_data_2           : in std_logic_vector(31 downto 0);
-        --data forwarded from Mem -> ALU
-        forwarded_data_2_1         : in std_logic_vector(31 downto 0);
-        forwarded_data_2_2         : in std_logic_vector(31 downto 0);
+        clk                                : in  std_logic;
+        stalling                           : in  std_logic;
 
-        -- from hazerd detection unit
-        --00 -> just pass operand_1
-        --01 -> alu -> alu
-        --10 -> mem -> alu
-        alu_op_1_selector          : in std_logic_vector(1 downto 0);
-        alu_op_2_selector          : in std_logic_vector(1 downto 0);
+        operand_1                          : in  std_logic_vector(31 downto 0);
+        operand_2                          : in  std_logic_vector(31 downto 0);
 
-        -- the selected operation
-        alu_operation              : in std_logic_vector(3 downto 0);
+        -- forwarded data ( from alu or memory)
+        forwarded_data_1                   : in  std_logic_vector(31 downto 0);
+        forwarded_data_2                   : in  std_logic_vector(31 downto 0);
 
-        --Memory address is Rsrc2 (operand_2)
-        --initial_mem_address         : in std_logic_vector(31 downto 0);
+        -- used in case of swapping , IN , LDM operations
+        destination_1_value                : in  std_logic_vector(31 downto 0);
+        destination_2_value                : in  std_logic_vector(31 downto 0);
 
-        r_w_control                : in std_logic_vector(1 downto 0);
+        -- alu operands selectors
+        -- 00 : operand ( No Hazerd detected )
+        -- 01 : forwarded data ( from alu or memory stage )
+        -- 10 : destination_1_value ( in case of swapping )
 
-        destination_register_in_1  : in std_logic_vector(3 downto 0);
-        --Second one is used only in swap
-        destination_register_in_2  : in std_logic_vector(3 downto 0);
+        alu_op_1_selector                  : in  std_logic_vector(1  downto 0);
+        alu_op_2_selector                  : in  std_logic_vector(1  downto 0);
 
-        opCode_in                  : in std_logic_vector(6 downto 0);
-        int_bit_in                 : in std_logic;
+        alu_operation                      : in  std_logic_vector(3  downto 0);
 
-        --main regs
-        alu_output                 : out std_logic_vector(31 downto 0);
-        memory_address             : out std_logic_vector(31 downto 0);
-        mem_in                     : out std_logic_vector(31 downto 0); -- out from operand 1
-        --propagation
-        opCode_out                 : out std_logic_vector(6 downto 0);
-        int_bit_out                : out std_logic;
-        r_w_control_out            : out std_logic_vector(1 downto 0);
-        --write back addresses
-        destination_register_out_1 : out std_logic_vector(3 downto 0);
-        destination_register_out_2 : out std_logic_vector(3 downto 0);
-        --useless
-        ccr                        : out std_logic_vector(2 downto 0)
+
+        destination_register_1_in          : in  std_logic_vector(3  downto 0);
+        destination_register_2_in          : in  std_logic_vector(3  downto 0);
+
+
+        opCode_in                          : in  std_logic_vector(6  downto 0);
+
+        int_bit_in                         : in  std_logic;
+
+        -- to be updated or no
+        ccr_in                             : in  std_logic_vector(2  downto 0);
+
+        alu_output                         : out std_logic_vector(31 downto 0);
+        ccr_out                            : out std_logic_vector(2  downto 0);
+
+        memory_address                     : out std_logic_vector(31 downto 0);
+        memory_input                       : out std_logic_vector(31 downto 0);
+
+        -- propagated signals
+        opCode_out                         : out std_logic_vector(6  downto 0);
+
+        destination_register_1_out         : out std_logic_vector(3  downto 0);
+        destination_register_2_out         : out std_logic_vector(3  downto 0);
+
+        destination_1_value_out            : out std_logic_vector(31 downto 0);
+        destination_2_value_out            : out std_logic_vector(31 downto 0);
+
+        interrupt_bit_out                  : out std_logic
+
+
     );
 end entity;
 
 architecture rtl of execute_stage is
-    signal alu_operand_1  : std_logic_vector(31 downto 0) := (others => '0');
-    signal alu_operand_2  : std_logic_vector(31 downto 0) := (others => '0');
-    signal alu_output_sig : std_logic_vector(31 downto 0) := (others => '0');
+
+    signal op_1                            : std_logic_vector(31 downto 0)    := (others => '0');
+    signal op_2                            : std_logic_vector(31 downto 0)    := (others => '0');
+    signal operation                       : std_logic_vector(3  downto 0)    := (others => '0');
+    signal opt                             : std_logic_vector(31 downto 0)    := (others => '0');
+    signal ccr                             : std_logic_vector(2  downto 0)    := (others => '0');
+
+
 begin
 
-    --MAIN OUT REGS:
-    --1- alu_output 32
-    --  usually holds the data to be written back
-    --  its address is always destination_register_out_1
+    U : entity work.alu(rtl)
+    port map(
+        op                                  => operation,
+        a                                   => op_1,
+        b                                   => op_2,
+        ccr                                 => ccr,
+        c                                   => opt
+    );
 
-    --2- mem_in_data 32
-    --  usually holds the data that will be written into memory
+    process(clk , opt)
+    begin
 
-    --3- mem_in_out_address 32
-    --  usually holds the address of the data to be written or extracted
+        -- works at rising edge and stalling disabled only
 
-    --Operation analysis:
+        if (rising_edge(clk) and stalling = '0') then
 
-    --One operand operations (inc dec not)
-    --      input: operand_1
-    --      output: alu_output
-    --      wb:     true -> destination_register_out_1
+            destination_register_1_out      <= destination_register_1_in;
+            destination_register_2_out      <= destination_register_2_in;
 
-    --two operands operations (add sub and or )
-    --      input: operand_1 & operand_2
-    --      output: alu_output
-    --      wb:     true -> destination_register_out_1
+            destination_1_value_out         <= destination_1_value;
+            destination_2_value_out         <= destination_2_value;
 
-    --two operand operations (iadd shl shr)
-    --      input: operand_1(Reg value) & operand_2(immediate value)
-    --      output: alu_output
-    --      wb:     true -> destination_register_out_1
+            opCode_out                      <= opCode_in;
+            interrupt_bit_out               <= int_bit_in;
 
-    --SWAP...you will not do anything, they're already swapped
-    --      input: operand_1(Rsrc_2) and operand_2(Rsrc_1)
-    --      output: alu_output & (mem_in_data)---> I'm reusing these places
-    --      wb:     true -> destination_register_out_1 && destination_register_out_2
+            if (opCode_in = "1111000" or opCode_in(6 downto 3) = "1011") then                    -- in case of IN or LDM no operation performed
 
-    --stackers (push pop call ret rti)
-    --      input: operand_1(Data) and operand_2(SP)
-    --      output: mem_in_data & mem_adr
-    --      wb:     it depends
+                memory_address              <= (others => '0');      -- don't care !
+                memory_input                <= destination_1_value;
+                alu_output                  <= destination_1_value;
+                ccr_out                     <= ccr_in;
+                operation                   <= ALUOP_NOP;
+            else
 
-    --loaders (ldm ldd)
-    --      input: operand_1(NONE) and operand_2(immediate value or address)
-    --      output: mem_in_out_adr (immediate or address)
-    --      wb:     true -> destination_register_out_1
+                case( alu_op_1_selector ) is
 
-    --std
-    --      input: operand_1(reg value) and operand_2(address)
-    --      output: mem_in_data & mem_in_out_adr (address)
-    --      wb:     false
+                    when "01"   =>
+                        op_1                <= forwarded_data_1;
+                    when "10"   =>
+                        op_1                <= destination_1_value;
+                    when "11"   =>
+                        op_1                <= destination_2_value;
+                    when others =>   -- when 00
+                        op_1                <= operand_1;
+                end case ;
 
-    --jumppers (jz jmp)
-    --      input: none
-    --      output: none
-    --      wb:     false
-    --Propagated Signals
-    opCode_out                                   <= opCode_in;
-    int_bit_out                                  <= int_bit_in;
-    r_w_control_out                              <= r_w_control;
-    destination_register_out_1                   <= destination_register_in_1;
-    destination_register_out_2                   <= destination_register_in_2;
+                case( alu_op_2_selector ) is
+                    when "01"   =>
+                        op_1                <= forwarded_data_2;
+                    when "10"   =>
+                        op_2                <= destination_1_value;
+                    when "11"   =>
+                        op_2                <= destination_2_value;
+                    when others =>   -- when 00
+                        op_2                <= operand_2;
+                end case ;
 
-    memory_address                               <= operand_2;
+                operation                   <= alu_operation;
+                ccr_out                     <= ccr;
+                alu_output                  <= opt;
+                memory_input                <= operand_2;
 
-    --Swap special case
-    with opCode_in(6 downto 3) select alu_output <=
-    operand_1 when "0001",
-    alu_output_sig when others;
+                if (opCode_in(6 downto 3) = "1010" or opCode_in = "0000100" or opCode_in = "0000101" ) then
+                    memory_address              <= opt;
+                else
+                    memory_address              <= operand_1;
+                end if;
 
-    with opCode_in(6 downto 3) select mem_in <=
-    operand_2 when "0001",
-    operand_1 when others;
-    --FOR DATA FORWARDING
-    with alu_op_1_selector select alu_operand_1 <=
-        forwarded_data_1 when "10",
-        forwarded_data_2_1 when "01",
-        operand_1 when "00",
-        (others => 'Z') when others;
+            end if;
+        end if;
 
-    with alu_op_2_selector select alu_operand_2 <=
-        forwarded_data_2 when "10",
-        forwarded_data_2_2 when "01",
-        operand_2 when "00",
-        (others => 'Z') when others;
-
-    --alu_operand_1 <= forwarded_data_1 when alu_op_1_selector = '1' else operand_1;
-    --alu_operand_2 <= forwarded_data_2 when alu_op_2_selector = '1' else operand_2;
-
-    operation : entity work.alu
-        port map(
-            op  => alu_operation,
-            a   => alu_operand_1,
-            b   => alu_operand_2,
-            ccr => ccr,
-            c   => alu_output_sig
-        );
+    end process;
 end architecture;
