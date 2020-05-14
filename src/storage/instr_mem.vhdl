@@ -24,16 +24,16 @@ architecture rtl of instr_mem is
     type DataType is array(0 to MEM_NUM_WORDS - 1) of std_logic_vector(data_in'range);
     signal data : DataType := (
     --%REPLACE%--
-    -- please don't remove the previouse line; it could be replaced (by a script) 
+    -- please don't remove the previous line; it could be replaced (by a script) 
     -- with the contents of ram before compiling the file
-    others => (others => 'U')
+    others => "1110000000000000"
     );
 begin
     process (clk, rd, wr, address, data_in, rst)
     begin
         if rst = '1' then
             for i in data'range loop
-                data(i) <= to_vec(0, data(i)'length);
+                data(i) <= "1110000000000000";
             end loop;
         else
             if rd = '1' then
