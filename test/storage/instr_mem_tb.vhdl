@@ -142,7 +142,7 @@ begin
                 rd      <= '1';
                 address <= to_vec(1, address'length);
                 wait for CLK_PERD;
-                check_equal(data_out, std_logic_vector(to_unsigned(0, MEM_WORD_LENGTH)), "data_out is zero");
+                check_equal(data_out, to_vec("1110000000000000", data_out'length), "data_out is zero");
             end loop;
         end if;
 
