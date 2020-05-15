@@ -106,8 +106,8 @@ begin
             else
                 pc <= std_logic_vector(unsigned(pc) + 1);
             end if;
-            -- decide whether the instruction is 32 or 64 bits
-            if mem_data_out(0) = '1' then
+            -- decide whether the instruction is 16 or 32 bits
+            if mem_data_out(15) = '1' then
                 out_inst_length_bit <= '1';
                 len_bit             <= '1';
             else
