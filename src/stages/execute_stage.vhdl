@@ -40,10 +40,11 @@ entity execute_stage is
         int_bit_in                         : in  std_logic;
 
         -- to be updated or no
-        ccr_in                             : in  std_logic_vector(2  downto 0);
 
         alu_output                         : out std_logic_vector(31 downto 0);
         ccr_out                            : out std_logic_vector(2  downto 0);
+
+        update_ccr                         : out std_logic;                               -- if 0 keep the previous value , if 1 take the output ccr
 
         memory_address                     : out std_logic_vector(31 downto 0);
         memory_input                       : out std_logic_vector(31 downto 0);
@@ -104,7 +105,8 @@ begin
                 memory_address              <= (others => '0');      -- don't care !
                 memory_input                <= destination_1_value;
                 alu_output                  <= destination_1_value;
-                ccr_out                     <= ccr_in;
+                ccr_out                     <= (others => '0');
+                update_ccr                  <= '0';
                 operation                   <= ALUOP_NOP;
             else
 
@@ -133,6 +135,7 @@ begin
 
                 operation                   <= alu_operation;
                 ccr_out                     <= ccr;
+                update_ccr                  <= '1';
                 alu_output                  <= opt;
                 memory_input                <= operand_2;
 
