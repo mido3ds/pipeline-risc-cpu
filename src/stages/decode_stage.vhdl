@@ -5,98 +5,135 @@ use work.common.all;
 
 entity decode_stage is
     port (
-        clk                     : in std_logic;
 
-        in_zero_flag            : in std_logic;
+        --inputs from main entity
+        --clk                     : in  std_logic;
+
+        mem_stalling_bit        : in  std_logic;                               -- signal from memory stage used in rti or interrupt operations
+        in_zero_flag            : in  std_logic;
+        in_port                 : in  std_logic_vector(31 downto 0);
 
         -- From F/D Buffer
-        fdb_instr               : in std_logic_vector(31 downto 0);
-        fdb_next_adr            : in std_logic_vector(31 downto 0);
-        fdb_inc_pc              : in std_logic_vector(31 downto 0);
-        fdb_hashed_adr          : in std_logic_vector(3 downto 0);
-        fdb_interrupt           : in std_logic;
-        fdb_reset               : in std_logic;
-        fdb_inst_length         : in std_logic;                     -- TODO: use this
+        fdb_instr               : in  std_logic_vector(31 downto 0);
+        --fdb_next_adr            : in  std_logic_vector(31 downto 0);
+        fdb_inc_pc              : in  std_logic_vector(31 downto 0);
+        --fdb_hashed_adr          : in  std_logic_vector(3  downto 0);
+        fdb_interrupt           : in  std_logic;
+        --fdb_reset               : in  std_logic;
+        --fdb_inst_length         : in  std_logic;                     -- TODO: use this
 
+            ------------------- assume the values will be read from main and decoder just selects the registers
         -- From Register File
-        rf_op0_value            : in std_logic_vector(31 downto 0); -- OP
-        rf_op1_value            : in std_logic_vector(31 downto 0);
+        --rf_op0_value            : in  std_logic_vector(31 downto 0); -- OP
+        --rf_op1_value            : in  std_logic_vector(31 downto 0);
 
-        out_if_flush            : out std_logic;
-        out_branch_adr_update   : out std_logic_vector(31 downto 0);
-        out_feedback_hashed_adr : out std_logic_vector(3 downto 0);
+        --out_if_flush            : out std_logic;
+        --out_branch_adr_update   : out std_logic_vector(31 downto 0);
+        --out_feedback_hashed_adr : out std_logic_vector(3  downto 0);
 
         -- To D/X Buffer
-        dxb_alu_op              : out std_logic_vector (3 downto 0);
-        dxb_operand0            : out std_logic_vector(32 - 1 downto 0);
-        dxb_operand1            : out std_logic_vector(32 - 1 downto 0);
-        dxb_dest_0              : out std_logic_vector(4 - 1 downto 0);
-        dxb_dest_1              : out std_logic_vector(4 - 1 downto 0);
-        dxb_dest_value          : out std_logic_vector(32 - 1 downto 0);
-        dxb_opcode              : out std_logic_vector(7 - 1 downto 0);
-        dxb_r_w                 : out std_logic_vector(1 downto 0);
+        dxb_alu_op              : out std_logic_vector(3  downto 0);
+
+        -- main must set these values
+        --dxb_operand0            : out std_logic_vector(31 downto 0);
+        --dxb_operand1            : out std_logic_vector(31 downto 0);
+        dxb_dest_0              : out std_logic_vector(3  downto 0);
+        dxb_dest_1              : out std_logic_vector(3  downto 0);
+        --dxb_dest_1_value        : out std_logic_vector(31 downto 0);
+        --dxb_dest_2_value        : out std_logic_vector(31 downto 0);
+
+        dxb_opcode              : out std_logic_vector(6  downto 0);
+        dxb_r_w                 : out std_logic_vector(1  downto 0);
         dxb_interrupt           : out std_logic;
 
         -- To Register File
-        rf_src0_adr             : out std_logic_vector(3 downto 0); -- SRC
-        rf_src1_adr             : out std_logic_vector(3 downto 0);
-        rf_br_io_enbl           : out std_logic_vector(1 downto 0); -- STATE
-        rf_rst                  : out std_logic                     --will_see
+        rf_src0_adr             : out std_logic_vector(3  downto 0); -- SRC
+        rf_src1_adr             : out std_logic_vector(3  downto 0);
+
+        src2_value              : out std_logic_vector(31 downto 0);
+        src2_value_selector     : out std_logic
+        --rf_br_io_enbl           : out std_logic_vector(1  downto 0); -- STATE
+        --rf_rst                  : out std_logic                     --will_see
     );
 end entity;
 
 architecture rtl of decode_stage is
-    signal branch_enable    : std_logic                      := '0';
-    signal rsrc2_val_signal : std_logic_vector (31 downto 0) := (others => '0');
-    signal op2_sel_sig      : std_logic                      := '0';
+    --signal branch_enable        : std_logic                      := '0';
+    --signal rsrc2_val_signal     : std_logic_vector (31 downto 0) := (others => '0');
+    --signal op2_sel_sig          : std_logic                      := '0';
+    signal alu_op               : std_logic_vector(3 downto 0)  := (others => '0');
+    signal r_w_control          : std_logic_vector(1  downto 0)  := (others => '0');
+    signal dest_0               : std_logic_vector(3  downto 0)  := (others => '0');
+    signal dest_1               : std_logic_vector(3  downto 0)  := (others => '0');
+    signal src_0                : std_logic_vector(3  downto 0)  := (others => '0');
+    signal src_1                : std_logic_vector(3  downto 0)  := (others => '0');
+    signal src_2_val            : std_logic_vector(31 downto 0)  := (others => '0');
+    signal src_2_val_enable     : std_logic                      := '0';
 begin
     control_unit_0 : entity work.control_unit
         port map(
-            ib            => fdb_instr,
+            ib                   => fdb_instr,
+            in_port_value        => in_port,
+            incremented_pc       => fdb_inc_pc,
+            aluop                => alu_op,
+            rsrc1_sel            => src_0,
+            rsrc2_sel            => src_1,
+            rdst1_sel            => dest_0,
+            rdst2_sel            => dest_1,
 
-            aluop         => dxb_alu_op,
-            rsrc1_sel     => rf_src0_adr,
-            rsrc2_sel     => rf_src1_adr,
-            rdst1_sel     => dxb_dest_0,
-            rdst2_sel     => dxb_dest_1,
-
-            rsrc2_val     => rsrc2_val_signal,
-            op2_sel       => op2_sel_sig,
-            branch_io     => rf_br_io_enbl,
-            branch_enable => branch_enable,
-            r_w_control   => dxb_r_w
+            rsrc2_val            => src_2_val,
+            op2_sel              => src_2_val_enable,
+            --branch_io          => rf_br_io_enbl,
+            --branch_enable      => branch_enable,
+            r_w_control          => r_w_control
         );
 
-    branch_address_0 : entity work.branch_adr
-        port map(
-            next_pc_adr         => fdb_next_adr,
-            instr_adr           => rf_op0_value,
-            incr_pc_adr         => fdb_inc_pc,
-            hashed_adr          => fdb_hashed_adr,
-            branch_enable       => branch_enable,
+        process(mem_stalling_bit)
+        begin
+            if(mem_stalling_bit = '0') then
+                dxb_interrupt                        <= fdb_interrupt;
+                dxb_opcode                           <= fdb_instr(31 downto 25);
+                dxb_alu_op                           <= alu_op;
+                dxb_dest_0                           <= dest_0;
+                dxb_dest_1                           <= dest_1;
+                rf_src0_adr                          <= src_0;
+                rf_src1_adr                          <= src_1;
+                src2_value_selector                  <= src_2_val_enable;
+                src2_value                           <= src_2_val;
+                dxb_r_w                              <= r_w_control;
+            end if;
 
-            zero_flag           => in_zero_flag,
-            if_flush            => out_if_flush,
-            branch_adr_correct  => out_branch_adr_update,
-            feedback_hashed_adr => out_feedback_hashed_adr
-        );
+        end process;
+    --branch_address_0 : entity work.branch_adr
+    --    port map(
+    --        next_pc_adr         => fdb_next_adr,
+    --        instr_adr           => rf_op0_value,
+    --        incr_pc_adr         => fdb_inc_pc,
+    --        hashed_adr          => fdb_hashed_adr,
+    --        branch_enable       => branch_enable,
+
+    --        zero_flag           => in_zero_flag,
+    --        if_flush            => out_if_flush,
+    --        branch_adr_correct  => out_branch_adr_update,
+    --        feedback_hashed_adr => out_feedback_hashed_adr
+    --    );
 
     --TODO
     --dxb_dest_value <= ???
 
     --- Bits that don't acquire processing:
     --interrupt
-    dxb_interrupt                        <= fdb_interrupt;
+    --dxb_interrupt                        <= fdb_interrupt;
     --OpCode
-    dxb_opcode                           <= fdb_instr(31 downto 25);
+    --dxb_opcode                           <= fdb_instr(31 downto 25);
     --First operand
-    dxb_operand0                         <= rf_op0_value;
+    --dxb_operand0                         <= rf_op0_value;
 
     --decide the second operands to go to the ALU
-    with op2_sel_sig select dxb_operand1 <=
-        rsrc2_val_signal when '1',
-        rf_op1_value when others;
+    --with op2_sel_sig select dxb_operand1 <=
+    --    rsrc2_val_signal when '1',
+    --    rf_op1_value when others;
 
     --RESET register file
-    rf_rst <= fdb_reset;
+    --rf_rst <= fdb_reset;
 end architecture;

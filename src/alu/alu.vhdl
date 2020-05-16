@@ -48,10 +48,10 @@ begin
                     c2 := shift_right(a2, to_int(b2));
                     ccr(CCR_CARRY) <= c2(32);
                 when ALUOP_INC2 =>
-                    c2 := b2 + 1;
+                    c2 := a2 + 2;
                     ccr(CCR_CARRY) <= c2(32);
                 when ALUOP_DEC2 =>
-                    c2 := b2 - 1;
+                    c2 := a2 - 2;
                     ccr(CCR_CARRY) <= c2(32);
                 when others => report "invalid op = " & to_str(op) severity warning;
             end case;
