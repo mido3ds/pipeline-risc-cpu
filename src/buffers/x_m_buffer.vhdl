@@ -7,8 +7,8 @@ entity x_m_buffer is
         clk               : in std_logic;
 
         in_aluout         : in std_logic_vector(32 - 1 downto 0);
-        in_mem            : in std_logic_vector(32 - 1 downto 0);
-        in_data           : in std_logic_vector(32 - 1 downto 0);
+        in_mem_adr        : in std_logic_vector(32 - 1 downto 0);
+        in_mem_inp        : in std_logic_vector(32 - 1 downto 0);
         in_opcode         : in std_logic_vector(7 - 1 downto 0);
         in_destination_0  : in std_logic_vector(4 - 1 downto 0);
         in_destination_1  : in std_logic_vector(4 - 1 downto 0);
@@ -17,9 +17,9 @@ entity x_m_buffer is
         in_r_w            : in std_logic_vector(2 - 1 downto 0);
         in_interrupt      : in std_logic;
 
-        out_data          : out std_logic_vector(32 - 1 downto 0);
+        out_mem_adr       : out std_logic_vector(32 - 1 downto 0);
+        out_mem_inp       : out std_logic_vector(32 - 1 downto 0);
         out_aluout        : out std_logic_vector(32 - 1 downto 0);
-        out_mem           : out std_logic_vector(32 - 1 downto 0);
         out_opcode        : out std_logic_vector(7 - 1 downto 0);
         out_destination_0 : out std_logic_vector(4 - 1 downto 0);
         out_destination_1 : out std_logic_vector(4 - 1 downto 0);
@@ -44,8 +44,8 @@ architecture rtl of x_m_buffer is
     signal interrupt     : std_logic;
 begin
     aluout        <= in_aluout;
-    mem           <= in_mem;
-    data          <= in_data;
+    mem           <= in_mem_adr;
+    data          <= in_mem_inp;
     opcode        <= in_opcode;
     destination_0 <= in_destination_0;
     destination_1 <= in_destination_1;
@@ -58,13 +58,13 @@ begin
     begin
         if rising_edge(clk) then
             out_aluout        <= aluout;
-            out_mem           <= mem;
+            out_mem_adr       <= mem;
             out_opcode        <= opcode;
             out_destination_0 <= destination_0;
             out_destination_1 <= destination_1;
             out_dest_value_0  <= dest_value_0;
             out_dest_value_1  <= dest_value_1;
-            out_data          <= data;
+            out_mem_inp       <= data;
             out_r_w           <= r_w;
             out_interrupt     <= interrupt;
         end if;
