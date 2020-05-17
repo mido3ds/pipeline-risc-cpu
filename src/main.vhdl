@@ -132,16 +132,16 @@ begin
     f_d_buffer : entity work.f_d_buffer
         port map(
             --IN
-            clk             => clk,
+            clk           => clk,
 
-            in_flush        => fsi_if_flush,
-            in_instr        => fs_fdb_instruction_bits,
-            in_inc_pc       => fs_fdb_inc_pc,
-            in_interrupt    => fs_fdb_interrupt,
+            in_flush      => fsi_if_flush,
+            in_instr      => fs_fdb_instruction_bits,
+            in_inc_pc     => fs_fdb_inc_pc,
+            in_interrupt  => fs_fdb_interrupt,
             --OUT
-            out_instr       => fdb_ds_instr,
-            out_inc_pc      => fdb_ds_inc_pc,
-            out_interrupt   => fdb_ds_interrupt
+            out_instr     => fdb_ds_instr,
+            out_inc_pc    => fdb_ds_inc_pc,
+            out_interrupt => fdb_ds_interrupt
         );
 
     decode_stage : entity work.decode_stage
@@ -149,55 +149,54 @@ begin
             --IN
             -- in_zero_flag            => ????, --TODO: from execute_stage.ccr_out(CCR_ZERO)
 
-            fdb_instr               => fdb_ds_instr,
-            fdb_inc_pc              => fdb_ds_inc_pc,
-            fdb_interrupt           => fdb_ds_interrupt,
+            fdb_instr           => fdb_ds_instr,
+            fdb_inc_pc          => fdb_ds_inc_pc,
+            fdb_interrupt       => fdb_ds_interrupt,
             -- mem_stalling_bit     => ????, -- TODO from memory_stage.stalling_enable
-            in_port                 => in_value,
+            in_port             => in_value,
 
             --OUT
-            dxb_alu_op              => ds_dxb_alu_op,
-            dxb_dest_0              => ds_dxb_dest_0,
-            dxb_dest_1              => ds_dxb_dest_1,
-            dxb_opcode              => ds_dxb_opcode,
-            dxb_r_w                 => ds_dxb_r_w,
-            dxb_interrupt           => ds_dxb_interrupt,
+            dxb_alu_op          => ds_dxb_alu_op,
+            dxb_dest_0          => ds_dxb_dest_0,
+            dxb_dest_1          => ds_dxb_dest_1,
+            dxb_opcode          => ds_dxb_opcode,
+            dxb_r_w             => ds_dxb_r_w,
+            dxb_interrupt       => ds_dxb_interrupt,
 
-            rf_src0_adr             => ds_rf_src0_adr,
-            rf_src1_adr             => ds_rf_src1_adr,
+            rf_src0_adr         => ds_rf_src0_adr,
+            rf_src1_adr         => ds_rf_src1_adr,
 
-            src2_value              => ds_dxb_src2_value,
-            src2_value_selector     => ds_dxb_src2_sel
+            src2_value          => ds_dxb_src2_value,
+            src2_value_selector => ds_dxb_src2_sel
         );
 
-    --TODO: reg_file
-    -- reg_file : entity work.reg_file
-    --     port map(
-    --         --IN
-    --         clk         => clk,
-    --         rst         => rf_rst,
+    reg_file : entity work.reg_file
+        port map(
+            --IN
+            clk        => clk,
+            rst        => rf_rst,
 
-    --         dst0_adr    => rf_dst0_adr,
-    --         dst1_adr    => rf_dst1_adr,
-    --         src0_adr    => rf_src0_adr,
-    --         src1_adr    => rf_src1_adr,
-    --         -- fetch_adr   => ?????, --TODO
+            dst0_adr   => rf_dst0_adr,
+            dst1_adr   => rf_dst1_adr,
+            src0_adr   => rf_src0_adr,
+            src1_adr   => rf_src1_adr,
+            -- fetch_adr   => ?????, --TODO
 
-    --         wb0_value   => rf_wb0_value,
-    --         -- wb1_value   => ?????, --TODO
+            wb0_value  => rf_wb0_value,
+            -- wb1_value   => ?????, --TODO
 
-    --         in_value    => in_value,
+            in_value   => in_value,
 
-    --         br_io_enbl  => rf_br_io_enbl,
-    --         --OUT
-    --         op0_value   => rf_ds_op0_value,
-    --         op1_value   => rf_ds_op1_value,
+            br_io_enbl => rf_br_io_enbl,
+            --OUT
+            op0_value  => rf_ds_op0_value,
+            op1_value  => rf_ds_op1_value,
 
-    --         -- fetch_value => ?????, --TODO
-    --         -- instr_adr   => ?????, --TODO
+            -- fetch_value => ?????, --TODO
+            -- instr_adr   => ?????, --TODO
 
-    --         out_value   => out_value
-    --     );
+            out_value  => out_value
+        );
     --IN
     rf_rst           <= rst or ds_rf_rst;
     -- rf_dst0_adr <= tb_rf_dst0_adr when tb_controls = '1' else ????; --TODO
