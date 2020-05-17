@@ -101,6 +101,9 @@ architecture rtl of main is
     signal rf_wb0_value                  : std_logic_vector(31 downto 0);
     signal rf_br_io_enbl                 : std_logic_vector(1 downto 0);
     signal rf_rst                        : std_logic;
+
+    --> execute_stage
+    signal xs_ccr_in                     : std_logic_vector(2 downto 0); --TODO: what to connect it with?
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -261,6 +264,39 @@ begin
         );
 
     --TODO: execute_stage
+    -- execute_stage : entity work.execute_stage
+    --     port map(
+    --         --IN
+    --         clk                        => clk,
+
+    --         stalling                   => ?????, --TODO
+    --         operand_1                  => dxb_xs_operand0,
+    --         operand_2                  => dxb_xs_operand1,
+    --         forwarded_data_1           => ?????, --TODO
+    --         forwarded_data_2           => ?????, --TODO
+    --         destination_1_value        => ?????, --TODO
+    --         destination_2_value        => ?????, --TODO
+    --         alu_op_1_selector          => ?????, --TODO
+    --         alu_op_2_selector          => ?????, --TODO
+    --         alu_operation              => dxb_xs_alu_op,
+    --         destination_register_1_in  => dxb_xs_dest_0,
+    --         destination_register_2_in  => dxb_xs_dest_1,
+    --         opCode_in                  => dxb_xs_opcode,
+    --         int_bit_in                 => dxb_xs_interrupt,
+    --         ccr_in                     => xs_ccr_in,
+    --         --OUT
+    --         alu_output                 => ?????, --TODO
+    --         ccr_out                    => ?????, --TODO
+    --         memory_address             => ?????, --TODO
+    --         memory_input               => ?????, --TODO
+    --         opCode_out                 => ?????, --TODO
+    --         destination_register_1_out => ?????, --TODO
+    --         destination_register_2_out => ?????, --TODO
+    --         destination_1_value_out    => ?????, --TODO
+    --         destination_2_value_out    => ?????, --TODO
+    --         interrupt_bit_out          => ?????, --TODO
+    --     );
+
     --TODO: x_m_buffer
     --TODO: mem_stage
     --TODO: m_w_buffer
