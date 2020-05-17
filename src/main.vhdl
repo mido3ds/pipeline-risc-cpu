@@ -54,12 +54,8 @@ architecture rtl of main is
 
     -- f_d_buffer --> decode_stage
     signal fdb_ds_instr                  : std_logic_vector(31 downto 0);
-    signal fdb_ds_inst_length_bit        : std_logic;
-    signal fdb_ds_next_adr               : std_logic_vector(31 downto 0);
     signal fdb_ds_inc_pc                 : std_logic_vector(31 downto 0);
-    signal fdb_ds_hashed_adr             : std_logic_vector(3 downto 0);
     signal fdb_ds_interrupt              : std_logic;
-    signal fdb_ds_reset                  : std_logic;
 
     -- decode_stage --> d_x_buffer
     signal ds_dxb_alu_op                 : std_logic_vector (3 downto 0);
@@ -101,9 +97,6 @@ architecture rtl of main is
     signal rf_wb0_value                  : std_logic_vector(31 downto 0);
     signal rf_br_io_enbl                 : std_logic_vector(1 downto 0);
     signal rf_rst                        : std_logic;
-
-    --> execute_stage
-    signal xs_ccr_in                     : std_logic_vector(2 downto 0); --TODO: what to connect it with?
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -141,49 +134,26 @@ begin
             clk             => clk,
 
             in_flush        => fsi_if_flush,
-            in_stall        => hdu_stall,
             in_instr        => fs_fdb_instruction_bits,
-            in_inst_length  => fs_fdb_inst_length_bit,
-            in_next_adr     => fs_fdb_predicted_address,
             in_inc_pc       => fs_fdb_inc_pc,
-            in_hashed_adr   => fs_fdb_hashed_address,
             in_interrupt    => fs_fdb_interrupt,
-            in_reset        => rst,
             --OUT
             out_instr       => fdb_ds_instr,
-            out_inst_length => fdb_ds_inst_length_bit,
-            out_next_adr    => fdb_ds_next_adr,
             out_inc_pc      => fdb_ds_inc_pc,
-            out_hashed_adr  => fdb_ds_hashed_adr,
-            out_interrupt   => fdb_ds_interrupt,
-            out_reset       => fdb_ds_reset
+            out_interrupt   => fdb_ds_interrupt
         );
 
     decode_stage : entity work.decode_stage
         port map(
             --IN
-            clk                     => clk,
-
             in_zero_flag            => 'U', --TODO: from execute_stage
 
             fdb_instr               => fdb_ds_instr,
-            fdb_next_adr            => fdb_ds_next_adr,
             fdb_inc_pc              => fdb_ds_inc_pc,
-            fdb_hashed_adr          => fdb_ds_hashed_adr,
             fdb_interrupt           => fdb_ds_interrupt,
-            fdb_reset               => fdb_ds_reset,
-            fdb_inst_length         => fdb_ds_inst_length_bit,
 
-            rf_op0_value            => rf_ds_op0_value,
-            rf_op1_value            => rf_ds_op1_value,
             --OUT
-            out_if_flush            => fsi_if_flush,
-            out_branch_adr_update   => fsi_branch_address,
-            out_feedback_hashed_adr => fsi_hashed_address,
-
             dxb_alu_op              => ds_dxb_alu_op,
-            dxb_operand0            => ds_dxb_operand0,
-            dxb_operand1            => ds_dxb_operand1,
             dxb_dest_0              => ds_dxb_dest_0,
             dxb_dest_1              => ds_dxb_dest_1,
             dxb_dest_value          => ds_dxb_dest_value,
@@ -192,9 +162,7 @@ begin
             dxb_interrupt           => ds_dxb_interrupt,
 
             rf_src0_adr             => ds_rf_src0_adr,
-            rf_src1_adr             => ds_rf_src1_adr,
-            rf_br_io_enbl           => ds_rf_br_io_enbl,
-            rf_rst                  => ds_rf_rst
+            rf_src1_adr             => ds_rf_src1_adr
         );
 
     --TODO: reg_file
@@ -247,7 +215,6 @@ begin
             in_operand1    => ds_dxb_operand1,
             in_dest_0      => ds_dxb_dest_0,
             in_dest_1      => ds_dxb_dest_1,
-            in_dest_value  => ds_dxb_dest_value,
             in_opcode      => ds_dxb_opcode,
             in_r_w         => ds_dxb_r_w,
             in_interrupt   => ds_dxb_interrupt,
@@ -269,13 +236,8 @@ begin
     --         --IN
     --         clk                        => clk,
 
-    --         stalling                   => ?????, --TODO
     --         operand_1                  => dxb_xs_operand0,
     --         operand_2                  => dxb_xs_operand1,
-    --         forwarded_data_1           => ?????, --TODO
-    --         forwarded_data_2           => ?????, --TODO
-    --         destination_1_value        => ?????, --TODO
-    --         destination_2_value        => ?????, --TODO
     --         alu_op_1_selector          => ?????, --TODO
     --         alu_op_2_selector          => ?????, --TODO
     --         alu_operation              => dxb_xs_alu_op,
@@ -283,7 +245,6 @@ begin
     --         destination_register_2_in  => dxb_xs_dest_1,
     --         opCode_in                  => dxb_xs_opcode,
     --         int_bit_in                 => dxb_xs_interrupt,
-    --         ccr_in                     => xs_ccr_in,
     --         --OUT
     --         alu_output                 => ?????, --TODO
     --         ccr_out                    => ?????, --TODO
