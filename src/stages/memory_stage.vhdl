@@ -20,7 +20,7 @@ entity memory_stage is
         destination_2_value                : in  std_logic_vector(31 downto 0);
         opCode_in                          : in  std_logic_vector(6  downto 0);
 
-        stalling                           : in  std_logic;
+        --stalling                           : in  std_logic;
 
         -- used for pc navigator
         int_bit_in                         : in  std_logic;
@@ -52,7 +52,8 @@ architecture rtl of memory_stage is
     signal input_data                      : std_logic_vector(31 downto 0)    := (others => '0');
     signal output_data                     : std_logic_vector(31 downto 0)    := (others => '0');
     signal address                         : std_logic_vector(31 downto 0)    := (others => '0');
-
+    signal stalling_in                     : std_logic                        := '0';
+    signal stalling_out                    : std_logic                        := '0';
 begin
 
     data_mem : entity work.data_mem(rtl)
@@ -76,19 +77,19 @@ begin
         int_bit_in                             => int_bit_in,
         enable                                 => pc_nav_enable,
         address                                => memory_address,
-        stalling                               => stalling,
+        stalling                               => stalling_in,
         stack_pointer                          => sp,
         pc_selector                            => pc_selector,
-        stalling_enable                        => stalling_enable
+        stalling_enable                        => stalling_out
 
     );
 
-    alu_output                                 <= sp when stalling = '1' else alu_result;
+    alu_output                                 <= sp when stalling_in = '1' else alu_result;
 
     process(clk)
     begin
         if rising_edge(clk) then
-            if stalling = '1' then      --we get the ccr only
+            if stalling_in = '1' then      --we get the ccr only
                 pc_nav_enable                  <= '1';
                 address                        <= sp;
                 input_data                     <= memory_in;
@@ -97,9 +98,9 @@ begin
                     ccr_out                    <= output_data(2 downto 0);
                     ccr_out_selector           <= '1';
                 end if;
-
+                stalling_in                    <= '0';
             else
-
+                stalling_in                    <= stalling_out;
                 -- normal situation
                 opCode_out                     <= opCode_in;
                 destination_register_1_out     <= destination_register_1_in;
