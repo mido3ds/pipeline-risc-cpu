@@ -17,7 +17,6 @@ entity fetch_stage is
         in_hashed_address            : in std_logic_vector(3 downto 0);
 
         out_interrupt                : out std_logic;
-        out_inst_length_bit          : out std_logic; -- 16 or 32 bits
         out_instruction_bits         : out std_logic_vector(31 downto 0);
         out_predicted_address        : out std_logic_vector(31 downto 0);
         out_hashed_address           : out std_logic_vector(3 downto 0);
@@ -45,6 +44,7 @@ architecture rtl of fetch_stage is
     signal mem_wr       : std_logic                     := '0';
     signal mem_data_in  : std_logic_vector(15 downto 0) := (others => '0');
     signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
+    signal inst_store   : std_logic_vector(15 downto 0) := (others => '0');
 
     --> inst_mem
     signal im_rd        : std_logic;
@@ -105,21 +105,20 @@ begin
                 pc <= (others => '0'); -- to be corrected
             else
                 pc <= std_logic_vector(unsigned(pc) + 1);
-            end if;
-            -- decide whether the instruction is 16 or 32 bits
-            if mem_data_out(15) = '1' then
-                out_inst_length_bit <= '1';
-                len_bit             <= '1';
-            else
-                out_inst_length_bit <= '0';
-                len_bit             <= '0';
-            end if;
+            end if;  
             -- instruction output
-            if len_bit = '0' then
+            -- decide whether the instruction is 16 or 32 bits
+            if len_bit = '0' and mem_data_out(15) = '0' then
                 out_instruction_bits(31 downto 16) <= mem_data_out;
                 out_instruction_bits(15 downto 0)  <= (others => '0');
+            elsif len_bit = '0' and mem_data_out(15) = '1' then
+                out_instruction_bits <= (others => '0'); -- output NOP
+                inst_store <= mem_data_out;
+                len_bit <= '1';
             else
+                out_instruction_bits(31 downto 16) <= inst_store;
                 out_instruction_bits(15 downto 0) <= mem_data_out;
+                len_bit <= '0';
             end if;
         end if;
     end process;

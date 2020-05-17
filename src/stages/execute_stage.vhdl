@@ -29,7 +29,8 @@ entity execute_stage is
         -- from d_x_buffer
         operand_1                          : in  std_logic_vector(31 downto 0);
         operand_2                          : in  std_logic_vector(31 downto 0);
-
+        in_src_value                       : in  std_logic_vector(31 downto 0);
+        src_value_sel                      : in  std_logic;
         alu_operation                      : in  std_logic_vector(3  downto 0);
 
         destination_register_1_in          : in  std_logic_vector(3  downto 0);
@@ -115,12 +116,12 @@ begin
 
                 memory_address              <= (others => '0');
                 memory_input                <= (others => '0');
-                alu_output                  <= operand_2;
+                alu_output                  <= in_src_value;
                 ccr_out                     <= (others => '0');
                 update_ccr                  <= '0';
                 --operation                   <= ALUOP_NOP;
             elsif (opCode_in = OPC_LDD or opCode_in = OPC_STD ) then
-                memory_address              <= operand_2;
+                memory_address              <= in_src_value;
                 memory_input                <= operand_1;
                 alu_output                  <= (others => '0');
                 ccr_out                     <= (others => '0');
@@ -147,7 +148,11 @@ begin
                     --when "11"   =>
                     --    op_2                <= destination_2_value;
                     when  others =>   -- when 00
-                        op_2                <= operand_2;
+                        if (src_value_sel = '1') then
+                            op_2            <= in_src_value;
+                        else
+                            op_2                <= operand_2;
+                        end if;
                 end case ;
 
                 ccr_out                     <= ccr;
