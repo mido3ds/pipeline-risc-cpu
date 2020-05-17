@@ -38,6 +38,7 @@ entity memory_stage is
 
 
         ccr_out                            : out std_logic_vector(2  downto 0);
+        ccr_out_selector                   : out std_logic;
 
         pc_selector                        : out std_logic;
         stalling_enable                    : out std_logic
@@ -92,8 +93,9 @@ begin
                 address                        <= sp;
                 input_data                     <= memory_in;
 
-                if (opCode_in = "0000101") then         -- loading ccr from stack
+                if (opCode_in = OPC_RTI) then         -- loading ccr from stack
                     ccr_out                    <= output_data(2 downto 0);
+                    ccr_out_selector           <= '1';
                 end if;
 
             else
@@ -103,7 +105,7 @@ begin
                 destination_register_1_out     <= destination_register_1_in;
                 destination_register_2_out     <= destination_register_2_in;
                 ccr_out                        <= ccr_in;
-
+                ccr_out_selector               <= '0';
                 destination_1_value_out        <= destination_1_value;
                 destination_2_value_out        <= destination_2_value;
 
@@ -117,7 +119,7 @@ begin
                     pc_nav_enable              <= '1';
                     input_data                 <= "00000000000000000000000000000" & ccr_in;        --store ccr first then store pc !
 
-                elsif (opCode_in = "0000101" or opCode_in = "0000100") then                     -- opcode of rti or ret operations activate pc navigator
+                elsif (opCode_in = OPC_RTI or opCode_in = OPC_RET) then                     -- opcode of rti or ret operations activate pc navigator
                     pc_nav_enable              <= '1';
                     input_data                 <= memory_in;
                 else
