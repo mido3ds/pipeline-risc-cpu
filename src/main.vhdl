@@ -34,8 +34,14 @@ entity main is
 end entity;
 
 architecture rtl of main is
+    signal ccr                           : std_logic_vector(2 downto 0);
+
     -- hdu --> fetch_stage,f_d_buffer,d_x_buffer
     signal hdu_stall                     : std_logic;
+
+    -- hdu --> execute_stage
+    signal hdu_xs_op_1_sel               : std_logic_vector(1 downto 0);
+    signal hdu_xs_op_2_sel               : std_logic_vector(1 downto 0);
 
     --> fetch_stage
     signal fsi_if_flush                  : std_logic;
@@ -98,6 +104,21 @@ architecture rtl of main is
     signal rf_wb0_value                  : std_logic_vector(31 downto 0);
     signal rf_br_io_enbl                 : std_logic_vector(1 downto 0);
     signal rf_rst                        : std_logic;
+
+    -- xmb --> xs
+    signal xmb_xs_aluout                 : std_logic_vector(31 downto 0);
+
+    -- xs --> xmb
+    signal xs_xmb_alu_output             : std_logic_vector(31 downto 0);
+    signal xs_xmb_interpt                : std_logic;
+    signal xs_xmb_destination_0          : std_logic_vector(4 - 1 downto 0);
+    signal xs_xmb_destination_1          : std_logic_vector(4 - 1 downto 0);
+    signal xs_xmb_dest_value_0           : std_logic_vector(32 - 1 downto 0);
+    signal xs_xmb_dest_value_1           : std_logic_vector(32 - 1 downto 0);
+    signal xs_xmb_mem                    : std_logic_vector(31 downto 0);
+    signal xs_xmb_opcode                 : std_logic_vector(6 downto 0);
+    signal xs_xmb_r_w                    : std_logic_vector(1 downto 0);
+
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -147,12 +168,12 @@ begin
     decode_stage : entity work.decode_stage
         port map(
             --IN
-            -- in_zero_flag            => ????, --TODO: from execute_stage.ccr_out(CCR_ZERO)
+            in_zero_flag        => ccr(CCR_ZERO),
 
             fdb_instr           => fdb_ds_instr,
             fdb_inc_pc          => fdb_ds_inc_pc,
             fdb_interrupt       => fdb_ds_interrupt,
-            -- mem_stalling_bit     => ????, -- TODO from memory_stage.stalling_enable
+            -- mem_stalling_bit     => TODO, --> memory_stage.stalling_enable
             in_port             => in_value,
 
             --OUT
@@ -180,10 +201,10 @@ begin
             dst1_adr   => rf_dst1_adr,
             src0_adr   => rf_src0_adr,
             src1_adr   => rf_src1_adr,
-            -- fetch_adr   => ?????, --TODO
+            -- fetch_adr   => TODO, --TODO
 
             wb0_value  => rf_wb0_value,
-            -- wb1_value   => ?????, --TODO
+            -- wb1_value   => TODO, --> memory_stage.destination_2_value_out
 
             in_value   => in_value,
 
@@ -192,18 +213,18 @@ begin
             op0_value  => rf_ds_op0_value,
             op1_value  => rf_ds_op1_value,
 
-            -- fetch_value => ?????, --TODO
-            -- instr_adr   => ?????, --TODO
+            -- fetch_value => TODO, --TODO
+            -- instr_adr   => TODO, --TODO
 
             out_value  => out_value
         );
     --IN
     rf_rst           <= rst or ds_rf_rst;
-    -- rf_dst0_adr <= tb_rf_dst0_adr when tb_controls = '1' else ????; --TODO
-    -- rf_dst1_adr <= (others => '1') when tb_controls = '1' else ????; --TODO
+    -- rf_dst0_adr <= tb_rf_dst0_adr when tb_controls = '1' else TODO; --> memory_stage.destination_register_1_out
+    -- rf_dst1_adr <= (others => '1') when tb_controls = '1' else TODO; --> memory_stage.destination_register_2_out
     rf_src0_adr      <= tb_rf_src0_adr when tb_controls = '1' else ds_rf_src0_adr;
     rf_src1_adr      <= (others => '1') when tb_controls = '1' else ds_rf_src1_adr;
-    -- rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ????; --TODO
+    -- rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else TODO; --> memory_stage.destination_1_value_out
     rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
     --OUT
     rf_tb_dst0_value <= rf_ds_op0_value;
@@ -239,31 +260,79 @@ begin
     execute_stage : entity work.execute_stage
         port map(
             --IN
-            clk                       => clk,
+            clk                        => clk,
+            -- mem_stalling_bit     => TODO, --> memory_stage.stalling_enable
 
-            operand_1                 => dxb_xs_operand0,
-            operand_2                 => dxb_xs_operand1,
-            -- alu_op_1_selector          => ?????, --TODO
-            -- alu_op_2_selector          => ?????, --TODO
-            alu_operation             => dxb_xs_alu_op,
-            destination_register_1_in => dxb_xs_dest_0,
-            destination_register_2_in => dxb_xs_dest_1,
-            opCode_in                 => dxb_xs_opcode,
-            int_bit_in                => dxb_xs_interrupt,
+            operand_1                  => dxb_xs_operand0,
+            operand_2                  => dxb_xs_operand1,
+            alu_op_1_selector          => hdu_xs_op_1_sel, --> hdu.operand_1_select
+            alu_op_2_selector          => hdu_xs_op_2_sel, --> hdu.operand_2_select
+            alu_operation              => dxb_xs_alu_op,
+            destination_register_1_in  => dxb_xs_dest_0,
+            destination_register_2_in  => dxb_xs_dest_1,
+            opCode_in                  => dxb_xs_opcode,
+            int_bit_in                 => dxb_xs_interrupt,
+
+            forwarded_data_1           => xmb_xs_aluout,     --> x_m_buffer.out_aluout
+            -- forwarded_data_2        => TODO, --> m_w_buffer.out_mem
             --OUT
-            -- alu_output                 => ?????, --TODO
-            -- ccr_out                    => ?????, --TODO
-            -- memory_address             => ?????, --TODO
-            -- memory_input               => ?????, --TODO
-            -- opCode_out                 => ?????, --TODO
-            -- destination_register_1_out => ?????, --TODO
-            -- destination_register_2_out => ?????, --TODO
-            -- destination_1_value_out    => ?????, --TODO
-            -- destination_2_value_out    => ?????, --TODO
-            -- interrupt_bit_out          => ?????, --TODO
+            alu_output                 => xs_xmb_alu_output, --> x_m_buffer.in_aluout
+            ccr_out                    => ccr,
+            memory_address             => xs_xmb_mem,           --> x_m_buffer.in_mem
+            -- memory_input               => TODO, --> TODO.TODO
+            opCode_out                 => xs_xmb_opcode,        --> x_m_buffer.in_opcode
+            destination_register_1_out => xs_xmb_destination_0, --> x_m_buffer.in_destination_0
+            destination_register_2_out => xs_xmb_destination_1, --> x_m_buffer.in_destination_1
+            destination_1_value_out    => xs_xmb_dest_value_0,  --> x_m_buffer.in_dest_value_0
+            destination_2_value_out    => xs_xmb_dest_value_1,  --> x_m_buffer.in_dest_value_1
+            interrupt_bit_out          => xs_xmb_interpt        --> x_m_buffer.in_interrupt
+            r_w_control_out            => xs_xmb_r_w            --> x_m_buffer.in_r_w
         );
 
-    --TODO: x_m_buffer
+    hdu : entity work.hdu
+        port map(
+            --IN
+            -- opcode_decode    <= TODO, --> TODO.TODO
+            -- opcode_execute   <= TODO, --> TODO.TODO
+            -- opcode_memory    <= TODO, --> TODO.TODO
+            -- decode_src_reg_1 <= TODO, --> TODO.TODO
+            -- decode_src_reg_2 <= TODO, --> TODO.TODO
+            -- exe_dst_reg      <= TODO, --> TODO.TODO
+            -- mem_dst_reg      <= TODO, --> TODO.TODO
+            --OUT
+            operand_1_select <= hdu_xs_op_1_sel, --> execute_stage.alu_op_1_selector
+            operand_2_select <= hdu_xs_op_2_sel, --> execute_stage.alu_op_1_selector
+            Stall_signal     <= hdu_stall        --> fetch_stage,f_d_buffer,d_x_buffer
+        );
+
+    x_m_buffer : entity work.x_m_buffer
+        port map(
+            --IN
+            clk              <= clk,
+
+            in_aluout        <= xs_xmb_alu_output,    --> execute_stage.alu_output
+            in_mem           <= xs_xmb_mem,           --> execute_stage.memory_address
+            -- in_data           <= TODO, --> TODO.TODO
+            in_opcode        <= xs_xmb_opcode,        --> execute_stage.opCode_out
+            in_destination_0 <= xs_xmb_destination_0, --> execute_stage.destination_register_1_out
+            in_destination_1 <= xs_xmb_destination_1, --> execute_stage.destination_register_2_out
+            in_dest_value_0  <= xs_xmb_dest_value_0,  --> execute_stage.destination_1_value_out
+            in_dest_value_1  <= xs_xmb_dest_value_1,  --> execute_stage.destination_2_value_out
+            in_r_w           <= xs_xmb_r_w,           --> execute_stage.r_w_control_out
+            in_interrupt     <= xs_xmb_interpt,       --> execute_stage.interrupt_bit_out
+            --OUT
+            out_data         <= xmb_xs_aluout,        --> execute_stage.forwarded_data__1
+            -- out_aluout        <= TODO, --> TODO.TODO
+            -- out_mem           <= TODO, --> TODO.TODO
+            -- out_opcode        <= TODO, --> TODO.TODO
+            -- out_destination_0 <= TODO, --> TODO.TODO
+            -- out_destination_1 <= TODO, --> TODO.TODO
+            -- out_dest_value_0  <= TODO, --> TODO.TODO
+            -- out_dest_value_1  <= TODO, --> TODO.TODO
+            -- out_r_w           <= TODO, --> TODO.TODO
+            -- out_interrupt     <= TODO, --> TODO.TODO
+        );
+
     --TODO: mem_stage
     --TODO: m_w_buffer
     --TODO: wb_stage
