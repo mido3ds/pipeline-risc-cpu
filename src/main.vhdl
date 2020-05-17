@@ -236,33 +236,32 @@ begin
             out_interrupt  => dxb_xs_interrupt
         );
 
-    --TODO: execute_stage
-    -- execute_stage : entity work.execute_stage
-    --     port map(
-    --         --IN
-    --         clk                        => clk,
+    execute_stage : entity work.execute_stage
+        port map(
+            --IN
+            clk                       => clk,
 
-    --         operand_1                  => dxb_xs_operand0,
-    --         operand_2                  => dxb_xs_operand1,
-    --         alu_op_1_selector          => ?????, --TODO
-    --         alu_op_2_selector          => ?????, --TODO
-    --         alu_operation              => dxb_xs_alu_op,
-    --         destination_register_1_in  => dxb_xs_dest_0,
-    --         destination_register_2_in  => dxb_xs_dest_1,
-    --         opCode_in                  => dxb_xs_opcode,
-    --         int_bit_in                 => dxb_xs_interrupt,
-    --         --OUT
-    --         alu_output                 => ?????, --TODO
-    --         ccr_out                    => ?????, --TODO
-    --         memory_address             => ?????, --TODO
-    --         memory_input               => ?????, --TODO
-    --         opCode_out                 => ?????, --TODO
-    --         destination_register_1_out => ?????, --TODO
-    --         destination_register_2_out => ?????, --TODO
-    --         destination_1_value_out    => ?????, --TODO
-    --         destination_2_value_out    => ?????, --TODO
-    --         interrupt_bit_out          => ?????, --TODO
-    --     );
+            operand_1                 => dxb_xs_operand0,
+            operand_2                 => dxb_xs_operand1,
+            -- alu_op_1_selector          => ?????, --TODO
+            -- alu_op_2_selector          => ?????, --TODO
+            alu_operation             => dxb_xs_alu_op,
+            destination_register_1_in => dxb_xs_dest_0,
+            destination_register_2_in => dxb_xs_dest_1,
+            opCode_in                 => dxb_xs_opcode,
+            int_bit_in                => dxb_xs_interrupt,
+            --OUT
+            -- alu_output                 => ?????, --TODO
+            -- ccr_out                    => ?????, --TODO
+            -- memory_address             => ?????, --TODO
+            -- memory_input               => ?????, --TODO
+            -- opCode_out                 => ?????, --TODO
+            -- destination_register_1_out => ?????, --TODO
+            -- destination_register_2_out => ?????, --TODO
+            -- destination_1_value_out    => ?????, --TODO
+            -- destination_2_value_out    => ?????, --TODO
+            -- interrupt_bit_out          => ?????, --TODO
+        );
 
     --TODO: x_m_buffer
     --TODO: mem_stage
