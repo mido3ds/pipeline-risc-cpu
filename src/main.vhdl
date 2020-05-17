@@ -59,14 +59,15 @@ architecture rtl of main is
 
     -- decode_stage --> d_x_buffer
     signal ds_dxb_alu_op                 : std_logic_vector (3 downto 0);
-    signal ds_dxb_operand0               : std_logic_vector(32 - 1 downto 0);
-    signal ds_dxb_operand1               : std_logic_vector(32 - 1 downto 0);
+    signal ds_dxb_operand0               : std_logic_vector(32 - 1 downto 0); -- TODO: where its input?
+    signal ds_dxb_operand1               : std_logic_vector(32 - 1 downto 0); -- TODO: where its input?
     signal ds_dxb_dest_0                 : std_logic_vector(4 - 1 downto 0);
     signal ds_dxb_dest_1                 : std_logic_vector(4 - 1 downto 0);
-    signal ds_dxb_dest_value             : std_logic_vector(32 - 1 downto 0);
     signal ds_dxb_opcode                 : std_logic_vector(7 - 1 downto 0);
     signal ds_dxb_r_w                    : std_logic_vector(1 downto 0);
     signal ds_dxb_interrupt              : std_logic;
+    signal ds_dxb_src2_value             : std_logic_vector(32 - 1 downto 0);
+    signal ds_dxb_src2_sel               : std_logic;
 
     -- decode_stage --> reg_file
     signal ds_rf_src0_adr                : std_logic_vector(3 downto 0);
@@ -131,68 +132,71 @@ begin
     f_d_buffer : entity work.f_d_buffer
         port map(
             --IN
-            clk             => clk,
+            clk           => clk,
 
-            in_flush        => fsi_if_flush,
-            in_instr        => fs_fdb_instruction_bits,
-            in_inc_pc       => fs_fdb_inc_pc,
-            in_interrupt    => fs_fdb_interrupt,
+            in_flush      => fsi_if_flush,
+            in_instr      => fs_fdb_instruction_bits,
+            in_inc_pc     => fs_fdb_inc_pc,
+            in_interrupt  => fs_fdb_interrupt,
             --OUT
-            out_instr       => fdb_ds_instr,
-            out_inc_pc      => fdb_ds_inc_pc,
-            out_interrupt   => fdb_ds_interrupt
+            out_instr     => fdb_ds_instr,
+            out_inc_pc    => fdb_ds_inc_pc,
+            out_interrupt => fdb_ds_interrupt
         );
 
     decode_stage : entity work.decode_stage
         port map(
             --IN
-            in_zero_flag            => 'U', --TODO: from execute_stage
+            -- in_zero_flag            => ????, --TODO: from execute_stage.ccr_out(CCR_ZERO)
 
-            fdb_instr               => fdb_ds_instr,
-            fdb_inc_pc              => fdb_ds_inc_pc,
-            fdb_interrupt           => fdb_ds_interrupt,
+            fdb_instr           => fdb_ds_instr,
+            fdb_inc_pc          => fdb_ds_inc_pc,
+            fdb_interrupt       => fdb_ds_interrupt,
+            -- mem_stalling_bit     => ????, -- TODO from memory_stage.stalling_enable
+            in_port             => in_value,
 
             --OUT
-            dxb_alu_op              => ds_dxb_alu_op,
-            dxb_dest_0              => ds_dxb_dest_0,
-            dxb_dest_1              => ds_dxb_dest_1,
-            dxb_dest_value          => ds_dxb_dest_value,
-            dxb_opcode              => ds_dxb_opcode,
-            dxb_r_w                 => ds_dxb_r_w,
-            dxb_interrupt           => ds_dxb_interrupt,
+            dxb_alu_op          => ds_dxb_alu_op,
+            dxb_dest_0          => ds_dxb_dest_0,
+            dxb_dest_1          => ds_dxb_dest_1,
+            dxb_opcode          => ds_dxb_opcode,
+            dxb_r_w             => ds_dxb_r_w,
+            dxb_interrupt       => ds_dxb_interrupt,
 
-            rf_src0_adr             => ds_rf_src0_adr,
-            rf_src1_adr             => ds_rf_src1_adr
+            rf_src0_adr         => ds_rf_src0_adr,
+            rf_src1_adr         => ds_rf_src1_adr,
+
+            src2_value          => ds_dxb_src2_value,
+            src2_value_selector => ds_dxb_src2_sel
         );
 
-    --TODO: reg_file
-    -- reg_file : entity work.reg_file
-    --     port map(
-    --         --IN
-    --         clk         => clk,
-    --         rst         => rf_rst,
+    reg_file : entity work.reg_file
+        port map(
+            --IN
+            clk        => clk,
+            rst        => rf_rst,
 
-    --         dst0_adr    => rf_dst0_adr,
-    --         dst1_adr    => rf_dst1_adr,
-    --         src0_adr    => rf_src0_adr,
-    --         src1_adr    => rf_src1_adr,
-    --         -- fetch_adr   => ?????, --TODO
+            dst0_adr   => rf_dst0_adr,
+            dst1_adr   => rf_dst1_adr,
+            src0_adr   => rf_src0_adr,
+            src1_adr   => rf_src1_adr,
+            -- fetch_adr   => ?????, --TODO
 
-    --         wb0_value   => rf_wb0_value,
-    --         -- wb1_value   => ?????, --TODO
+            wb0_value  => rf_wb0_value,
+            -- wb1_value   => ?????, --TODO
 
-    --         in_value    => in_value,
+            in_value   => in_value,
 
-    --         br_io_enbl  => rf_br_io_enbl,
-    --         --OUT
-    --         op0_value   => rf_ds_op0_value,
-    --         op1_value   => rf_ds_op1_value,
+            br_io_enbl => rf_br_io_enbl,
+            --OUT
+            op0_value  => rf_ds_op0_value,
+            op1_value  => rf_ds_op1_value,
 
-    --         -- fetch_value => ?????, --TODO
-    --         -- instr_adr   => ?????, --TODO
+            -- fetch_value => ?????, --TODO
+            -- instr_adr   => ?????, --TODO
 
-    --         out_value   => out_value
-    --     );
+            out_value  => out_value
+        );
     --IN
     rf_rst           <= rst or ds_rf_rst;
     -- rf_dst0_adr <= tb_rf_dst0_adr when tb_controls = '1' else ????; --TODO
@@ -213,6 +217,8 @@ begin
             in_alu_op      => ds_dxb_alu_op,
             in_operand0    => ds_dxb_operand0,
             in_operand1    => ds_dxb_operand1,
+            in_src2_value  => ds_dxb_src2_value,
+            in_sel_src2    => ds_dxb_src2_sel,
             in_dest_0      => ds_dxb_dest_0,
             in_dest_1      => ds_dxb_dest_1,
             in_opcode      => ds_dxb_opcode,
@@ -230,33 +236,32 @@ begin
             out_interrupt  => dxb_xs_interrupt
         );
 
-    --TODO: execute_stage
-    -- execute_stage : entity work.execute_stage
-    --     port map(
-    --         --IN
-    --         clk                        => clk,
+    execute_stage : entity work.execute_stage
+        port map(
+            --IN
+            clk                       => clk,
 
-    --         operand_1                  => dxb_xs_operand0,
-    --         operand_2                  => dxb_xs_operand1,
-    --         alu_op_1_selector          => ?????, --TODO
-    --         alu_op_2_selector          => ?????, --TODO
-    --         alu_operation              => dxb_xs_alu_op,
-    --         destination_register_1_in  => dxb_xs_dest_0,
-    --         destination_register_2_in  => dxb_xs_dest_1,
-    --         opCode_in                  => dxb_xs_opcode,
-    --         int_bit_in                 => dxb_xs_interrupt,
-    --         --OUT
-    --         alu_output                 => ?????, --TODO
-    --         ccr_out                    => ?????, --TODO
-    --         memory_address             => ?????, --TODO
-    --         memory_input               => ?????, --TODO
-    --         opCode_out                 => ?????, --TODO
-    --         destination_register_1_out => ?????, --TODO
-    --         destination_register_2_out => ?????, --TODO
-    --         destination_1_value_out    => ?????, --TODO
-    --         destination_2_value_out    => ?????, --TODO
-    --         interrupt_bit_out          => ?????, --TODO
-    --     );
+            operand_1                 => dxb_xs_operand0,
+            operand_2                 => dxb_xs_operand1,
+            -- alu_op_1_selector          => ?????, --TODO
+            -- alu_op_2_selector          => ?????, --TODO
+            alu_operation             => dxb_xs_alu_op,
+            destination_register_1_in => dxb_xs_dest_0,
+            destination_register_2_in => dxb_xs_dest_1,
+            opCode_in                 => dxb_xs_opcode,
+            int_bit_in                => dxb_xs_interrupt,
+            --OUT
+            -- alu_output                 => ?????, --TODO
+            -- ccr_out                    => ?????, --TODO
+            -- memory_address             => ?????, --TODO
+            -- memory_input               => ?????, --TODO
+            -- opCode_out                 => ?????, --TODO
+            -- destination_register_1_out => ?????, --TODO
+            -- destination_register_2_out => ?????, --TODO
+            -- destination_1_value_out    => ?????, --TODO
+            -- destination_2_value_out    => ?????, --TODO
+            -- interrupt_bit_out          => ?????, --TODO
+        );
 
     --TODO: x_m_buffer
     --TODO: mem_stage

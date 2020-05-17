@@ -10,8 +10,8 @@ entity d_x_buffer is
         in_alu_op      : in std_logic_vector (3 downto 0);
         in_operand0    : in std_logic_vector(32 - 1 downto 0);
         in_operand1    : in std_logic_vector(32 - 1 downto 0);
-        in_src_value   : in std_logic_vector(32 - 1 downto 0);
-        src_value_sel  : in std_logic;
+        in_src2_value  : in std_logic_vector(32 - 1 downto 0);
+        in_sel_src2    : in std_logic;
         in_dest_0      : in std_logic_vector(4 - 1 downto 0);
         in_dest_1      : in std_logic_vector(4 - 1 downto 0);
         --in_dest_value  : in std_logic_vector(32 - 1 downto 0);
@@ -34,6 +34,7 @@ end entity;
 architecture rtl of d_x_buffer is
     signal operand0      : std_logic_vector(32 - 1 downto 0);
     signal operand1      : std_logic_vector(32 - 1 downto 0);
+    signal src2_value    : std_logic_vector(32 - 1 downto 0);
     signal destination_0 : std_logic_vector(4 - 1 downto 0);
     signal destination_1 : std_logic_vector(4 - 1 downto 0);
     --signal dest_value    : std_logic_vector(32 - 1 downto 0);
@@ -48,6 +49,7 @@ begin
         if in_stall = '0' then
             operand0      <= in_operand0;
             operand1      <= in_operand1;
+            src2_value    <= in_src2_value;
             destination_0 <= in_dest_0;
             destination_1 <= in_dest_1;
             --dest_value    <= in_dest_value;
@@ -63,7 +65,13 @@ begin
         if rising_edge(clk) then
             out_alu_op     <= alu_op;
             out_operand0   <= operand0;
+
+            if in_sel_src2 = '1' then
+                out_operand1 <= src2_value;
+            else
             out_operand1   <= operand1;
+            end if;
+
             out_dest_0     <= destination_0;
             out_dest_1     <= destination_1;
             --out_dest_value <= dest_value;
