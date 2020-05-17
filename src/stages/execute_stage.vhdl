@@ -12,11 +12,11 @@ entity execute_stage is
 
         -- from HDU
         -- forwarded data ( from alu or memory)
-        forwarded_data_1_1                   : in  std_logic_vector(31 downto 0);
-        forwarded_data_1_2                   : in  std_logic_vector(31 downto 0);
+        forwarded_data_1                   : in  std_logic_vector(31 downto 0);
+        forwarded_data_2                   : in  std_logic_vector(31 downto 0);
 
-        forwarded_data_2_1                   : in  std_logic_vector(31 downto 0);
-        forwarded_data_2_2                   : in  std_logic_vector(31 downto 0);
+        --forwarded_data_2_1                   : in  std_logic_vector(31 downto 0);
+        --forwarded_data_2_2                   : in  std_logic_vector(31 downto 0);
 
         -- alu operands selectors
         -- 00 : operand ( No Hazerd detected )
@@ -131,9 +131,9 @@ begin
                 case( alu_op_1_selector ) is
 
                     when  "01"   =>
-                        op_1                <= forwarded_data_1_1;
+                        op_1                <= forwarded_data_1;
                     when  "10"   =>
-                        op_1                <= forwarded_data_1_2;
+                        op_1                <= forwarded_data_2;
                     --when "11"   =>
                     --    op_1                <= destination_2_value;
                     when  others =>   -- when 00
@@ -142,9 +142,9 @@ begin
 
                 case( alu_op_2_selector ) is
                     when  "01"   =>
-                        op_2                <= forwarded_data_2_1;
+                        op_2                <= forwarded_data_1;
                     when  "10"   =>
-                        op_2                <= forwarded_data_2_2;
+                        op_2                <= forwarded_data_2;
                     --when "11"   =>
                     --    op_2                <= destination_2_value;
                     when  others =>   -- when 00
