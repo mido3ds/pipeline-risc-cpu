@@ -340,32 +340,32 @@ begin
         if run("ALUOP_INC2") then
             op <= ALUOP_INC2;
 
-            a  <= to_vec(1231, a'length);
-            b  <= to_vec(4, b'length);
+            a  <= to_vec(3, a'length);
+            b  <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(4 + 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(4 + 1, c'length)) < 0), "neg");
             check_equal(carry, '0', "carry");
 
-            a <= to_vec(1231, a'length);
-            b <= to_vec(0, b'length);
+            a <= to_vec(-1, a'length);
+            b <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(0 + 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(0 + 1, c'length)) < 0), "neg");
-            check_equal(carry, '0', "carry");
+            check_equal(carry, '1', "carry");
 
-            a <= to_vec(1231, a'length);
-            b <= to_vec(1234124, b'length);
+            a <= to_vec(1234124-1, a'length);
+            b <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(1234124 + 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(1234124 + 1, c'length)) < 0), "neg");
             check_equal(carry, '0', "carry");
 
-            a <= to_vec(1231, a'length);
-            b <= to_vec('1', b'length);
+            a <= to_vec(-2, a'length);
+            b <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec('0', c'length), "c");
             check_equal(zero, '1', "zero");
@@ -376,32 +376,32 @@ begin
         if run("ALUOP_DEC2") then
             op <= ALUOP_DEC2;
 
-            a  <= to_vec(1231, a'length);
-            b  <= to_vec(4, b'length);
+            a  <= to_vec(4+1, a'length);
+            b  <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(4 - 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(4 - 1, c'length)) < 0), "neg");
             check_equal(carry, '0', "carry");
 
-            a <= to_vec(1231, a'length);
-            b <= to_vec(0, b'length);
+            a <= to_vec(0+1, a'length);
+            b <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(0 - 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(0 - 1, c'length)) < 0), "neg");
             check_equal(carry, '1', "carry");
 
-            a <= to_vec(1231, a'length);
-            b <= to_vec(1234124, b'length);
+            a <= to_vec(1234124+1, a'length);
+            b <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(1234124 - 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(1234124 - 1, c'length)) < 0), "neg");
             check_equal(carry, '0', "carry");
 
-            a <= to_vec(1231, a'length);
-            b <= to_vec(1, b'length);
+            a <= to_vec(1+1, a'length);
+            b <= to_vec(1231, b'length);
             wait for CLK_PERD/2;
             check_equal(c, to_vec(0, c'length), "c");
             check_equal(zero, '1', "zero");
