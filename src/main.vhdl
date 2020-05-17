@@ -59,14 +59,15 @@ architecture rtl of main is
 
     -- decode_stage --> d_x_buffer
     signal ds_dxb_alu_op                 : std_logic_vector (3 downto 0);
-    signal ds_dxb_operand0               : std_logic_vector(32 - 1 downto 0);
-    signal ds_dxb_operand1               : std_logic_vector(32 - 1 downto 0);
+    signal ds_dxb_operand0               : std_logic_vector(32 - 1 downto 0); -- TODO: where its input?
+    signal ds_dxb_operand1               : std_logic_vector(32 - 1 downto 0); -- TODO: where its input?
     signal ds_dxb_dest_0                 : std_logic_vector(4 - 1 downto 0);
     signal ds_dxb_dest_1                 : std_logic_vector(4 - 1 downto 0);
-    signal ds_dxb_dest_value             : std_logic_vector(32 - 1 downto 0);
     signal ds_dxb_opcode                 : std_logic_vector(7 - 1 downto 0);
     signal ds_dxb_r_w                    : std_logic_vector(1 downto 0);
     signal ds_dxb_interrupt              : std_logic;
+    signal ds_dxb_src2_value             : std_logic_vector(32 - 1 downto 0);
+    signal ds_dxb_src2_sel               : std_logic;
 
     -- decode_stage --> reg_file
     signal ds_rf_src0_adr                : std_logic_vector(3 downto 0);
@@ -146,23 +147,27 @@ begin
     decode_stage : entity work.decode_stage
         port map(
             --IN
-            in_zero_flag            => 'U', --TODO: from execute_stage
+            -- in_zero_flag            => ????, --TODO: from execute_stage.ccr_out(CCR_ZERO)
 
             fdb_instr               => fdb_ds_instr,
             fdb_inc_pc              => fdb_ds_inc_pc,
             fdb_interrupt           => fdb_ds_interrupt,
+            -- mem_stalling_bit     => ????, -- TODO from memory_stage.stalling_enable
+            in_port                 => in_value,
 
             --OUT
             dxb_alu_op              => ds_dxb_alu_op,
             dxb_dest_0              => ds_dxb_dest_0,
             dxb_dest_1              => ds_dxb_dest_1,
-            dxb_dest_value          => ds_dxb_dest_value,
             dxb_opcode              => ds_dxb_opcode,
             dxb_r_w                 => ds_dxb_r_w,
             dxb_interrupt           => ds_dxb_interrupt,
 
             rf_src0_adr             => ds_rf_src0_adr,
-            rf_src1_adr             => ds_rf_src1_adr
+            rf_src1_adr             => ds_rf_src1_adr,
+
+            src2_value              => ds_dxb_src2_value,
+            src2_value_selector     => ds_dxb_src2_sel
         );
 
     --TODO: reg_file
@@ -213,6 +218,8 @@ begin
             in_alu_op      => ds_dxb_alu_op,
             in_operand0    => ds_dxb_operand0,
             in_operand1    => ds_dxb_operand1,
+            in_src2_value  => ds_dxb_src2_value,
+            in_sel_src2    => ds_dxb_src2_sel,
             in_dest_0      => ds_dxb_dest_0,
             in_dest_1      => ds_dxb_dest_1,
             in_opcode      => ds_dxb_opcode,
