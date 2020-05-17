@@ -10,6 +10,8 @@ entity d_x_buffer is
         in_alu_op      : in std_logic_vector (3 downto 0);
         in_operand0    : in std_logic_vector(32 - 1 downto 0);
         in_operand1    : in std_logic_vector(32 - 1 downto 0);
+        in_src_value   : in std_logic_vector(32 - 1 downto 0);
+        src_value_sel  : in std_logic;
         in_dest_0      : in std_logic_vector(4 - 1 downto 0);
         in_dest_1      : in std_logic_vector(4 - 1 downto 0);
         --in_dest_value  : in std_logic_vector(32 - 1 downto 0);
