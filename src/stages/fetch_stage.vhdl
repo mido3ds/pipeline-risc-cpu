@@ -76,9 +76,6 @@ begin
     out_inc_pc      <= to_vec(to_int(pc) + 1, out_inc_pc'length);
 
     -- TODO
-    --out_interrupt <= ???
-
-    -- TODO
     --out_predicted_address <= ???
 
     -- TODO
@@ -87,41 +84,56 @@ begin
     process (clk, rst)
     begin
         if rst = '1' then
-            pc           <= (31 => '0', 30 => '0', others => '1');
-            mem_data_in  <= (others => '1');
-            mem_data_out <= (others => '1');
+            pc           <= (others => '0'); -- to be corrected
+            mem_data_in  <= (others => '0');
+            mem_data_out <= (others => '0');
             len_bit      <= '0';
             mem_rd       <= '1';
             mem_wr       <= '0';
+
         elsif falling_edge(clk) then
             -- decide PC next address
             if in_if_flush = '1' then
-                pc <= (others => '0'); -- to be corrected
+                pc <= in_branch_address;
+                -- output NOP
+                out_instruction_bits <= (others => '0');
+
             elsif in_parallel_load_pc_selector = '1' then
-                pc <= (others => '0'); -- to be corrected
-            elsif rst = '1' then
-                pc <= (others => '0'); -- to be corrected
+                pc <= in_loaded_pc_value;
+                -- output NOP
+                out_instruction_bits <= (others => '0');
+
             elsif mem_data_out(14 downto 8) = OPC_CALL then
                 pc <= (others => '0'); -- to be corrected
-            elsif (in_stall = '1' or in_interrupt = '1') then
+
+            elsif in_interrupt = '1' then
+                out_interrupt <= '1';
                 pc <= (others => '0'); -- to be corrected
+
+            elsif in_stall = '1' then
+                pc <= (others => '0'); -- to be corrected
+
             else
                 pc <= std_logic_vector(unsigned(pc) + 1);
             end if;
-            -- instruction output
-            -- decide whether the instruction is 16 or 32 bits
+
+            -- instruction output and instruction length decision
             if len_bit = '0' and mem_data_out(15) = '0' then
                 out_instruction_bits(31 downto 16) <= mem_data_out;
                 out_instruction_bits(15 downto 0)  <= (others => '0');
+
             elsif len_bit = '0' and mem_data_out(15) = '1' then
-                out_instruction_bits <= (others => '0'); -- output NOP
+                -- output NOP
+                out_instruction_bits <= (others => '0');
                 inst_store           <= mem_data_out;
                 len_bit              <= '1';
+
             else
                 out_instruction_bits(31 downto 16) <= inst_store;
                 out_instruction_bits(15 downto 0)  <= mem_data_out;
                 len_bit                            <= '0';
             end if;
         end if;
+
     end process;
 end architecture;
