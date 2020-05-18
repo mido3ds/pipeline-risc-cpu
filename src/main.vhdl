@@ -265,7 +265,7 @@ begin
 
     -- mux between (reg_file and tb) signals
     --IN
-    rf_rst           <= rst or ds_rf_rst;
+    rf_rst           <= '0' when tb_controls = '1' else rst or ds_rf_rst;
     rf_dst0_adr      <= tb_rf_dst0_adr when tb_controls = '1' else ws_rf_dest_reg_1;  --> reg_file.dest_reg_1
     rf_dst1_adr      <= (others => '1') when tb_controls = '1' else ws_rf_dest_reg_2; --> reg_file.dest_reg_2
 

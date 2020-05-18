@@ -51,6 +51,7 @@ architecture rtl of fetch_stage is
     signal im_wr        : std_logic;
     signal im_data_in   : std_logic_vector(mem_data_in'range);
     signal im_adr       : std_logic_vector(pc'range);
+    signal im_rst       : std_logic;
 begin
     inst_mem : entity work.instr_mem(rtl)
         generic map(ADR_LENGTH => 32)
@@ -58,7 +59,7 @@ begin
             clk      => clk,
             rd       => im_rd,
             wr       => im_wr,
-            rst      => rst,
+            rst      => im_rst,
             data_in  => im_data_in,
             address  => im_adr,
             data_out => mem_data_out
@@ -68,6 +69,7 @@ begin
     im_wr           <= tb_mem_wr when tb_controls = '1' else mem_wr;
     im_data_in      <= tb_mem_data_in when tb_controls = '1' else mem_data_in;
     im_adr          <= tb_mem_adr when tb_controls = '1' else pc;
+    im_rst          <= '0' when tb_controls = '1' else rst;
     --OUT
     tb_mem_data_out <= mem_data_out;
 
@@ -105,7 +107,7 @@ begin
                 pc <= (others => '0'); -- to be corrected
             else
                 pc <= std_logic_vector(unsigned(pc) + 1);
-            end if;  
+            end if;
             -- instruction output
             -- decide whether the instruction is 16 or 32 bits
             if len_bit = '0' and mem_data_out(15) = '0' then
@@ -113,12 +115,12 @@ begin
                 out_instruction_bits(15 downto 0)  <= (others => '0');
             elsif len_bit = '0' and mem_data_out(15) = '1' then
                 out_instruction_bits <= (others => '0'); -- output NOP
-                inst_store <= mem_data_out;
-                len_bit <= '1';
+                inst_store           <= mem_data_out;
+                len_bit              <= '1';
             else
                 out_instruction_bits(31 downto 16) <= inst_store;
-                out_instruction_bits(15 downto 0) <= mem_data_out;
-                len_bit <= '0';
+                out_instruction_bits(15 downto 0)  <= mem_data_out;
+                len_bit                            <= '0';
             end if;
         end if;
     end process;

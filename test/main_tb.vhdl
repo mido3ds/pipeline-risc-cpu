@@ -59,7 +59,7 @@ architecture tb of main_tb is
 begin
     clk <= not clk after CLK_PERD / 2;
 
-    test_runner_watchdog(runner, 10 ms);
+    test_runner_watchdog(runner, 2 * 1000 * CLK_PERD);
 
     main_unit : entity work.main
         port map(
@@ -116,11 +116,17 @@ begin
             ccr_in        <= (others => '0');
         end procedure;
 
-        procedure reset_cpu is
+        -- set keep_data = true to keep instr_mem and reg_file from resetting
+        procedure reset_cpu(keep_data : boolean) is
         begin
             info("reset_cpu");
 
             clear_signals;
+
+            if keep_data then
+                tb_controls <= '1';
+            end if;
+
             rst <= '1';
             wait until falling_edge(clk);
             clear_signals;
@@ -156,12 +162,13 @@ begin
             variable data      : std_logic_vector(15 downto 0);
             variable i         : integer := 1;
         begin
+            clear_signals;
+
             check_equal(clk, '1', "clock should be high at beginning", warning);
             wait until clk = '1';
 
             info("start filling instr_mem");
 
-            clear_signals;
             tb_controls <= '1';
             -- for i in ramdata'range loop
             while not endfile(file_handler) loop
@@ -185,6 +192,8 @@ begin
         procedure fill_data_mem(ramdata : WordArrType) is
             variable i                      : integer := 0;
         begin
+            clear_signals;
+
             check_equal(ramdata'length mod 2, 0, "data_mem input must be even number of data, given " & to_str(ramdata'length), failure);
 
             check_equal(clk, '1', "clock should be high at beginning", warning);
@@ -192,7 +201,6 @@ begin
 
             info("start filling data_mem");
 
-            clear_signals;
             tb_controls <= '1';
             while i < ramdata'length loop
                 dm_adr     <= to_vec(i, im_adr'length);
@@ -283,8 +291,8 @@ begin
         -- dumps final ccr value into out/ccr.playground.out
         -- and dumps final reg_file content into out/reg_file.playground.out
         if run("playground") and ENABLE_PLAYGROUND then
-            reset_cpu;
             fill_instr_mem_file;
+            reset_cpu(keep_data => true);
 
             wait until hlt = '1';
 

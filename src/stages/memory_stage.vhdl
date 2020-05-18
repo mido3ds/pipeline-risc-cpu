@@ -69,10 +69,10 @@ architecture rtl of memory_stage is
     signal stalling_out                    : std_logic                        := '0';
 
     --> data_mem
-    signal im_rd        : std_logic;
-    signal im_wr        : std_logic;
-    signal im_data_in   : std_logic_vector(31 downto 0);
-    signal im_adr       : std_logic_vector(31 downto 0);
+    signal dm_rd        : std_logic;
+    signal dm_wr        : std_logic;
+    signal dm_data_in   : std_logic_vector(31 downto 0);
+    signal dm_adr       : std_logic_vector(31 downto 0);
 begin
 
     data_mem : entity work.data_mem(rtl)
@@ -81,18 +81,18 @@ begin
     )
     port map(
         clk                                    => clk,
-        rd                                     => im_rd,
-        wr                                     => im_wr,
+        rd                                     => dm_rd,
+        wr                                     => dm_wr,
         rst                                    => '0',
-        data_in                                => im_data_in,
-        address                                => im_adr,
+        data_in                                => dm_data_in,
+        address                                => dm_adr,
         data_out                               => output_data
     );
     --IN
-    im_rd           <= tb_mem_rd when tb_controls = '1' else r_w_control(0);
-    im_wr           <= tb_mem_wr when tb_controls = '1' else r_w_control(1);
-    im_data_in      <= tb_mem_data_in when tb_controls = '1' else input_data;
-    im_adr          <= tb_mem_adr when tb_controls = '1' else address;
+    dm_rd           <= tb_mem_rd when tb_controls = '1' else r_w_control(0);
+    dm_wr           <= tb_mem_wr when tb_controls = '1' else r_w_control(1);
+    dm_data_in      <= tb_mem_data_in when tb_controls = '1' else input_data;
+    dm_adr          <= tb_mem_adr when tb_controls = '1' else address;
     --OUT
     tb_mem_data_out <= output_data;
 
