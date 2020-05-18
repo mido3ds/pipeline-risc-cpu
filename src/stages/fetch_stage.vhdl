@@ -65,21 +65,20 @@ begin
             data_out => mem_data_out
         );
     --IN
-    im_rd           <= tb_mem_rd when tb_controls = '1' else mem_rd;
-    im_wr           <= tb_mem_wr when tb_controls = '1' else mem_wr;
-    im_data_in      <= tb_mem_data_in when tb_controls = '1' else mem_data_in;
-    im_adr          <= tb_mem_adr when tb_controls = '1' else pc;
-    im_rst          <= '0' when tb_controls = '1' else rst;
+    im_rd              <= tb_mem_rd when tb_controls = '1' else mem_rd;
+    im_wr              <= tb_mem_wr when tb_controls = '1' else mem_wr;
+    im_data_in         <= tb_mem_data_in when tb_controls = '1' else mem_data_in;
+    im_adr             <= tb_mem_adr when tb_controls = '1' else pc;
+    im_rst             <= '0' when tb_controls = '1' else rst;
     --OUT
-    tb_mem_data_out <= mem_data_out;
+    tb_mem_data_out    <= mem_data_out;
 
-    out_inc_pc      <= to_vec(to_int(pc) + 1, out_inc_pc'length);
+    out_inc_pc         <= to_vec(to_int(pc) + 1, out_inc_pc'length);
+
+    out_hashed_address <= pc(3 downto 0);
 
     -- TODO
     --out_predicted_address <= ???
-
-    -- TODO
-    --out_hashed_address <= ???
 
     process (clk, rst)
     begin
@@ -114,25 +113,24 @@ begin
                 pc <= (others => '0'); -- to be corrected
 
             else
-                pc <= std_logic_vector(unsigned(pc) + 1);
-            end if;
+                pc <= to_vec(to_int(pc) + 1, pc'length);
+                -- instruction output and instruction length decision
+                if len_bit = '0' and mem_data_out(15) = '0' then
+                    out_instruction_bits(31 downto 16) <= mem_data_out;
+                    out_instruction_bits(15 downto 0)  <= (others => '0');
 
-            -- instruction output and instruction length decision
-            if len_bit = '0' and mem_data_out(15) = '0' then
-                out_instruction_bits(31 downto 16) <= mem_data_out;
-                out_instruction_bits(15 downto 0)  <= (others => '0');
+                elsif len_bit = '0' and mem_data_out(15) = '1' then
+                    -- output NOP
+                    out_instruction_bits <= (others => '0');
+                    inst_store           <= mem_data_out;
+                    len_bit              <= '1';
 
-            elsif len_bit = '0' and mem_data_out(15) = '1' then
-                -- output NOP
-                out_instruction_bits <= (others => '0');
-                inst_store           <= mem_data_out;
-                len_bit              <= '1';
-
-            else
-                out_instruction_bits(31 downto 16) <= inst_store;
-                out_instruction_bits(15 downto 0)  <= mem_data_out;
-                len_bit                            <= '0';
-            end if;
+                else
+                    out_instruction_bits(31 downto 16) <= inst_store;
+                    out_instruction_bits(15 downto 0)  <= mem_data_out;
+                    len_bit                            <= '0';
+                end if;
+            end if;            
         end if;
 
     end process;
