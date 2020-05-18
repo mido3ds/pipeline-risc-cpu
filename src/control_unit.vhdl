@@ -22,7 +22,8 @@ entity control_unit is
         op2_sel       : out std_logic;
         --branch_io     : out std_logic_vector(1  downto 0);
         --branch_enable : out std_logic;
-        r_w_control   : out std_logic_vector(1  downto 0)
+        r_w_control   : out std_logic_vector(1  downto 0);
+        hlt           : out std_logic;
     );
 end entity;
 
@@ -48,7 +49,7 @@ architecture rtl of control_unit is
     --base conditions
     --OpCode is simple..
     --OpCode <= ib(31 downto 25);
-
+    hlt <= '1' when ib(31 downto 25) = OPC_END else '0';
     --aluop selection
     with ib(31 downto 25) select aluop <=
     ALUOP_NOT  when OPC_NOT, --not
