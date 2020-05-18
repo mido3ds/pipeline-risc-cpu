@@ -23,7 +23,7 @@ entity control_unit is
         --branch_io     : out std_logic_vector(1  downto 0);
         --branch_enable : out std_logic;
         r_w_control   : out std_logic_vector(1  downto 0);
-        hlt           : out std_logic;
+        hlt           : out std_logic
     );
 end entity;
 
