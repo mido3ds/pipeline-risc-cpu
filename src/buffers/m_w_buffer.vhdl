@@ -19,7 +19,7 @@ entity m_w_buffer is
         out_destination_0 : out std_logic_vector(4 - 1 downto 0);
         out_destination_1 : out std_logic_vector(4 - 1 downto 0);
         out_dest_value_0  : out std_logic_vector(32 - 1 downto 0);
-        out_dest_value_1  : out std_logic_vector(32 - 1 downto 0);
+        out_dest_value_1  : out std_logic_vector(32 - 1 downto 0)
     );
 end entity;
 
