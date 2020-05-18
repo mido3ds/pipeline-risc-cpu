@@ -48,7 +48,7 @@ begin
                 when x"6"   => o <= r6;
                 when x"7"   => o <= r7;
                 when x"8"   => o <= sp;
-                when others => report "invalid adr" severity warning;
+                when others => null;
             end case;
         end procedure;
 
@@ -64,7 +64,7 @@ begin
                 when x"6"   => r6 <= i;
                 when x"7"   => r7 <= i;
                 when x"8"   => sp <= i;
-                when others => report "invalid adr" severity warning;
+                when others => null;
             end case;
         end procedure;
     begin

@@ -53,7 +53,7 @@ begin
                 when ALUOP_DEC2 =>
                     c2 := a2 - 2;
                     ccr(CCR_CARRY) <= c2(32);
-                when others => report "invalid op = " & to_str(op) severity warning;
+                when others => null;
             end case;
 
             c3 := std_logic_vector(c2);
