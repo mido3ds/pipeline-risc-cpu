@@ -238,6 +238,31 @@ begin
             info("done dumping data_mem");
         end procedure;
 
+        procedure dump_reg_file is
+            file file_handler : text open write_mode is "out/reg_file." & running_test_case & ".out";
+            variable row      : line;
+        begin
+            check_equal(clk, '1', "clock should be high at beginning", warning);
+            wait until clk = '1';
+
+            info("start dumping reg_file");
+
+            clear_signals;
+            tb_controls <= '1';
+            for i in 0 to 8 loop
+                src0_adr <= to_vec(i, src0_adr'length);
+                wait until rising_edge(clk);
+
+                write(row, out_dst0_value);
+                writeline(file_handler, row);
+            end loop;
+            clear_signals;
+
+            wait until falling_edge(clk);
+
+            info("done dumping reg_file");
+        end procedure;
+
         procedure dump_ccr is
             file file_handler : text open write_mode is "out/ccr." & running_test_case & ".out";
             variable row      : line;
@@ -254,8 +279,9 @@ begin
         -- `playground` test-case runs only with `playground` script
         --      `run-test` should ignore `playground` test-case
         -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
-        -- dumps data memory content into out/data_mem.playground.out
-        -- and dumps final ccr into out/ccr.playground.out
+        -- dumps final data_mem content into out/data_mem.playground.out
+        -- dumps final ccr value into out/ccr.playground.out
+        -- and dumps final reg_file content into out/reg_file.playground.out
         if run("playground") and ENABLE_PLAYGROUND then
             reset_cpu;
             fill_instr_mem_file;
@@ -263,6 +289,7 @@ begin
             wait until hlt = '1';
 
             dump_data_mem;
+            dump_reg_file;
             dump_ccr;
         end if;
 
