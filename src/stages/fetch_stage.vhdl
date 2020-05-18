@@ -85,7 +85,7 @@ begin
     process (clk, rst)
     begin
         if rst = '1' then
-            pc           <= (others => '1');
+            pc           <= (31 => '0', 30 => '0', others => '1');
             mem_data_in  <= (others => '1');
             mem_data_out <= (others => '1');
             len_bit      <= '0';
