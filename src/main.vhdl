@@ -115,9 +115,6 @@ architecture rtl of main is
     signal rf_br_io_enbl                 : std_logic_vector(1 downto 0);
     signal rf_rst                        : std_logic;
 
-    -- x_m_buffer --> execute_stage
-    signal xmb_xs_aluout                 : std_logic_vector(31 downto 0);
-
     -- execute_stage --> x_m_buffer
     signal xs_xmb_alu_output             : std_logic_vector(31 downto 0);
     signal xs_xmb_interpt                : std_logic;
@@ -145,9 +142,6 @@ architecture rtl of main is
     signal xmb_ms_r_w                    : std_logic_vector(2 - 1 downto 0);
     signal xmb_ms_interrupt              : std_logic;
 
-    -- m_w_buffer --> execute_stage
-    signal mwb_xs_out_mem                : std_logic_vector(32 - 1 downto 0);
-
     -- memory_stage --> m_w_buffer
     signal ms_mwb_aluout                 : std_logic_vector(32 - 1 downto 0);
     signal ms_mwb_mem_input              : std_logic_vector(32 - 1 downto 0);
@@ -159,7 +153,7 @@ architecture rtl of main is
 
     -- m_w_buffer --> wb_stage
     signal mwb_ws_aluout                 : std_logic_vector(32 - 1 downto 0);
-    signal mwb_ws_mem                    : std_logic_vector(32 - 1 downto 0);
+    signal mwb_ws_xs_mem                 : std_logic_vector(32 - 1 downto 0);
     signal mwb_ws_opcode                 : std_logic_vector(7 - 1 downto 0);
     signal mwb_ws_destination_0          : std_logic_vector(4 - 1 downto 0);
     signal mwb_ws_destination_1          : std_logic_vector(4 - 1 downto 0);
@@ -330,7 +324,7 @@ begin
             alu_op_1_selector          => hdu_xs_op_1_sel,      --> hdu.operand_1_select
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout,     --> x_m_buffer.out_aluout
-            forwarded_data_2           => mwb_xs_out_mem,       --> m_w_buffer.out_mem
+            forwarded_data_2           => mwb_ws_xs_mem,        --> m_w_buffer.out_mem
             in_src_value => (others => 'U'),                    --> TODO.TODO replace U with its signal
             src_value_sel              => 'U',                  --> TODO.TODO replace U with its signal
             --OUT
@@ -450,7 +444,7 @@ begin
             in_dest_value_1   => ms_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
             --OUT
             out_aluout        => mwb_ws_aluout,           --> wb_stage.alu_output
-            out_mem           => mwb_ws_mem,              --> wb_stage.memory_output
+            out_mem           => mwb_ws_xs_mem,           --> wb_stage.memory_output
             out_opcode        => mwb_ws_opcode,           --> wb_stage.opCode
             out_destination_0 => mwb_ws_destination_0,    --> wb_stage.destination_register_1
             out_destination_1 => mwb_ws_destination_1,    --> wb_stage.destination_register_2
@@ -464,7 +458,7 @@ begin
             clk                    => clk,
 
             alu_output             => mwb_ws_aluout,          --> m_w_buffer.out_aluout
-            memory_output          => mwb_ws_mem,             --> m_w_buffer.out_mem
+            memory_output          => mwb_ws_xs_mem,          --> m_w_buffer.out_mem
             opCode                 => mwb_ws_opcode,          --> m_w_buffer.out_opcode
             destination_register_1 => mwb_ws_destination_0,   --> m_w_buffer.out_destination_0
             destination_register_2 => mwb_ws_destination_1,   --> m_w_buffer.out_destination_1
