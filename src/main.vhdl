@@ -238,7 +238,7 @@ begin
 
             rf_src0_adr         => ds_rf_src0_adr,     --> main
             rf_src1_adr         => ds_rf_src1_adr,     --> main
-            hlt                 => hlt
+            hlt                 => hlt                 --> main
         );
 
     reg_file : entity work.reg_file
@@ -308,7 +308,7 @@ begin
             out_dest_0    => dxb_xs_dest_0,     --> execute_stage.destination_register_1_in
             out_dest_1    => dxb_xs_dest_1,     --> execute_stage.destination_register_2_in
             out_opcode    => dxb_xs_opcode,     --> execute_stage.opCode_in
-            out_interrupt => dxb_xs_interrupt   --> execute_stage.int_bit_in
+            out_interrupt => dxb_xs_interrupt,  --> execute_stage.int_bit_in
             out_r_w       => dxb_xs_r_w         --> execute_stage.r_w_control_in
         );
 
@@ -331,6 +331,8 @@ begin
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout,     --> x_m_buffer.out_aluout
             forwarded_data_2           => mwb_xs_out_mem,       --> m_w_buffer.out_mem
+            in_src_value => (others => 'U'),                    --> TODO.TODO replace U with its signal
+            src_value_sel              => 'U',                  --> TODO.TODO replace U with its signal
             --OUT
             ccr_out                    => xs_ccr,               --> main
             alu_output                 => xs_xmb_alu_output,    --> x_m_buffer.in_aluout
@@ -341,7 +343,7 @@ begin
             destination_register_2_out => xs_xmb_destination_1, --> x_m_buffer.in_destination_1
             destination_1_value_out    => xs_xmb_dest_value_0,  --> x_m_buffer.in_dest_value_0
             destination_2_value_out    => xs_xmb_dest_value_1,  --> x_m_buffer.in_dest_value_1
-            interrupt_bit_out          => xs_xmb_interpt        --> x_m_buffer.in_interrupt
+            interrupt_bit_out          => xs_xmb_interpt,       --> x_m_buffer.in_interrupt
             r_w_control_out            => xs_xmb_r_w            --> x_m_buffer.in_r_w
         );
 
@@ -416,15 +418,15 @@ begin
             ccr_out                    => ms_ccr,                  --> main
             -- pc_selector                => TODO,                   --> TODO.TODO
             stalling_enable            => ms_stalling_enable,      --> execute_stage.mem_stalling_bit
-            ccr_out_selector           => ms_ccr_sel
+            ccr_out_selector           => ms_ccr_sel,              --> main
 
             -- testing
-            tb_controls                => tb_controls,   --> tb
-            tb_mem_rd                  => tb_dm_rd,      --> tb
-            tb_mem_wr                  => tb_dm_wr,      --> tb
-            tb_mem_data_in             => tb_dm_data_in, --> tb
-            tb_mem_adr                 => tb_dm_adr,     --> tb
-            tb_mem_data_out            => tb_dm_data_out --> tb
+            tb_controls                => tb_controls,             --> tb
+            tb_mem_rd                  => tb_dm_rd,                --> tb
+            tb_mem_wr                  => tb_dm_wr,                --> tb
+            tb_mem_data_in             => tb_dm_data_in,           --> tb
+            tb_mem_adr                 => tb_dm_adr,               --> tb
+            tb_mem_data_out            => tb_dm_data_out           --> tb
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
@@ -437,41 +439,41 @@ begin
     m_w_buffer : entity work.m_w_buffer
         port map(
             --IN
-            clk               <= clk,
+            clk               => clk,
 
-            in_aluout         <= ms_mwb_aluout,           --> memory_stage.alu_output
-            in_mem            <= ms_mwb_mem_input,        --> memory_stage.memory_out
-            in_opcode         <= ms_mwb_opcode,           --> memory_stage.opCode_out
-            in_destination_0  <= ms_mwb_dest_0_adr,       --> memory_stage.destination_register_1_out
-            in_destination_1  <= ms_mwb_dest_1_adr,       --> memory_stage.destination_register_2_out
-            in_dest_value_0   <= ms_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
-            in_dest_value_1   <= ms_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
+            in_aluout         => ms_mwb_aluout,           --> memory_stage.alu_output
+            in_mem            => ms_mwb_mem_input,        --> memory_stage.memory_out
+            in_opcode         => ms_mwb_opcode,           --> memory_stage.opCode_out
+            in_destination_0  => ms_mwb_dest_0_adr,       --> memory_stage.destination_register_1_out
+            in_destination_1  => ms_mwb_dest_1_adr,       --> memory_stage.destination_register_2_out
+            in_dest_value_0   => ms_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
+            in_dest_value_1   => ms_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
             --OUT
-            out_aluout        <= mwb_ws_aluout,           --> wb_stage.alu_output
-            out_mem           <= mwb_ws_mem,              --> wb_stage.memory_output
-            out_opcode        <= mwb_ws_opcode,           --> wb_stage.opCode
-            out_destination_0 <= mwb_ws_destination_0,    --> wb_stage.destination_register_1
-            out_destination_1 <= mwb_ws_destination_1,    --> wb_stage.destination_register_2
-            out_dest_value_0  <= mwb_ws_dest_value_0,     --> wb_stage.destination_reg_1_val
-            out_dest_value_1  <= mwb_ws_dest_value_1      --> wb_stage.destination_reg_2_val
+            out_aluout        => mwb_ws_aluout,           --> wb_stage.alu_output
+            out_mem           => mwb_ws_mem,              --> wb_stage.memory_output
+            out_opcode        => mwb_ws_opcode,           --> wb_stage.opCode
+            out_destination_0 => mwb_ws_destination_0,    --> wb_stage.destination_register_1
+            out_destination_1 => mwb_ws_destination_1,    --> wb_stage.destination_register_2
+            out_dest_value_0  => mwb_ws_dest_value_0,     --> wb_stage.destination_reg_1_val
+            out_dest_value_1  => mwb_ws_dest_value_1      --> wb_stage.destination_reg_2_val
         );
 
     wb_stage : entity work.wb_stage
         port map(
             --IN
-            clk                    <= clk,
+            clk                    => clk,
 
-            alu_output             <= mwb_ws_aluout,          --> m_w_buffer.out_aluout
-            memory_output          <= mwb_ws_mem,             --> m_w_buffer.out_mem
-            opCode                 <= mwb_ws_opcode,          --> m_w_buffer.out_opcode
-            destination_register_1 <= mwb_ws_destination_0,   --> m_w_buffer.out_destination_0
-            destination_register_2 <= mwb_ws_destination_1,   --> m_w_buffer.out_destination_1
-            destination_reg_1_val  <= mwb_ws_dest_value_0,    --> m_w_buffer.out_dest_value_0
-            destination_reg_2_val  <= mwb_ws_dest_value_1,    --> m_w_buffer.out_dest_value_1
+            alu_output             => mwb_ws_aluout,          --> m_w_buffer.out_aluout
+            memory_output          => mwb_ws_mem,             --> m_w_buffer.out_mem
+            opCode                 => mwb_ws_opcode,          --> m_w_buffer.out_opcode
+            destination_register_1 => mwb_ws_destination_0,   --> m_w_buffer.out_destination_0
+            destination_register_2 => mwb_ws_destination_1,   --> m_w_buffer.out_destination_1
+            destination_reg_1_val  => mwb_ws_dest_value_0,    --> m_w_buffer.out_dest_value_0
+            destination_reg_2_val  => mwb_ws_dest_value_1,    --> m_w_buffer.out_dest_value_1
             --OUT
-            dest_reg_1             <= ws_rf_dest_reg_1,       --> reg_file.dst0_value
-            dest_reg_2             <= ws_rf_dest_reg_2,       --> reg_file.dst1_value
-            dest_reg_1_value       <= ws_rf_dest_reg_1_value, --> reg_file.wb0_value
-            dest_reg_2_value       <= ws_rf_dest_reg_2_value  --> reg_file.wb1_value
+            dest_reg_1             => ws_rf_dest_reg_1,       --> reg_file.dst0_value
+            dest_reg_2             => ws_rf_dest_reg_2,       --> reg_file.dst1_value
+            dest_reg_1_value       => ws_rf_dest_reg_1_value, --> reg_file.wb0_value
+            dest_reg_2_value       => ws_rf_dest_reg_2_value  --> reg_file.wb1_value
         );
 end architecture;
