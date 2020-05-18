@@ -78,8 +78,6 @@ architecture rtl of main is
 
     -- decode_stage --> d_x_buffer
     signal ds_dxb_alu_op                 : std_logic_vector (3 downto 0);
-    signal ds_dxb_operand0               : std_logic_vector(32 - 1 downto 0); -- TODO: where its input?
-    signal ds_dxb_operand1               : std_logic_vector(32 - 1 downto 0); -- TODO: where its input?
     signal ds_dxb_dest_0                 : std_logic_vector(4 - 1 downto 0);
     signal ds_dxb_dest_1                 : std_logic_vector(4 - 1 downto 0);
     signal ds_dxb_opcode                 : std_logic_vector(7 - 1 downto 0);
@@ -135,12 +133,6 @@ architecture rtl of main is
     -- memory_stage --> execute_stage,decode_stage
     signal ms_stalling_enable            : std_logic;
 
-    -- memory_stage --> reg_file
-    signal ms_rf_mwb_dest_1_value_out    : std_logic_vector(31 downto 0);
-    signal ms_rf_mwb_dest_2_value_out    : std_logic_vector(31 downto 0);
-    signal ms_rf_dst_reg_1_out           : std_logic_vector(3 downto 0);
-    signal ms_rf_dst_reg_2_out           : std_logic_vector(3 downto 0);
-
     -- execute_stage --> memory_stage
     signal xmb_ms_xs_aluout              : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_mem_adr                : std_logic_vector(32 - 1 downto 0);
@@ -151,7 +143,7 @@ architecture rtl of main is
     signal xmb_ms_dest_value_0           : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_dest_value_1           : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_r_w                    : std_logic_vector(2 - 1 downto 0);
-    signal xmb_ms_mwb_interrupt              : std_logic;
+    signal xmb_ms_interrupt              : std_logic;
 
     -- m_w_buffer --> execute_stage
     signal mwb_xs_out_mem                : std_logic_vector(32 - 1 downto 0);
@@ -162,6 +154,23 @@ architecture rtl of main is
     signal ms_mwb_opcode                 : std_logic_vector(7 - 1 downto 0);
     signal ms_mwb_dest_0_adr             : std_logic_vector(4 - 1 downto 0);
     signal ms_mwb_dest_1_adr             : std_logic_vector(4 - 1 downto 0);
+    signal ms_mwb_dest_1_value_out       : std_logic_vector(31 downto 0);
+    signal ms_mwb_dest_2_value_out       : std_logic_vector(31 downto 0);
+
+    -- m_w_buffer --> wb_stage
+    signal mwb_ws_aluout                 : std_logic_vector(32 - 1 downto 0);
+    signal mwb_ws_mem                    : std_logic_vector(32 - 1 downto 0);
+    signal mwb_ws_opcode                 : std_logic_vector(7 - 1 downto 0);
+    signal mwb_ws_destination_0          : std_logic_vector(4 - 1 downto 0);
+    signal mwb_ws_destination_1          : std_logic_vector(4 - 1 downto 0);
+    signal mwb_ws_dest_value_0           : std_logic_vector(32 - 1 downto 0);
+    signal mwb_ws_dest_value_1           : std_logic_vector(32 - 1 downto 0);
+
+    --> wb_stage --> reg_file
+    signal ws_rf_dest_reg_1              : std_logic_vector(3 downto 0);
+    signal ws_rf_dest_reg_2              : std_logic_vector(3 downto 0);
+    signal ws_rf_dest_reg_1_value        : std_logic_vector(31 downto 0);
+    signal ws_rf_dest_reg_2_value        : std_logic_vector(31 downto 0);
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -237,38 +246,42 @@ begin
             --IN
             clk        => clk,
 
-            rst        => rf_rst,                     --> main
-            dst0_adr   => rf_dst0_adr,                --> main
-            dst1_adr   => rf_dst1_adr,                --> main
-            src0_adr   => rf_src0_adr,                --> main
-            src1_adr   => rf_src1_adr,                --> main
-            -- fetch_adr   => TODO, --> TODO.TODO
+            rst        => rf_rst,                 --> main
+            dst0_adr   => rf_dst0_adr,            --> main
+            dst1_adr   => rf_dst1_adr,            --> main
+            src0_adr   => rf_src0_adr,            --> main
+            src1_adr   => rf_src1_adr,            --> main
+            fetch_adr => (others => 'U'),         --> TODO.TODO replace U with its signal
 
-            wb0_value  => rf_wb0_value,               --> main
-            wb1_value  => ms_rf_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
+            wb0_value  => rf_wb0_value,           --> main
+            wb1_value  => ws_rf_dest_reg_2_value, --> wb_stage.dest_reg_2_value
 
-            in_value   => in_value,                   --> main
+            in_value   => in_value,               --> main
 
-            br_io_enbl => rf_br_io_enbl,              --> main
+            br_io_enbl => rf_br_io_enbl,          --> main
             --OUT
-            op0_value  => rf_dxb_op0_value,           --> d_x_buffer.in_operand0, tb
-            op1_value  => rf_dxb_op1_value,           --> d_x_buffer.in_operand1
+            op0_value  => rf_dxb_op0_value,       --> d_x_buffer.in_operand0, tb
+            op1_value  => rf_dxb_op1_value,       --> d_x_buffer.in_operand1
 
             -- fetch_value => TODO, --> TODO.TODO
             -- instr_adr   => TODO, --> TODO.TODO
 
-            out_value  => out_value                   --> main
+            out_value  => out_value               --> main
         );
 
     -- mux between (reg_file and tb) signals
     --IN
     rf_rst           <= rst or ds_rf_rst;
-    rf_dst0_adr      <= tb_rf_dst0_adr when tb_controls = '1' else ms_rf_dst_reg_1_out;  --> memory_stage.destination_register_1_out
-    rf_dst1_adr      <= (others => '1') when tb_controls = '1' else ms_rf_dst_reg_2_out; --> memory_stage.destination_register_2_out
+    rf_dst0_adr      <= tb_rf_dst0_adr when tb_controls = '1' else ws_rf_dest_reg_1;  --> reg_file.dest_reg_1
+    rf_dst1_adr      <= (others => '1') when tb_controls = '1' else ws_rf_dest_reg_2; --> reg_file.dest_reg_2
+
     rf_src0_adr      <= tb_rf_src0_adr when tb_controls = '1' else ds_rf_src0_adr;
     rf_src1_adr      <= (others => '1') when tb_controls = '1' else ds_rf_src1_adr;
-    rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ms_rf_mwb_dest_1_value_out; --> memory_stage.destination_1_value_out
+
+    rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ws_rf_dest_reg_1_value; --> wb_stage.dest_reg_1_value
+
     rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
+    ds_rf_br_io_enbl <= "00"; -- TODO: ds_rf_br_io_enbl is removed from decode_stage, remove this line when it gets back
     --OUT
     rf_tb_dst0_value <= rf_dxb_op0_value;
 
@@ -335,13 +348,13 @@ begin
     hdu : entity work.hdu
         port map(
             --IN
-            -- opcode_decode    => TODO, --> TODO.TODO
-            -- opcode_execute   => TODO, --> TODO.TODO
-            -- opcode_memory    => TODO, --> TODO.TODO
-            -- decode_src_reg_1 => TODO, --> TODO.TODO
-            -- decode_src_reg_2 => TODO, --> TODO.TODO
-            -- exe_dst_reg      => TODO, --> TODO.TODO
-            -- mem_dst_reg      => TODO, --> TODO.TODO
+            opcode_decode => (others => 'U'),    --> TODO.TODO replace U with its signal
+            opcode_execute => (others => 'U'),   --> TODO.TODO replace U with its signal
+            opcode_memory => (others => 'U'),    --> TODO.TODO replace U with its signal
+            decode_src_reg_1 => (others => 'U'), --> TODO.TODO replace U with its signal
+            decode_src_reg_2 => (others => 'U'), --> TODO.TODO replace U with its signal
+            exe_dst_reg => (others => 'U'),      --> TODO.TODO replace U with its signal
+            mem_dst_reg => (others => 'U'),      --> TODO.TODO replace U with its signal
             --OUT
             operand_1_select => hdu_xs_op_1_sel, --> execute_stage.alu_op_1_selector
             operand_2_select => hdu_xs_op_2_sel, --> execute_stage.alu_op_1_selector
@@ -373,7 +386,7 @@ begin
             out_dest_value_0  => xmb_ms_dest_value_0,  --> memory_stage.destination_1_value
             out_dest_value_1  => xmb_ms_dest_value_1,  --> memory_stage.destination_2_value
             out_r_w           => xmb_ms_r_w,           --> memory_stage.r_w_control
-            out_interrupt     => xmb_ms_mwb_interrupt      --> memory_stage.int_bit_in, m_w_buffer.in_interrupt
+            out_interrupt     => xmb_ms_interrupt      --> memory_stage.int_bit_in
         );
 
     memory_stage : entity work.memory_stage
@@ -381,28 +394,28 @@ begin
             --IN
             clk                        => clk,
 
-            ccr_in                     => ccr,                        --> main
-            memory_address             => xmb_ms_mem_adr,             --> x_m_buffer.out_mem_adr
-            memory_in                  => xmb_ms_mem_input,           --> x_m_buffer.out_mem_inp
-            r_w_control                => xmb_ms_r_w,                 --> x_m_buffer.out_r_w
-            alu_result                 => xmb_ms_xs_aluout,           --> x_m_buffer.out_aluout
-            destination_register_1_in  => xmb_ms_destination_0,       --> x_m_buffer.out_destination_0
-            destination_register_2_in  => xmb_ms_destination_1,       --> x_m_buffer.out_destination_1
-            destination_1_value        => xmb_ms_dest_value_0,        --> x_m_buffer.out_dest_value_0
-            destination_2_value        => xmb_ms_dest_value_1,        --> x_m_buffer.out_dest_value_1
-            opCode_in                  => xmb_ms_opcode,              --> x_m_buffer.out_opcode
-            int_bit_in                 => xmb_ms_mwb_interrupt,           --> x_m_buffer.out_interrupt
+            ccr_in                     => ccr,                     --> main
+            memory_address             => xmb_ms_mem_adr,          --> x_m_buffer.out_mem_adr
+            memory_in                  => xmb_ms_mem_input,        --> x_m_buffer.out_mem_inp
+            r_w_control                => xmb_ms_r_w,              --> x_m_buffer.out_r_w
+            alu_result                 => xmb_ms_xs_aluout,        --> x_m_buffer.out_aluout
+            destination_register_1_in  => xmb_ms_destination_0,    --> x_m_buffer.out_destination_0
+            destination_register_2_in  => xmb_ms_destination_1,    --> x_m_buffer.out_destination_1
+            destination_1_value        => xmb_ms_dest_value_0,     --> x_m_buffer.out_dest_value_0
+            destination_2_value        => xmb_ms_dest_value_1,     --> x_m_buffer.out_dest_value_1
+            opCode_in                  => xmb_ms_opcode,           --> x_m_buffer.out_opcode
+            int_bit_in                 => xmb_ms_interrupt,        --> x_m_buffer.out_interrupt
             --OUT
-            alu_output                 => ms_mwb_aluout,              --> m_w_buffer.in_aluout
-            memory_out                 => ms_mwb_mem_input,           --> m_w_buffer.in_mem
-            opCode_out                 => ms_mwb_opcode,              --> m_w_buffer.in_opcode
-            destination_register_1_out => ms_mwb_dest_0_adr,          --> m_w_buffer.in_destination_0
-            destination_register_2_out => ms_mwb_dest_1_adr,          --> m_w_buffer.in_destination_1
-            destination_1_value_out    => ms_rf_mwb_dest_1_value_out, --> reg_file.wb0_value
-            destination_2_value_out    => ms_rf_mwb_dest_2_value_out, --> reg_file.wb1_value
-            ccr_out                    => ms_ccr,                     --> main
+            alu_output                 => ms_mwb_aluout,           --> m_w_buffer.in_aluout
+            memory_out                 => ms_mwb_mem_input,        --> m_w_buffer.in_mem
+            opCode_out                 => ms_mwb_opcode,           --> m_w_buffer.in_opcode
+            destination_register_1_out => ms_mwb_dest_0_adr,       --> m_w_buffer.in_destination_0
+            destination_register_2_out => ms_mwb_dest_1_adr,       --> m_w_buffer.in_destination_1
+            destination_1_value_out    => ms_mwb_dest_1_value_out, --> m_w_buffer.in_dest_value_0
+            destination_2_value_out    => ms_mwb_dest_2_value_out, --> m_w_buffer.in_dest_value_1
+            ccr_out                    => ms_ccr,                  --> main
             -- pc_selector                => TODO,                   --> TODO.TODO
-            stalling_enable            => ms_stalling_enable,         --> execute_stage.mem_stalling_bit
+            stalling_enable            => ms_stalling_enable,      --> execute_stage.mem_stalling_bit
             ccr_out_selector           => ms_ccr_sel
 
             -- testing
@@ -426,24 +439,39 @@ begin
             --IN
             clk               <= clk,
 
-            in_aluout         <= ms_mwb_aluout,              --> memory_stage.alu_output
-            in_mem            <= ms_mwb_mem_input,           --> memory_stage.memory_out
-            in_opcode         <= ms_mwb_opcode,              --> memory_stage.opCode_out
-            in_destination_0  <= ms_mwb_dest_0_adr,          --> memory_stage.destination_register_1_out
-            in_destination_1  <= ms_mwb_dest_1_adr,          --> memory_stage.destination_register_2_out
-            in_dest_value_0   <= ms_rf_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
-            in_dest_value_1   <= ms_rf_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
-            in_interrupt      <= xmb_ms_mwb_interrupt,       --> x_m_buffer.out_interrupt
+            in_aluout         <= ms_mwb_aluout,           --> memory_stage.alu_output
+            in_mem            <= ms_mwb_mem_input,        --> memory_stage.memory_out
+            in_opcode         <= ms_mwb_opcode,           --> memory_stage.opCode_out
+            in_destination_0  <= ms_mwb_dest_0_adr,       --> memory_stage.destination_register_1_out
+            in_destination_1  <= ms_mwb_dest_1_adr,       --> memory_stage.destination_register_2_out
+            in_dest_value_0   <= ms_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
+            in_dest_value_1   <= ms_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
             --OUT
-            -- out_aluout        <= TODO,                       --> wb_stage.TODO
-            -- out_mem           <= TODO,                       --> wb_stage.TODO
-            -- out_opcode        <= TODO,                       --> wb_stage.TODO
-            -- out_destination_0 <= TODO,                       --> wb_stage.TODO
-            -- out_destination_1 <= TODO,                       --> wb_stage.TODO
-            -- out_dest_value_0  <= TODO,                       --> wb_stage.TODO
-            -- out_dest_value_1  <= TODO,                       --> wb_stage.TODO
-            -- out_interrupt     <= TODO                        --> wb_stage.TODO
+            out_aluout        <= mwb_ws_aluout,           --> wb_stage.alu_output
+            out_mem           <= mwb_ws_mem,              --> wb_stage.memory_output
+            out_opcode        <= mwb_ws_opcode,           --> wb_stage.opCode
+            out_destination_0 <= mwb_ws_destination_0,    --> wb_stage.destination_register_1
+            out_destination_1 <= mwb_ws_destination_1,    --> wb_stage.destination_register_2
+            out_dest_value_0  <= mwb_ws_dest_value_0,     --> wb_stage.destination_reg_1_val
+            out_dest_value_1  <= mwb_ws_dest_value_1      --> wb_stage.destination_reg_2_val
         );
 
-    --TODO: wb_stage
+    wb_stage : entity work.wb_stage
+        port map(
+            --IN
+            clk                    <= clk,
+
+            alu_output             <= mwb_ws_aluout,          --> m_w_buffer.out_aluout
+            memory_output          <= mwb_ws_mem,             --> m_w_buffer.out_mem
+            opCode                 <= mwb_ws_opcode,          --> m_w_buffer.out_opcode
+            destination_register_1 <= mwb_ws_destination_0,   --> m_w_buffer.out_destination_0
+            destination_register_2 <= mwb_ws_destination_1,   --> m_w_buffer.out_destination_1
+            destination_reg_1_val  <= mwb_ws_dest_value_0,    --> m_w_buffer.out_dest_value_0
+            destination_reg_2_val  <= mwb_ws_dest_value_1,    --> m_w_buffer.out_dest_value_1
+            --OUT
+            dest_reg_1             <= ws_rf_dest_reg_1,       --> reg_file.dst0_value
+            dest_reg_2             <= ws_rf_dest_reg_2,       --> reg_file.dst1_value
+            dest_reg_1_value       <= ws_rf_dest_reg_1_value, --> reg_file.wb0_value
+            dest_reg_2_value       <= ws_rf_dest_reg_2_value  --> reg_file.wb1_value
+        );
 end architecture;
