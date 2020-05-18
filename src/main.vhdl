@@ -151,7 +151,7 @@ architecture rtl of main is
     signal xmb_ms_dest_value_0           : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_dest_value_1           : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_r_w                    : std_logic_vector(2 - 1 downto 0);
-    signal xmb_ms_interrupt              : std_logic;
+    signal xmb_ms_mwb_interrupt              : std_logic;
 
     -- m_w_buffer --> execute_stage
     signal mwb_xs_out_mem                : std_logic_vector(32 - 1 downto 0);
@@ -373,7 +373,7 @@ begin
             out_dest_value_0  => xmb_ms_dest_value_0,  --> memory_stage.destination_1_value
             out_dest_value_1  => xmb_ms_dest_value_1,  --> memory_stage.destination_2_value
             out_r_w           => xmb_ms_r_w,           --> memory_stage.r_w_control
-            out_interrupt     => xmb_ms_interrupt      --> memory_stage.int_bit_in
+            out_interrupt     => xmb_ms_mwb_interrupt      --> memory_stage.int_bit_in, m_w_buffer.in_interrupt
         );
 
     memory_stage : entity work.memory_stage
@@ -391,7 +391,7 @@ begin
             destination_1_value        => xmb_ms_dest_value_0,        --> x_m_buffer.out_dest_value_0
             destination_2_value        => xmb_ms_dest_value_1,        --> x_m_buffer.out_dest_value_1
             opCode_in                  => xmb_ms_opcode,              --> x_m_buffer.out_opcode
-            int_bit_in                 => xmb_ms_interrupt,           --> x_m_buffer.out_interrupt
+            int_bit_in                 => xmb_ms_mwb_interrupt,           --> x_m_buffer.out_interrupt
             --OUT
             alu_output                 => ms_mwb_aluout,              --> m_w_buffer.in_aluout
             memory_out                 => ms_mwb_mem_input,           --> m_w_buffer.in_mem
@@ -433,7 +433,7 @@ begin
             in_destination_1  <= ms_mwb_dest_1_adr,          --> memory_stage.destination_register_2_out
             in_dest_value_0   <= ms_rf_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
             in_dest_value_1   <= ms_rf_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
-            -- in_interrupt      <= TODO,                       --> memory_stage.TODO
+            in_interrupt      <= xmb_ms_mwb_interrupt,       --> x_m_buffer.out_interrupt
             --OUT
             -- out_aluout        <= TODO,                       --> wb_stage.TODO
             -- out_mem           <= TODO,                       --> wb_stage.TODO
