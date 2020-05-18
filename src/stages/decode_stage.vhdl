@@ -81,7 +81,7 @@ begin
             rsrc2_sel            => src_1,
             rdst1_sel            => dest_0,
             rdst2_sel            => dest_1,
-
+            intr_bit             => fdb_interrupt,
             rsrc2_val            => src_2_val,
             op2_sel              => src_2_val_enable,
             --branch_io          => rf_br_io_enbl,
