@@ -8,6 +8,7 @@ entity control_unit is
         ib            : in  std_logic_vector(31 downto 0);
         in_port_value : in  std_logic_vector(31 downto 0);                  -- the in port value to be used in case of IN operation
         incremented_pc: in  std_logic_vector(31 downto 0);
+        intr_bit      : in  std_logic;
         --interrupt           : in std_logic;
         --reset               : in std_logic;
 
@@ -196,6 +197,8 @@ architecture rtl of control_unit is
     '1' when OPC_IN,
     '0' when others;
 
+    op2_sel                              <= '1' when intr_bit = '1' else '0';
+    rsrc2_val                            <= incremented_pc when intr_bit = '1' else X"00000000" ;
   --  with ib(31 downto 25) select branch_io <=
   --  "01" when "1111100", --out
   --  "10" when "1111000", --in
