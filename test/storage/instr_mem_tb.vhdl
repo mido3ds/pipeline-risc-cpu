@@ -46,10 +46,11 @@ begin
         info("reset");
         wr      <= '0';
         rd      <= '0';
-        rst     <= '0';
+        rst     <= '1';
         address <= (others => '0');
         data_in <= x"0000";
         wait for CLK_PERD/2;
+        rst     <= '0';
 
         if run("one_word") then
             wr      <= '1';
