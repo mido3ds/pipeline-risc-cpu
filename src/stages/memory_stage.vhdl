@@ -41,7 +41,20 @@ entity memory_stage is
         ccr_out_selector                   : out std_logic;
 
         pc_selector                        : out std_logic;
-        stalling_enable                    : out std_logic
+        stalling_enable                    : out std_logic;
+
+        -- testing signals
+
+        -- '1' if testbench is taking control now of the memory and regs
+        tb_controls                  : in std_logic;
+
+        -- to mem
+        tb_mem_rd                    : in std_logic;
+        tb_mem_wr                    : in std_logic;
+        tb_mem_data_in               : in std_logic_vector(31 downto 0);
+        tb_mem_adr                   : in std_logic_vector(31 downto 0);
+        -- from mem
+        tb_mem_data_out              : out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -54,6 +67,12 @@ architecture rtl of memory_stage is
     signal address                         : std_logic_vector(31 downto 0)    := (others => '0');
     signal stalling_in                     : std_logic                        := '0';
     signal stalling_out                    : std_logic                        := '0';
+
+    --> data_mem
+    signal im_rd        : std_logic;
+    signal im_wr        : std_logic;
+    signal im_data_in   : std_logic_vector(31 downto 0);
+    signal im_adr       : std_logic_vector(31 downto 0);
 begin
 
     data_mem : entity work.data_mem(rtl)
@@ -62,13 +81,20 @@ begin
     )
     port map(
         clk                                    => clk,
-        rd                                     => r_w_control(0),
-        wr                                     => r_w_control(1),
+        rd                                     => im_rd,
+        wr                                     => im_wr,
         rst                                    => '0',
-        data_in                                => input_data,
-        address                                => address,
+        data_in                                => im_data_in,
+        address                                => im_adr,
         data_out                               => output_data
     );
+    --IN
+    im_rd           <= tb_mem_rd when tb_controls = '1' else r_w_control(0);
+    im_wr           <= tb_mem_wr when tb_controls = '1' else r_w_control(1);
+    im_data_in      <= tb_mem_data_in when tb_controls = '1' else input_data;
+    im_adr          <= tb_mem_adr when tb_controls = '1' else address;
+    --OUT
+    tb_mem_data_out <= output_data;
 
     pc_nav: entity work.pc_navigator(rtl)
     port map(

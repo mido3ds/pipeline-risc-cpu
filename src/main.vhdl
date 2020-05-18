@@ -27,9 +27,16 @@ entity main is
         tb_im_data_in       : in std_logic_vector(15 downto 0);
         tb_im_adr           : in std_logic_vector(31 downto 0);
         -- from instr_mem
-        tb_im_data_out      : out std_logic_vector(15 downto 0)
+        tb_im_data_out      : out std_logic_vector(15 downto 0);
 
-        --TODO: data_mem
+        -- to data_mem
+        tb_dm_rd            : in std_logic;
+        tb_dm_wr            : in std_logic;
+        tb_dm_data_in       : in std_logic_vector(31 downto 0);
+        tb_dm_adr           : in std_logic_vector(31 downto 0);
+        -- from data_mem
+        tb_dm_data_out      : out std_logic_vector(31 downto 0);
+
         tb_ccr_in           : in std_logic_vector(2 downto 0);
         tb_ccr_out          : out std_logic_vector(2 downto 0)
     );
@@ -388,6 +395,14 @@ begin
             -- pc_selector                => TODO,                   --> TODO.TODO
             stalling_enable           => ms_stalling_enable,     --> execute_stage.mem_stalling_bit
             ccr_out_selector          => ms_ccr_sel
+
+            -- testing
+            tb_controls                  => tb_controls,              --> tb
+            tb_mem_rd                    => tb_dm_rd,                 --> tb
+            tb_mem_wr                    => tb_dm_wr,                 --> tb
+            tb_mem_data_in               => tb_dm_data_in,            --> tb
+            tb_mem_adr                   => tb_dm_adr,                --> tb
+            tb_mem_data_out              => tb_dm_data_out            --> tb
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
