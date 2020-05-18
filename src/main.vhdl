@@ -135,8 +135,8 @@ architecture rtl of main is
     signal ms_stalling_enable            : std_logic;
 
     -- memory_stage --> reg_file
-    signal ms_rf_dest_1_value_out        : std_logic_vector(31 downto 0);
-    signal ms_rf_dest_2_value_out        : std_logic_vector(31 downto 0);
+    signal ms_rf_mwb_dest_1_value_out    : std_logic_vector(31 downto 0);
+    signal ms_rf_mwb_dest_2_value_out    : std_logic_vector(31 downto 0);
     signal ms_rf_dst_reg_1_out           : std_logic_vector(3 downto 0);
     signal ms_rf_dst_reg_2_out           : std_logic_vector(3 downto 0);
 
@@ -154,6 +154,13 @@ architecture rtl of main is
 
     -- m_w_buffer --> execute_stage
     signal mwb_xs_out_mem                : std_logic_vector(32 - 1 downto 0);
+
+    -- memory_stage --> m_w_buffer
+    signal ms_mwb_aluout                 : std_logic_vector(32 - 1 downto 0);
+    signal ms_mwb_mem_input              : std_logic_vector(32 - 1 downto 0);
+    signal ms_mwb_opcode                 : std_logic_vector(7 - 1 downto 0);
+    signal ms_mwb_dest_0_adr             : std_logic_vector(4 - 1 downto 0);
+    signal ms_mwb_dest_1_adr             : std_logic_vector(4 - 1 downto 0);
 begin
     fetch_stage : entity work.fetch_stage
         port map(
@@ -228,27 +235,27 @@ begin
             --IN
             clk        => clk,
 
-            rst        => rf_rst,                 --> main
-            dst0_adr   => rf_dst0_adr,            --> main
-            dst1_adr   => rf_dst1_adr,            --> main
-            src0_adr   => rf_src0_adr,            --> main
-            src1_adr   => rf_src1_adr,            --> main
+            rst        => rf_rst,                     --> main
+            dst0_adr   => rf_dst0_adr,                --> main
+            dst1_adr   => rf_dst1_adr,                --> main
+            src0_adr   => rf_src0_adr,                --> main
+            src1_adr   => rf_src1_adr,                --> main
             -- fetch_adr   => TODO, --> TODO.TODO
 
-            wb0_value  => rf_wb0_value,           --> main
-            wb1_value  => ms_rf_dest_2_value_out, --> memory_stage.destination_2_value_out
+            wb0_value  => rf_wb0_value,               --> main
+            wb1_value  => ms_rf_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
 
-            in_value   => in_value,               --> main
+            in_value   => in_value,                   --> main
 
-            br_io_enbl => rf_br_io_enbl,          --> main
+            br_io_enbl => rf_br_io_enbl,              --> main
             --OUT
-            op0_value  => rf_dxb_op0_value,       --> d_x_buffer.in_operand0, tb
-            op1_value  => rf_dxb_op1_value,       --> d_x_buffer.in_operand1
+            op0_value  => rf_dxb_op0_value,           --> d_x_buffer.in_operand0, tb
+            op1_value  => rf_dxb_op1_value,           --> d_x_buffer.in_operand1
 
             -- fetch_value => TODO, --> TODO.TODO
             -- instr_adr   => TODO, --> TODO.TODO
 
-            out_value  => out_value               --> main
+            out_value  => out_value                   --> main
         );
 
     -- mux between (reg_file and tb) signals
@@ -258,7 +265,7 @@ begin
     rf_dst1_adr      <= (others => '1') when tb_controls = '1' else ms_rf_dst_reg_2_out; --> memory_stage.destination_register_2_out
     rf_src0_adr      <= tb_rf_src0_adr when tb_controls = '1' else ds_rf_src0_adr;
     rf_src1_adr      <= (others => '1') when tb_controls = '1' else ds_rf_src1_adr;
-    rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ms_rf_dest_1_value_out; --> memory_stage.destination_1_value_out
+    rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ms_rf_mwb_dest_1_value_out; --> memory_stage.destination_1_value_out
     rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
     --OUT
     rf_tb_dst0_value <= rf_dxb_op0_value;
@@ -370,39 +377,39 @@ begin
     memory_stage : entity work.memory_stage
         port map(
             --IN
-            clk                       => clk,
+            clk                        => clk,
 
-            ccr_in                    => ccr,                    --> main
-            memory_address            => xmb_ms_mem_adr,         --> x_m_buffer.out_mem_adr
-            memory_in                 => xmb_ms_mem_input,       --> x_m_buffer.out_mem_inp
-            r_w_control               => xmb_ms_r_w,             --> x_m_buffer.out_r_w
-            alu_result                => xmb_ms_xs_aluout,       --> x_m_buffer.out_aluout
-            destination_register_1_in => xmb_ms_destination_0,   --> x_m_buffer.out_destination_0
-            destination_register_2_in => xmb_ms_destination_1,   --> x_m_buffer.out_destination_1
-            destination_1_value       => xmb_ms_dest_value_0,    --> x_m_buffer.out_dest_value_0
-            destination_2_value       => xmb_ms_dest_value_1,    --> x_m_buffer.out_dest_value_1
-            opCode_in                 => xmb_ms_opcode,          --> x_m_buffer.out_opcode
-            int_bit_in                => xmb_ms_interrupt,       --> x_m_buffer.out_interrupt
+            ccr_in                     => ccr,                        --> main
+            memory_address             => xmb_ms_mem_adr,             --> x_m_buffer.out_mem_adr
+            memory_in                  => xmb_ms_mem_input,           --> x_m_buffer.out_mem_inp
+            r_w_control                => xmb_ms_r_w,                 --> x_m_buffer.out_r_w
+            alu_result                 => xmb_ms_xs_aluout,           --> x_m_buffer.out_aluout
+            destination_register_1_in  => xmb_ms_destination_0,       --> x_m_buffer.out_destination_0
+            destination_register_2_in  => xmb_ms_destination_1,       --> x_m_buffer.out_destination_1
+            destination_1_value        => xmb_ms_dest_value_0,        --> x_m_buffer.out_dest_value_0
+            destination_2_value        => xmb_ms_dest_value_1,        --> x_m_buffer.out_dest_value_1
+            opCode_in                  => xmb_ms_opcode,              --> x_m_buffer.out_opcode
+            int_bit_in                 => xmb_ms_interrupt,           --> x_m_buffer.out_interrupt
             --OUT
-            -- memory_out                 => TODO,                   --> TODO.TODO
-            -- alu_output                 => TODO,                   --> TODO.TODO
-            -- opCode_out                 => TODO,                   --> TODO.TODO
-            -- destination_register_1_out => TODO,                   --> TODO.TODO
-            -- destination_register_2_out => TODO,                   --> TODO.TODO
-            destination_1_value_out   => ms_rf_dest_1_value_out, --> reg_file.wb0_value
-            destination_2_value_out   => ms_rf_dest_2_value_out, --> reg_file.wb1_value
-            ccr_out                   => ms_ccr,                 --> main
+            alu_output                 => ms_mwb_aluout,              --> m_w_buffer.in_aluout
+            memory_out                 => ms_mwb_mem_input,           --> m_w_buffer.in_mem
+            opCode_out                 => ms_mwb_opcode,              --> m_w_buffer.in_opcode
+            destination_register_1_out => ms_mwb_dest_0_adr,          --> m_w_buffer.in_destination_0
+            destination_register_2_out => ms_mwb_dest_1_adr,          --> m_w_buffer.in_destination_1
+            destination_1_value_out    => ms_rf_mwb_dest_1_value_out, --> reg_file.wb0_value
+            destination_2_value_out    => ms_rf_mwb_dest_2_value_out, --> reg_file.wb1_value
+            ccr_out                    => ms_ccr,                     --> main
             -- pc_selector                => TODO,                   --> TODO.TODO
-            stalling_enable           => ms_stalling_enable,     --> execute_stage.mem_stalling_bit
-            ccr_out_selector          => ms_ccr_sel
+            stalling_enable            => ms_stalling_enable,         --> execute_stage.mem_stalling_bit
+            ccr_out_selector           => ms_ccr_sel
 
             -- testing
-            tb_controls               => tb_controls,   --> tb
-            tb_mem_rd                 => tb_dm_rd,      --> tb
-            tb_mem_wr                 => tb_dm_wr,      --> tb
-            tb_mem_data_in            => tb_dm_data_in, --> tb
-            tb_mem_adr                => tb_dm_adr,     --> tb
-            tb_mem_data_out           => tb_dm_data_out --> tb
+            tb_controls                => tb_controls,   --> tb
+            tb_mem_rd                  => tb_dm_rd,      --> tb
+            tb_mem_wr                  => tb_dm_wr,      --> tb
+            tb_mem_data_in             => tb_dm_data_in, --> tb
+            tb_mem_adr                 => tb_dm_adr,     --> tb
+            tb_mem_data_out            => tb_dm_data_out --> tb
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
@@ -412,6 +419,29 @@ begin
 
     tb_ccr_out <= ccr;
 
-    --TODO: m_w_buffer
+    m_w_buffer : entity work.m_w_buffer
+        port map(
+            --IN
+            clk               <= clk,
+
+            in_aluout         <= ms_mwb_aluout,              --> memory_stage.alu_output
+            in_mem            <= ms_mwb_mem_input,           --> memory_stage.memory_out
+            in_opcode         <= ms_mwb_opcode,              --> memory_stage.opCode_out
+            in_destination_0  <= ms_mwb_dest_0_adr,          --> memory_stage.destination_register_1_out
+            in_destination_1  <= ms_mwb_dest_1_adr,          --> memory_stage.destination_register_2_out
+            in_dest_value_0   <= ms_rf_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
+            in_dest_value_1   <= ms_rf_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
+            -- in_interrupt      <= TODO,                       --> memory_stage.TODO
+            --OUT
+            -- out_aluout        <= TODO,                       --> wb_stage.TODO
+            -- out_mem           <= TODO,                       --> wb_stage.TODO
+            -- out_opcode        <= TODO,                       --> wb_stage.TODO
+            -- out_destination_0 <= TODO,                       --> wb_stage.TODO
+            -- out_destination_1 <= TODO,                       --> wb_stage.TODO
+            -- out_dest_value_0  <= TODO,                       --> wb_stage.TODO
+            -- out_dest_value_1  <= TODO,                       --> wb_stage.TODO
+            -- out_interrupt     <= TODO                        --> wb_stage.TODO
+        );
+
     --TODO: wb_stage
 end architecture;
