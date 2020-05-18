@@ -29,7 +29,9 @@ entity main is
         -- from instr_mem
         tb_im_data_out      : out std_logic_vector(15 downto 0)
 
-        --TODO: data_mem and ccr
+        --TODO: data_mem
+        tb_ccr_in           : in std_logic_vector(2 downto 0);
+        tb_ccr_out          : out std_logic_vector(2 downto 0)
     );
 end entity;
 
@@ -388,8 +390,12 @@ begin
             ccr_out_selector          => ms_ccr_sel
         );
 
-    -- ccr = memory_stage.ccr or execute_stage.ccr
-    ccr <= ms_ccr when ms_ccr_sel = '1' else xs_ccr;
+    -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
+    ccr <= tb_ccr_in when tb_controls = '1'
+        else ms_ccr when ms_ccr_sel = '1'
+        else xs_ccr;
+
+    tb_ccr_out <= ccr;
 
     --TODO: m_w_buffer
     --TODO: wb_stage
