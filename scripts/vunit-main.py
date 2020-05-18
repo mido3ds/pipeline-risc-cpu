@@ -12,9 +12,6 @@ test_path = join(dirname(__file__), '..', "test")
 
 
 def isignored(p):
-    if 'instr_mem.vhdl' in p and os.environ['RUN_MAIN'] == '1':
-        p = p.replace('src', 'out')
-
     with open(p, 'r') as f:
         ignored = '--%IGNORE%--' in f.readline()
         if ignored:
@@ -42,5 +39,9 @@ vu.set_compile_option("rivierapro.vlog_flags", ["-coverage", "bs"])
 vu.set_compile_option("modelsim.vcom_flags", ["+cover=bs"])
 vu.set_compile_option("modelsim.vlog_flags", ["+cover=bs"])
 vu.set_sim_option("enable_coverage", True)
+
+vu.library('project')\
+    .test_bench('main_tb')\
+    .set_generic('ENABLE_PLAYGROUND', 'true' if os.environ['ENABLE_PLAYGROUND'] == '1' else 'false')
 
 vu.main()

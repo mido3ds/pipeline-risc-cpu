@@ -22,12 +22,7 @@ end entity;
 
 architecture rtl of instr_mem is
     type DataType is array(0 to MEM_NUM_WORDS - 1) of std_logic_vector(data_in'range);
-    signal data : DataType := (
-    --%REPLACE%--
-    -- please don't remove the previous line; it could be replaced (by a script) 
-    -- with the contents of ram before compiling the file
-    others => "1110000000000000"
-    );
+    signal data : DataType;
 begin
     process (clk, rd, wr, address, data_in, rst)
     begin

@@ -9,7 +9,10 @@ library vunit_lib;
 context vunit_lib.vunit_context;
 
 entity main_tb is
-    generic (runner_cfg : string);
+    generic (
+        runner_cfg        : string;
+        ENABLE_PLAYGROUND : boolean := false
+    );
 end entity;
 
 architecture tb of main_tb is
@@ -51,6 +54,8 @@ architecture tb of main_tb is
     -- ccr
     signal ccr_in         : std_logic_vector(2 downto 0);
     signal ccr_out        : std_logic_vector(2 downto 0);
+
+    type WordArrType is array(natural range <>) of std_logic_vector(im_data_in'range);
 begin
     clk <= not clk after CLK_PERD / 2;
 
@@ -91,14 +96,174 @@ begin
         );
 
     main : process
+        procedure clear_signals is
+        begin
+            rst           <= '0';
+            interrupt     <= '0';
+            in_value      <= (others => '0');
+            tb_controls   <= '0';
+            src0_adr      <= (others => '0');
+            dst0_adr      <= (others => '0');
+            in_dst0_value <= (others => '0');
+            im_rd         <= '0';
+            im_wr         <= '0';
+            im_data_in    <= (others => '0');
+            im_adr        <= (others => '0');
+            dm_rd         <= '0';
+            dm_wr         <= '0';
+            dm_data_in    <= (others => '0');
+            dm_adr        <= (others => '0');
+            ccr_in        <= (others => '0');
+        end procedure;
+
+        procedure reset_cpu is
+        begin
+            info("reset_cpu");
+
+            clear_signals;
+            rst <= '1';
+            wait until falling_edge(clk);
+            clear_signals;
+        end procedure;
+
+        -- for some reason, ramdata must have 2 vectors at least
+        procedure fill_instr_mem(ramdata : WordArrType) is
+        begin
+            check_equal(clk, '1', "clock should be high at beginning", warning);
+            wait until clk = '1';
+
+            info("start filling ram");
+
+            clear_signals;
+            tb_controls <= '1';
+            for i in ramdata'range loop
+                im_adr     <= to_vec(i, im_adr'length);
+                im_data_in <= ramdata(i);
+                im_rd      <= '0';
+                im_wr      <= '1';
+                wait until rising_edge(clk);
+            end loop;
+            clear_signals;
+
+            info("done filling ram");
+        end procedure;
+
+        procedure fill_instr_mem_file is
+            constant file_path : string := "out/instr_mem." & running_test_case & ".in";
+            file file_handler  : text open read_mode is file_path;
+
+            variable row       : line;
+            variable data      : std_logic_vector(15 downto 0);
+            variable i         : integer := 1;
+        begin
+            check_equal(clk, '1', "clock should be high at beginning", warning);
+            wait until clk = '1';
+
+            info("start filling instr_mem");
+
+            clear_signals;
+            tb_controls <= '1';
+            -- for i in ramdata'range loop
+            while not endfile(file_handler) loop
+                readline(file_handler, row);
+                read(row, data);
+
+                im_adr     <= to_vec(i, im_adr'length);
+                im_data_in <= data;
+                im_rd      <= '0';
+                im_wr      <= '1';
+                wait until rising_edge(clk);
+
+                i := i + 1;
+            end loop;
+            clear_signals;
+
+            info("done filling instr_mem");
+        end procedure;
+
+        -- for some reason, ramdata must have 2 vectors at least
+        procedure fill_data_mem(ramdata : WordArrType) is
+            variable i                      : integer := 0;
+        begin
+            check_equal(ramdata'length mod 2, 0, "data_mem input must be even number of data, given " & to_str(ramdata'length), failure);
+
+            check_equal(clk, '1', "clock should be high at beginning", warning);
+            wait until clk = '1';
+
+            info("start filling data_mem");
+
+            clear_signals;
+            tb_controls <= '1';
+            while i < ramdata'length loop
+                dm_adr     <= to_vec(i, im_adr'length);
+                dm_data_in <= ramdata(i) & ramdata(i + 1);
+                dm_rd      <= '0';
+                dm_wr      <= '1';
+                wait until rising_edge(clk);
+
+                i := i + 2;
+            end loop;
+            clear_signals;
+
+            info("done filling data_mem");
+        end procedure;
+
+        procedure dump_data_mem is
+            file file_handler : text open write_mode is "out/data_mem." & running_test_case & ".out";
+            variable row      : line;
+            variable i        : integer := 0;
+        begin
+            info("start dumping data_mem");
+
+            clear_signals;
+            tb_controls <= '1';
+            while i < MEM_NUM_WORDS loop
+                dm_adr <= to_vec(i, im_adr'length);
+                dm_rd  <= '1';
+                dm_wr  <= '0';
+                wait for 1 ps;
+
+                write(row, dm_data_out(31 downto 16));
+                writeline(file_handler, row);
+
+                write(row, dm_data_out(15 downto 0));
+                writeline(file_handler, row);
+
+                i := i + 2;
+            end loop;
+            clear_signals;
+
+            wait until falling_edge(clk);
+
+            info("done dumping data_mem");
+        end procedure;
+
+        procedure dump_ccr is
+            file file_handler : text open write_mode is "out/ccr." & running_test_case & ".out";
+            variable row      : line;
+        begin
+            info("dump ccr");
+
+            write(row, ccr_out);
+            writeline(file_handler, row);
+        end procedure;
     begin
         test_runner_setup(runner, runner_cfg);
         set_stop_level(failure);
 
-        -- This testcase doesnt enject any data 
-        -- into memories, it expects that the memory be loaded by `integrate` script
-        if run("integration") then
-            -- TODO
+        -- `playground` test-case runs only with `playground` script
+        --      `run-test` should ignore `playground` test-case
+        -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
+        -- dumps data memory content into out/data_mem.playground.out
+        -- and dumps final ccr into out/ccr.playground.out
+        if run("playground") and ENABLE_PLAYGROUND then
+            reset_cpu;
+            fill_instr_mem_file;
+
+            wait until hlt = '1';
+
+            dump_data_mem;
+            dump_ccr;
         end if;
 
         wait for CLK_PERD/2;

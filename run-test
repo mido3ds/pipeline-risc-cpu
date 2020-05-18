@@ -8,11 +8,11 @@ run-daemon() {
         echo daemon is up
 
         echo -n 'vunit version: '
-        docker exec -w "$PWD" -e RUN_MAIN=$RUN_MAIN  ghdld_arch python3 scripts/vunit-main.py --version
+        docker exec -w "$PWD" -e ENABLE_PLAYGROUND=$ENABLE_PLAYGROUND  ghdld_arch python3 scripts/vunit-main.py --version
 
         echo write out/project.json
         mkdir -p out
-        docker exec -w "$PWD" -e RUN_MAIN=$RUN_MAIN  ghdld_arch python3 scripts/vunit-main.py --export-json out/project.json -o out
+        docker exec -w "$PWD" -e ENABLE_PLAYGROUND=$ENABLE_PLAYGROUND  ghdld_arch python3 scripts/vunit-main.py --export-json out/project.json -o out
     fi
 }
 
@@ -20,7 +20,7 @@ main() {
     run-daemon
     
     echo "run tests for project.$TEST"
-    docker exec -w "$PWD" -e RUN_MAIN=$RUN_MAIN ghdld_arch python3 scripts/vunit-main.py project.$TEST -p 5 -x out/report.xml  --minimal --keep-compiling --gtkwave-fmt ghw -o out -q
+    docker exec -w "$PWD" -e ENABLE_PLAYGROUND=$ENABLE_PLAYGROUND ghdld_arch python3 scripts/vunit-main.py project.$TEST -p 5 -x out/report.xml  --minimal --keep-compiling --gtkwave-fmt ghw -o out -q
 }
 
 if [[ "$1" = "" ]]; then
@@ -29,7 +29,7 @@ else
     TEST="$1.*"
 fi
 
-RUN_MAIN=${RUN_MAIN:0}
-echo "RUN_MAIN="$RUN_MAIN
+ENABLE_PLAYGROUND=${ENABLE_PLAYGROUND:0}
+echo "ENABLE_PLAYGROUND="$ENABLE_PLAYGROUND
 main
 

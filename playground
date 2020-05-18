@@ -1,0 +1,13 @@
+#!/bin/bash
+# Compile given assembly and run main_tb.integrate test on it.
+# don't forget to add 'end' at the end to halt.
+#
+# Usage: ./playground </path/to/input.asm
+# Or: printf '...some valid assembly...' | ./playground
+#
+
+set -e -o pipefail
+
+mkdir -p out
+./scripts/asm >out/instr_mem.playground.in
+exec env ENABLE_PLAYGROUND=1 ./run-test main_tb
