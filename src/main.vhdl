@@ -8,6 +8,7 @@ entity main is
         clk, rst, interrupt : in std_logic;
         in_value            : in std_logic_vector(31 downto 0);
         out_value           : out std_logic_vector(31 downto 0);
+        hlt                 : out std_logic;
 
         -- testing signals
 
@@ -227,7 +228,8 @@ begin
             dxb_interrupt       => ds_dxb_interrupt,   --> d_x_buffer.in_interrupt
 
             rf_src0_adr         => ds_rf_src0_adr,     --> main
-            rf_src1_adr         => ds_rf_src1_adr      --> main
+            rf_src1_adr         => ds_rf_src1_adr,     --> main
+            hlt                 => hlt
         );
 
     reg_file : entity work.reg_file
