@@ -253,15 +253,15 @@ begin
 
     -- mux between (reg_file and tb) signals
     --IN
-    rf_rst           => rst or ds_rf_rst;
-    rf_dst0_adr      => tb_rf_dst0_adr when tb_controls = '1' else ms_rf_dst_reg_1_out; --> memory_stage.destination_register_1_out
-    rf_dst1_adr => (others => '1') when tb_controls = '1' else ms_rf_dst_reg_2_out;     --> memory_stage.destination_register_2_out
-    rf_src0_adr      => tb_rf_src0_adr when tb_controls = '1' else ds_rf_src0_adr;
-    rf_src1_adr => (others => '1') when tb_controls = '1' else ds_rf_src1_adr;
-    rf_wb0_value     => tb_rf_dst0_value when tb_controls = '1' else ms_rf_dest_1_value_out; --> memory_stage.destination_1_value_out
-    rf_br_io_enbl    => "00" when tb_controls = '1' else ds_rf_br_io_enbl;
+    rf_rst           <= rst or ds_rf_rst;
+    rf_dst0_adr      <= tb_rf_dst0_adr when tb_controls = '1' else ms_rf_dst_reg_1_out;  --> memory_stage.destination_register_1_out
+    rf_dst1_adr      <= (others => '1') when tb_controls = '1' else ms_rf_dst_reg_2_out; --> memory_stage.destination_register_2_out
+    rf_src0_adr      <= tb_rf_src0_adr when tb_controls = '1' else ds_rf_src0_adr;
+    rf_src1_adr      <= (others => '1') when tb_controls = '1' else ds_rf_src1_adr;
+    rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ms_rf_dest_1_value_out; --> memory_stage.destination_1_value_out
+    rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
     --OUT
-    rf_tb_dst0_value => rf_dxb_op0_value;
+    rf_tb_dst0_value <= rf_dxb_op0_value;
 
     d_x_buffer : entity work.d_x_buffer
         port map(
@@ -397,12 +397,12 @@ begin
             ccr_out_selector          => ms_ccr_sel
 
             -- testing
-            tb_controls                  => tb_controls,              --> tb
-            tb_mem_rd                    => tb_dm_rd,                 --> tb
-            tb_mem_wr                    => tb_dm_wr,                 --> tb
-            tb_mem_data_in               => tb_dm_data_in,            --> tb
-            tb_mem_adr                   => tb_dm_adr,                --> tb
-            tb_mem_data_out              => tb_dm_data_out            --> tb
+            tb_controls               => tb_controls,   --> tb
+            tb_mem_rd                 => tb_dm_rd,      --> tb
+            tb_mem_wr                 => tb_dm_wr,      --> tb
+            tb_mem_data_in            => tb_dm_data_in, --> tb
+            tb_mem_adr                => tb_dm_adr,     --> tb
+            tb_mem_data_out           => tb_dm_data_out --> tb
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
