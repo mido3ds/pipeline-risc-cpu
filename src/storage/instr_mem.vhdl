@@ -25,18 +25,30 @@ architecture rtl of instr_mem is
     signal data : DataType;
 begin
     process (clk, rd, wr, address, data_in, rst)
+        -- vhdl cant cast 32bit (but instead 31bits) to integers
+        variable safe_adr : std_logic_vector(30 downto 0) := (others => '0');
     begin
         if rst = '1' then
             for i in data'range loop
                 data(i) <= "1110000000000000";
             end loop;
         else
-            if rd = '1' then
-                data_out <= data(to_int(address));
+            if address'length >= 32 then
+                safe_adr := address(30 downto 0);
+            else
+                safe_adr(address'range) := address;
             end if;
 
-            if falling_edge(clk) and wr = '1' then
-                data(to_int(address)) <= data_in;
+            if unsigned(safe_adr) >= MEM_NUM_WORDS then
+                report "address=" & to_str(to_int(safe_adr)) & " exceeds MEM_NUM_WORDS=" & to_str(MEM_NUM_WORDS) severity warning;
+            else
+                if rd = '1' then
+                    data_out <= data(to_int(safe_adr));
+                end if;
+
+                if falling_edge(clk) and wr = '1' then
+                    data(to_int(safe_adr)) <= data_in;
+                end if;
             end if;
         end if;
     end process;

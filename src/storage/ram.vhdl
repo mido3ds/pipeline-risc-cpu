@@ -26,25 +26,31 @@ architecture rtl of ram is
     signal data : DataType;
 begin
     process (clk, rd, wr, address, data_in, rst)
+        -- vhdl cant cast 32bit (but instead 31bits) to integers
+        variable safe_adr : std_logic_vector(30 downto 0) := (others => '0');
     begin
         if rst = '1' then
             for i in data'range loop
                 data(i) <= to_vec(0, data(i)'length);
             end loop;
         else
-            if rd = '1' then
-                data_out <= data(to_int(address));
+            if address'length >= 32 then
+                safe_adr := address(30 downto 0);
+            else
+                safe_adr(address'range) := address;
             end if;
 
-            if falling_edge(clk) and wr = '1' then
-                data(to_int(address)) <= data_in;
+            if unsigned(safe_adr) >= NUM_WORDS then
+                report "address=" & to_str(to_int(safe_adr)) & " exceeds NUM_WORDS=" & to_str(NUM_WORDS) severity warning;
+            else
+                if rd = '1' then
+                    data_out <= data(to_int(safe_adr));
+                end if;
+
+                if falling_edge(clk) and wr = '1' then
+                    data(to_int(safe_adr)) <= data_in;
+                end if;
             end if;
         end if;
-    end process;
-
-    process (address)
-    begin
-        assert unsigned(address) < NUM_WORDS
-        report "address=" & to_str(to_int(address)) & "exceeds NUM_WORDS=" & to_str(NUM_WORDS) severity warning;
     end process;
 end architecture;
