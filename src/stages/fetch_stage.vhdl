@@ -125,7 +125,7 @@ begin
                 pc <= (others => '0'); -- to be corrected
 
             elsif in_stall = '1' then
-                pc <= (others => '0'); -- to be corrected
+                null; -- do nothing and preserve current PC
 
             else
                 pc <= to_vec(to_int(pc) + 1, pc'length);
