@@ -4,12 +4,18 @@ use ieee.numeric_std.all;
 
 entity dyn_branch_pred is
     port (
-        hashed_address : in std_logic_vector(3 downto 0);
-        -- Taken or not to update FSM
-        update         : in std_logic;
-        opcode         : in std_logic_vector(3 downto 0);
+        -- Update predictor hash table
+        prev_hashed_adr : in std_logic_vector(3 downto 0);
+        -- taken or not to update FSM
+        update          : in std_logic;
+        -- update enable
+        enable          : in std_logic;
+
+        -- Get prediction
+        cur_hashed_adr  : in std_logic_vector(3 downto 0);
+        opcode          : in std_logic_vector(3 downto 0);
         -- predict whether the branch taken or not
-        taken          : out std_logic
+        taken           : out std_logic
     );
 end entity;
 

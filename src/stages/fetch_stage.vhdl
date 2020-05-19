@@ -52,6 +52,13 @@ architecture rtl of fetch_stage is
     signal im_data_in   : std_logic_vector(mem_data_in'range);
     signal im_adr       : std_logic_vector(pc'range);
     signal im_rst       : std_logic;
+
+    --> branch_pred
+    signal br_pred_en   : std_logic                     := '0';
+    signal hashed_adr   : std_logic_vector(3 downto 0)  := (others => '0');
+    signal opcode       : std_logic_vector(3 downto 0)  := (others => '0');
+    signal br_pred      : std_logic                     := '0';
+
 begin
     inst_mem : entity work.instr_mem(rtl)
         generic map(ADR_LENGTH => 32)
@@ -64,6 +71,17 @@ begin
             address  => im_adr,
             data_out => mem_data_out
         );
+
+    branch_pred : entity work.dyn_branch_pred(rtl)
+        port map(
+            prev_hashed_adr => in_hashed_address,
+            update          => in_if_flush,
+            enable          => br_pred_en,
+            cur_hashed_adr  => hashed_adr,
+            opcode          => opcode,
+            taken           => br_pred
+        );
+
     --IN
     im_rd              <= tb_mem_rd when tb_controls = '1' else mem_rd;
     im_wr              <= tb_mem_wr when tb_controls = '1' else mem_wr;
@@ -76,9 +94,6 @@ begin
     out_inc_pc         <= to_vec(to_int(pc) + 1, out_inc_pc'length);
 
     out_hashed_address <= pc(3 downto 0);
-
-    -- TODO
-    --out_predicted_address <= ???
 
     process (clk, rst)
     begin
