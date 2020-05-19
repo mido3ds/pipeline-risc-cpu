@@ -22,6 +22,8 @@ entity d_x_buffer is
         out_alu_op     : out std_logic_vector (3 downto 0);
         out_operand0   : out std_logic_vector(32 - 1 downto 0);
         out_operand1   : out std_logic_vector(32 - 1 downto 0);
+        out_src2_value : out std_logic_vector(32 - 1 downto 0);
+        out_sel_src2   : out std_logic;
         out_dest_0     : out std_logic_vector(4 - 1 downto 0);
         out_dest_1     : out std_logic_vector(4 - 1 downto 0);
         -- out_dest_value : out std_logic_vector(32 - 1 downto 0);
