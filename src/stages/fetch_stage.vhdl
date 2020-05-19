@@ -98,7 +98,7 @@ begin
     process (clk, rst)
     begin
         if rst = '1' then
-            pc           <= (others => '0'); -- to be corrected
+            pc           <= (others => '0'); -- TODO
             mem_data_in  <= (others => '0');
             mem_data_out <= (others => '0');
             len_bit      <= '0';
@@ -118,11 +118,11 @@ begin
                 out_instruction_bits <= (others => '0');
 
             elsif mem_data_out(14 downto 8) = OPC_CALL then
-                pc <= (others => '0'); -- to be corrected
+                pc <= (others => '0'); -- TODO
 
             elsif in_interrupt = '1' then
                 out_interrupt <= '1';
-                pc <= (others => '0'); -- to be corrected
+                pc <= (others => '0'); -- TODO
 
             elsif in_stall = '1' then
                 null; -- do nothing and preserve current PC
@@ -145,7 +145,22 @@ begin
                     out_instruction_bits(15 downto 0)  <= mem_data_out;
                     len_bit                            <= '0';
                 end if;
-            end if;            
+
+                -- branch prediction handling
+                if len_bit = '0' and mem_data_out(15) = '0' then
+                    -- activate dynamic branch predictor
+                    hashed_adr <= pc(3 downto 0);
+                    opcode     <= mem_data_out(14 downto 11);
+                    -- determine PC next value and predicted address output
+                    if br_pred = '0' then
+                        pc                    <= to_vec(to_int(pc) + 1, pc'length);
+                        out_predicted_address <= to_vec(to_int(pc) + 1, pc'length);
+                    else
+                        pc                    <= (others => '0'); -- TODO
+                        out_predicted_address <= (others => '0'); -- TODO
+                    end if;
+                end if;
+            end if;  
         end if;
 
     end process;

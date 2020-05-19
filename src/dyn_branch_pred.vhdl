@@ -27,5 +27,5 @@ begin
     -- Outputs the prediction bit (Taken or Not) accordingly.
 
     -- TODO: everything
-    taken <= '1';
+    taken <= '0';
 end architecture;
