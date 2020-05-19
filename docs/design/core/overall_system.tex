@@ -73,8 +73,10 @@ Figure \ref{fig:bpu} shows the branch prediction unit.
 
 \subsection{Inputs}
 \begin{itemize}
-    \item Hashed Address (4 bits)
+    \item Previous Hashed Address (4 bits)
+    \item Current Hashed Address (4 bits)
     \item Update Bit (1 bit): \emph{Taken or Not}  to update FSM
+    \item Enable Bit (1 bit): to enable FSM update
     \item OPcode (4 bits)
 \end{itemize}
 
@@ -130,7 +132,10 @@ Figure \ref{fig:bau} shows the branch address unit.
             \item IF Flush = 1, Branch Address = Instruction Address
         \end{itemize}
     \end{itemize}
-    % TODO: what heppens if OpCode is not branch?
+    \item Else:
+    \begin{itemize}
+        \item IF Flush = 0, Branch Address = PC Next Address
+    \end{itemize}
 \end{itemize}
 
 \section{Register File}
