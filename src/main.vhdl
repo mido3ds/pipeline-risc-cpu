@@ -20,7 +20,7 @@ entity main is
         tb_rf_dst0_adr      : in std_logic_vector(3 downto 0);
         tb_rf_dst0_value    : in std_logic_vector(31 downto 0);
         -- from reg_file
-        rf_tb_dst0_value    : out std_logic_vector(31 downto 0);
+        rf_tb_src0_value    : out std_logic_vector(31 downto 0);
 
         -- to instr_mem
         tb_im_rd            : in std_logic;
@@ -38,6 +38,7 @@ entity main is
         -- from data_mem
         tb_dm_data_out      : out std_logic_vector(31 downto 0);
 
+        tb_ccr_sel          : in std_logic;
         tb_ccr_in           : in std_logic_vector(2 downto 0);
         tb_ccr_out          : out std_logic_vector(2 downto 0)
     );
@@ -279,7 +280,7 @@ begin
     rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
     ds_rf_br_io_enbl <= "00"; -- TODO: ds_rf_br_io_enbl is removed from decode_stage, remove this line when it gets back
     --OUT
-    rf_tb_dst0_value <= rf_dxb_op0_value;
+    rf_tb_src0_value <= rf_dxb_op0_value;
 
     d_x_buffer : entity work.d_x_buffer
         port map(
@@ -428,7 +429,7 @@ begin
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
-    ccr <= tb_ccr_in when tb_controls = '1'
+    ccr <= tb_ccr_in when tb_ccr_sel = '1'
         else ms_ccr when ms_ccr_sel = '1'
         else xs_ccr;
 
