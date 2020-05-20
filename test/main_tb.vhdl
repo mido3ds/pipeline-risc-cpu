@@ -267,6 +267,18 @@ begin
             clear_signals;
         end procedure;
 
+        procedure set_ccr(ccr : std_logic_vector(2 downto 0)) is
+        begin
+            clear_signals;
+            info("set_ccr to " & to_str(ccr));
+
+            ccr_in  <= ccr;
+            ccr_sel <= '1';
+            wait for 1 fs;
+
+            clear_signals;
+        end procedure;
+
         procedure dump_ccr is
             file file_handler : text open write_mode is "out/ccr." & running_test_case & ".out";
             variable row      : line;
