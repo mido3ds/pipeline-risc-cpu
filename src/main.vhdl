@@ -216,6 +216,7 @@ begin
     decode_stage : entity work.decode_stage
         port map(
             --IN
+            rst                 => rst,                --> main
             in_zero_flag        => ccr(CCR_ZERO),      --> main
 
             fdb_instr           => fdb_ds_instr,       --> f_d_buffer.out_instr
@@ -315,6 +316,7 @@ begin
         port map(
             --IN
             clk                        => clk,
+            rst                        => rst,                --> main
 
             alu_operation              => dxb_xs_alu_op,        --> d_x_buffer.out_alu_op
             operand_1                  => dxb_xs_operand0,      --> d_x_buffer.out_operand0
@@ -350,6 +352,8 @@ begin
     hdu : entity work.hdu
         port map(
             --IN
+            rst           => rst,                --> main
+
             opcode_decode => (others => 'U'),    --> TODO.TODO replace U with its signal
             opcode_execute => (others => 'U'),   --> TODO.TODO replace U with its signal
             opcode_memory => (others => 'U'),    --> TODO.TODO replace U with its signal
@@ -395,6 +399,7 @@ begin
         port map(
             --IN
             clk                        => clk,
+            rst                        => rst,                     --> main
 
             ccr_in                     => ccr,                     --> main
             memory_address             => xmb_ms_mem_adr,          --> x_m_buffer.out_mem_adr
@@ -463,6 +468,7 @@ begin
         port map(
             --IN
             clk                    => clk,
+            rst                    => rst,                    --> main
 
             alu_output             => mwb_ws_aluout,          --> m_w_buffer.out_aluout
             memory_output          => mwb_ws_xs_mem,          --> m_w_buffer.out_mem

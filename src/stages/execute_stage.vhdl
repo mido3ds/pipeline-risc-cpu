@@ -8,6 +8,7 @@ entity execute_stage is
 
         -- from main
         clk                                : in  std_logic;
+        rst                                : in  std_logic;
         mem_stalling_bit                   : in  std_logic;
 
         -- from HDU
@@ -87,12 +88,23 @@ begin
         c                                   => opt
     );
 
-    process(clk , opt)
+    process(clk , opt, rst)
     begin
-
-        -- works at rising edge and stalling disabled only
-
-        if (rising_edge(clk) and mem_stalling_bit = '0') then
+        if rst = '1' then
+            --alu_output                         <= TODO;
+            --ccr_out                            <= TODO;
+            --update_ccr                         <= TODO;
+            --memory_address                     <= TODO;
+            --memory_input                       <= TODO;
+            --opCode_out                         <= TODO;
+            --destination_register_1_out         <= TODO;
+            --destination_register_2_out         <= TODO;
+            --destination_1_value_out            <= TODO;
+            --destination_2_value_out            <= TODO;
+            --r_w_control_out                    <= TODO;
+            --interrupt_bit_out                  <= TODO;
+        elsif (rising_edge(clk) and mem_stalling_bit = '0') then
+            -- works at rising edge and stalling disabled only
 
             destination_register_1_out      <= destination_register_1_in;
             destination_register_2_out      <= destination_register_2_in;

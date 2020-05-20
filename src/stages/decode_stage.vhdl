@@ -8,6 +8,7 @@ entity decode_stage is
 
         --inputs from main entity
         --clk                     : in  std_logic;
+        rst                     : in std_logic;
 
         mem_stalling_bit        : in  std_logic;                               -- signal from memory stage used in rti or interrupt operations
         in_zero_flag            : in  std_logic;
@@ -90,9 +91,21 @@ begin
             hlt                  => hlt
         );
 
-        process(mem_stalling_bit)
+        process(mem_stalling_bit, rst)
         begin
-            if(mem_stalling_bit = '0') then
+            if rst = '1' then
+                --dxb_alu_op              <= TODO
+                --dxb_dest_0              <= TODO
+                --dxb_dest_1              <= TODO
+                --dxb_opcode              <= TODO
+                --dxb_r_w                 <= TODO
+                --dxb_interrupt           <= TODO
+                --rf_src0_adr             <= TODO
+                --rf_src1_adr             <= TODO
+                --src2_value              <= TODO
+                --src2_value_selector     <= TODO
+                --hlt                     <= TODO
+            elsif(mem_stalling_bit = '0') then
                 dxb_interrupt                        <= fdb_interrupt;
                 dxb_opcode                           <= fdb_instr(30 downto 24);
                 dxb_alu_op                           <= alu_op;
