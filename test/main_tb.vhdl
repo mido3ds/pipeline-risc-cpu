@@ -122,7 +122,8 @@ begin
             clear_signals;
             info("reset_cpu");
 
-            rst <= '1';
+            tb_controls <= '1';
+            rst         <= '1';
             wait until falling_edge(clk);
 
             clear_signals;
@@ -131,10 +132,9 @@ begin
         procedure reset_all is
         begin
             clear_signals;
-            info("reset_cpu");
+            info("reset_all");
 
-            tb_controls <= '1';
-            rst         <= '1';
+            rst <= '1';
             wait until falling_edge(clk);
 
             clear_signals;
@@ -315,6 +315,7 @@ begin
         if run("not_r0") then
             reset_all;
             fill_instr_mem((
+            --$ printf 'not r0 \n end' | ./scripts/asm | head -n2
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
