@@ -113,11 +113,11 @@ begin
     );
 
 
-    process(clk,rst, pc_sel)
+    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address)
     begin
         if rst = '1' then
             memory_out                         <= (others => '0');
-            alu_output                         <= (others => '0');
+            alu_output                         <= (others => '0'); -- solve conflict  -- done
             opCode_out                         <= (others => '0');
             destination_register_1_out         <= "1111";
             destination_register_2_out         <= "1111";
@@ -125,8 +125,8 @@ begin
             destination_2_value_out            <= (others => '0');
             ccr_out                            <= (others => '0');
             ccr_out_selector                   <= '0';
-            pc_selector                        <= '0';
-            stalling_enable                    <= '0';
+            pc_selector                        <= '0'; -- solve conflict              -- done
+            stalling_enable                    <= '0'; -- solve conflict              -- done
         elsif rising_edge(clk) then
 
             if (pc_sel = '1') then

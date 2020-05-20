@@ -42,7 +42,7 @@ begin
 
     process (clk)
     begin
-        if rising_edge(clk) then
+        --if rising_edge(clk) then
             out_aluout        <= aluout;
             out_mem           <= mem;
             out_opcode        <= opcode;
@@ -50,6 +50,6 @@ begin
             out_destination_1 <= destination_1;
             out_dest_value_0  <= dest_value_0;
             out_dest_value_1  <= dest_value_1;
-        end if;
+        --end if;
     end process;
 end architecture;

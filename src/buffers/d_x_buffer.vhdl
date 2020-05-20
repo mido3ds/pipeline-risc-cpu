@@ -62,7 +62,7 @@ begin
         end if;
     end process;
 
-    process (clk)
+    process (clk, in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, out_sel_src2 )
     begin
         if rising_edge(clk) then
             out_alu_op     <= alu_op;
@@ -71,7 +71,7 @@ begin
             if in_sel_src2 = '1' then
                 out_operand1 <= src2_value;
             else
-            out_operand1   <= operand1;
+                out_operand1   <= operand1;
             end if;
 
             out_dest_0     <= destination_0;
