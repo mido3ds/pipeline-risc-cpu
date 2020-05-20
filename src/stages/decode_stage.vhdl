@@ -62,7 +62,7 @@ architecture rtl of decode_stage is
     --signal branch_enable        : std_logic                      := '0';
     --signal rsrc2_val_signal     : std_logic_vector (31 downto 0) := (others => '0');
     --signal op2_sel_sig          : std_logic                      := '0';
-    signal alu_op               : std_logic_vector(3 downto 0)  := (others => '0');
+    signal alu_op               : std_logic_vector(3 downto 0)   := (others => '0');
     signal r_w_control          : std_logic_vector(1  downto 0)  := (others => '0');
     signal dest_0               : std_logic_vector(3  downto 0)  := (others => '0');
     signal dest_1               : std_logic_vector(3  downto 0)  := (others => '0');

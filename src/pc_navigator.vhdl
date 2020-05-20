@@ -47,7 +47,7 @@ begin
         c          => res2_addition
     );
 
-    dec1 : entity work.incrementor(rtl)
+    dec1 : entity work.decrementor(rtl)
     generic map ( N => 32)
     port map (
         a          => address,
@@ -55,7 +55,7 @@ begin
         c          => res1_subtraction
     );
 
-    dec2 : entity work.incrementor(rtl)
+    dec2 : entity work.decrementor(rtl)
     generic map ( N => 32)
     port map (
         a          => res1_subtraction,

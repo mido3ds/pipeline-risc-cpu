@@ -59,9 +59,10 @@ begin
         end if;
     end process;
 
-    process (clk)
+    --process (clk)
+    process
     begin
-        if rising_edge(clk) then
+        --if rising_edge(clk) then
             out_instr       <= instr;
             --out_inst_length <= inst_length;
             --out_next_adr    <= next_adr;
@@ -69,6 +70,6 @@ begin
             --out_hashed_adr  <= hashed_adr;
             out_interrupt   <= interrupt;
             --out_reset       <= reset;
-        end if;
+       -- end if;
     end process;
 end architecture;

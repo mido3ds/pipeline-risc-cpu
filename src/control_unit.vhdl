@@ -47,181 +47,273 @@ architecture rtl of control_unit is
 
     begin
 
+        process
+        begin
+            case( ib(30 downto 27) ) is
+                when "1111"     =>
+                    rsrc1_sel                    <= '0' & ib(23 downto 21);
+                    rsrc2_sel                    <= "1111";
+                    rdst2_sel                    <= "1111";
+                    r_w_control                  <= "00";
+                    case( ib(26 downto 24) ) is
+                        when OPC_IN    =>                 -- IN
+                            aluop                        <= ALUOP_NOP;
+                            rdst1_sel                    <= '0' & ib(23 downto 21);
+                            rsrc2_val                    <= in_port_value;
+                            op2_sel                      <= '1';
+
+                        when OPC_NOT   =>                 -- NOT
+                            aluop                        <= ALUOP_NOT;
+                            rdst1_sel                    <= '0' & ib(23 downto 21);
+                            rsrc2_val                    <= "00000000000000000000000000000000";
+                            op2_sel                      <= '0';
+
+                        when OPC_INC   =>                 -- INC
+                            aluop                        <= ALUOP_INC;
+                            rdst1_sel                    <= '0' & ib(23 downto 21);
+                            rsrc2_val                    <= "00000000000000000000000000000000";
+                            op2_sel                      <= '0';
+
+                        when OPC_DEC   =>                 -- DEC
+                            aluop                        <= ALUOP_DEC;
+                            rdst1_sel                    <= '0' & ib(23 downto 21);
+                            rsrc2_val                    <= "00000000000000000000000000000000";
+                            op2_sel                      <= '0';
+
+                        when OPC_OUT   =>                 -- OUT
+                            aluop                        <= ALUOP_NOP;
+                            rdst1_sel                    <= "1110";
+                            rsrc2_val                    <= "00000000000000000000000000000000";
+                            op2_sel                      <= '0';
+
+                        when others =>
+                            aluop                        <= ALUOP_NOP;
+                            rdst1_sel                    <= "1111";
+                            rsrc2_val                    <= "00000000000000000000000000000000";
+                            op2_sel                      <= '0';
+
+                    end case ;
+                when "0000"     =>
+                        case( ib(26 downto 24) ) is
+
+                            when OPC_JZ    =>
+                                --null;           -- TODO
+                                aluop                      <= ALUOP_NOP;
+                                rsrc1_sel                  <= "1111";
+                                rsrc2_sel                  <= "1111";
+                                rdst1_sel                  <= "1111";
+                                rdst2_sel                  <= "1111";
+                                rsrc2_val                  <= "00000000000000000000000000000000";
+                                op2_sel                    <= '0';
+                                r_w_control                <= "00";
+
+                            when OPC_JMP   =>
+
+                                --null;          --TODO
+                                aluop                      <= ALUOP_NOP;
+                                rsrc1_sel                  <= "1111";
+                                rsrc2_sel                  <= "1111";
+                                rdst1_sel                  <= "1111";
+                                rdst2_sel                  <= "1111";
+                                rsrc2_val                  <= "00000000000000000000000000000000";
+                                op2_sel                    <= '0';
+                                r_w_control                <= "00";
+
+                            when OPC_CALL  =>
+
+                                aluop                      <= ALUOP_DEC2;
+                                rsrc1_sel                  <= SP;
+                                rsrc2_sel                  <= "1111";
+                                rdst1_sel                  <= SP;
+                                rdst2_sel                  <= "1111";
+                                rsrc2_val                  <= incremented_pc;
+                                op2_sel                    <= '1';
+                                r_w_control                <= "10";
+
+                            when OPC_RET   =>
+
+                                aluop                      <= ALUOP_INC2;
+                                rsrc1_sel                  <= SP;
+                                rsrc2_sel                  <= "1111";
+                                rdst1_sel                  <= SP;
+                                rdst2_sel                  <= "1111";
+                                rsrc2_val                  <= "00000000000000000000000000000000";
+                                op2_sel                    <= '0';
+                                r_w_control                <= "01";
+
+                            when OPC_RTI   =>
+
+                                aluop                      <= ALUOP_INC2;
+                                rsrc1_sel                  <= SP;
+                                rsrc2_sel                  <= "1111";
+                                rdst1_sel                  <= SP;
+                                rdst2_sel                  <= "1111";
+                                rsrc2_val                  <= "00000000000000000000000000000000";
+                                op2_sel                    <= '0';
+                                r_w_control                <= "01";
+
+                            when others =>
+
+                                aluop                      <= ALUOP_NOP;
+                                rsrc1_sel                  <= "1111";
+                                rsrc2_sel                  <= "1111";
+                                rdst1_sel                  <= "1111";
+                                rdst2_sel                  <= "1111";
+                                rsrc2_val                  <= "00000000000000000000000000000000";
+                                op2_sel                    <= '0';
+                                r_w_control                <= "00";
+
+                        end case ;
+
+                when OPC_SWAP   =>
+                    aluop                      <= ALUOP_NOP;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= '0' & ib(23 downto 21);
+                    rdst1_sel                  <= '0' & ib(26 downto 24);
+                    rdst2_sel                  <= '0' & ib(23 downto 21);
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+
+                when OPC_ADD    =>
+                    aluop                      <= ALUOP_ADD;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= '0' & ib(23 downto 21);
+                    rdst1_sel                  <= '0' & ib(20 downto 18);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+
+                when OPC_SUB    =>
+                    aluop                      <= ALUOP_SUB;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= '0' & ib(23 downto 21);
+                    rdst1_sel                  <= '0' & ib(20 downto 18);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+
+                when OPC_AND    =>
+                    aluop                      <= ALUOP_AND;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= '0' & ib(23 downto 21);
+                    rdst1_sel                  <= '0' & ib(20 downto 18);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+
+                when OPC_OR     =>
+                    aluop                      <= ALUOP_OR;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= '0' & ib(23 downto 21);
+                    rdst1_sel                  <= '0' & ib(20 downto 18);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+
+                when OPC_SHL    =>
+                    aluop                      <= ALUOP_SHL;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= '0' & ib(26 downto 24);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= sign_extend(ib(23 downto 8));
+                    op2_sel                    <= '1';
+                    r_w_control                <= "00";
+
+                when OPC_SHR    =>
+                    aluop                      <= ALUOP_SHR;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= '0' & ib(26 downto 24);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= sign_extend(ib(23 downto 8));
+                    op2_sel                    <= '1';
+                    r_w_control                <= "00";
+
+                when OPC_IADD   =>
+                    aluop                      <= ALUOP_ADD;
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= '0' & ib(23 downto 21);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= sign_extend(ib(20 downto 5));
+                    op2_sel                    <= '1';
+                    r_w_control                <= "00";
+
+                when OPC_PUSH   =>
+                    aluop                      <= ALUOP_DEC2;
+                    rsrc1_sel                  <= SP;
+                    rsrc2_sel                  <= '0' & ib(26 downto 24);
+                    rdst1_sel                  <= SP;
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "10";
+
+                when OPC_POP    =>
+
+                    aluop                      <= ALUOP_INC2;
+                    rsrc1_sel                  <= SP;
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= '0' & ib(26 downto 24);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "01";
+
+                when OPC_LDM    =>
+
+                    aluop                      <= ALUOP_NOP;
+                    rsrc1_sel                  <= "1111";
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= '0' & ib(26 downto 24);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= sign_extend(ib(23 downto 8));
+                    op2_sel                    <= '1';
+                    r_w_control                <= "00";
+
+                when OPC_LDD    =>
+
+                    aluop                      <= ALUOP_NOP;
+                    rsrc1_sel                  <= "1111";
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= '0' & ib(26 downto 24);
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= X"000" & ib(23 downto 4);
+                    op2_sel                    <= '1';
+                    r_w_control                <= "01";
+
+                when OPC_STD    =>
+
+                    aluop                      <= ALUOP_NOP;
+                    rsrc1_sel                  <= "1111";
+                    rsrc2_sel                  <= '0' & ib(26 downto 24);
+                    rdst1_sel                  <= "1111";
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= X"000" & ib(23 downto 4);
+                    op2_sel                    <= '1';
+                    r_w_control                <= "10";
+
+                when others     =>
+                    aluop                      <= ALUOP_NOP;
+                    rsrc1_sel                  <= "1111";
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= "1111";
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+            end case ;
+        end process;
+
     --base conditions
     --OpCode is simple..
     --OpCode <= ib(31 downto 25);
     hlt <= '1' when ib(31 downto 0) = "01110000000000000000000000000000" else '0';
-    --aluop selection
-    with ib(31 downto 24) select aluop <=
-    ALUOP_NOT  when OPC_NOT, --not
-    ALUOP_INC  when OPC_INC, --inc
-    ALUOP_DEC  when OPC_DEC, --dec
-    --"0000"   when "1111100", --out
-    --"0000"   when "1111000", --in
-    ALUOP_DEC2 when OPC_CALL, --call
-    ALUOP_INC2 when OPC_RET, --ret
-    ALUOP_INC2 when OPC_RTI, --rti
-    --"0000" when "0000010", --jmp
-    --"0000" when "0000001", --jz
-    --"0111" when "0000000", --nop
-    ALUOP_NOP when others;
-
-    with ib(31 downto 27) select aluop <=
-    --"0000" when "0001", --swap
-    ALUOP_ADD  when OPC_ADD, --add
-    ALUOP_SUB  when OPC_SUB, --sub
-    ALUOP_AND  when OPC_AND, --and
-    ALUOP_OR   when OPC_OR, --or
-    ALUOP_SHL  when OPC_SHL, --shl
-    ALUOP_SHR  when OPC_SHR, --shr
-    ALUOP_ADD  when OPC_IADD, --iadd
-    ALUOP_DEC2 when OPC_PUSH, --push
-    ALUOP_INC2 when OPC_POP, --pop
-    --"0000" when "1011", --ldm
-    --"0000" when "1100", --ldd
-    --"0000" when "1101", --std
-    ALUOP_NOP when others;
-
     -----------------------------------------------------------------------------------------------------------------------------
-    --Rsrc1 selection
-    with ib(31 downto 24) select rsrc1_sel <=
-    '0' & ib(23 downto 21) when OPC_NOT, --not
-    '0' & ib(23 downto 21) when OPC_INC, --inc
-    '0' & ib(23 downto 21) when OPC_DEC, --dec
-    '0' & ib(23 downto 21) when OPC_OUT, --out
-    --'0' & ib(24 downto 22) when "1111000", --in              -- no need for that
-    SP                     when OPC_CALL, --call            -- must be sp
-    SP                     when OPC_RET, --ret             -- mut be sp
-    SP                     when OPC_RTI, --rti             -- must be sp
-    --'0' & ib(27 downto 25) when OPC_JMP, --jmp             -- no need for that ?
-    --'0' & ib(27 downto 25) when OPC_JZ, --jz              -- no need for that ?
-    --"1111"                 when OPC_NOP,                 --nop
-    "1111"                 when others;
-
-    with ib(31 downto 27) select rsrc1_sel <=
-    '0' & ib(26 downto 24) when OPC_SWAP, --swap
-    '0' & ib(26 downto 24) when OPC_ADD,  --add
-    '0' & ib(26 downto 24) when OPC_SUB,  --sub
-    '0' & ib(26 downto 24) when OPC_AND,  --and
-    '0' & ib(26 downto 24) when OPC_OR,   --or
-    '0' & ib(26 downto 24) when OPC_SHL,  --shl
-    '0' & ib(26 downto 24) when OPC_SHR,  --shr
-    '0' & ib(26 downto 24) when OPC_IADD, --iadd
-    SP                     when OPC_PUSH, --push               -- source must be sp :\
-    SP                     when OPC_POP,  --pop                -- source must be sp :\
-    --"1111"                 when "1011", --ldm
-    --'0' & ib(27 downto 25) when "1100", --ldd
-    --"1111"                 when "1100", --ldd
-    '0' & ib(26 downto 24) when OPC_STD, --std
-    "1111"                 when others;
-
-    --Rsrc2 selection
-    with ib(31 downto 27) select rsrc2_sel <=
-    '0' & ib(23 downto 21) when OPC_ADD,  --add
-    '0' & ib(23 downto 21) when OPC_SUB,  --sub
-    '0' & ib(23 downto 21) when OPC_AND,  --and
-    '0' & ib(23 downto 21) when OPC_OR,   --or
-    '0' & ib(23 downto 21) when OPC_SWAP, --swap
-    '0' & ib(26 downto 24) when OPC_PUSH, --push
-    --'0' & ib(27 downto 25) when OPC_STD,  -- std
-    --"1000" when "1010",                 --pop                -- don't care
-    "1111"                 when others;
-
-    ------------------------------------------------------------------------------------------------------------------------------
-    --rdst1_sel
-    with ib(31 downto 24) select rdst1_sel <=
-    '0' & ib(23 downto 21) when OPC_NOT, --not
-    '0' & ib(23 downto 21) when OPC_INC, --inc
-    '0' & ib(23 downto 21) when OPC_DEC, --dec
-    "1110"                 when OPC_OUT, --out             -- so main out the src_1_value on out port signal
-    '0' & ib(23 downto 21) when OPC_IN,  --in
-    SP                     when OPC_CALL,--call            -- destination must be sp
-    "1111"                 when others;
-
-    with ib(31 downto 27) select rdst1_sel <=
-    '0' & ib(20 downto 18) when OPC_ADD,  --add
-    '0' & ib(20 downto 18) when OPC_SUB,  --sub
-    '0' & ib(20 downto 18) when OPC_AND,  --and
-    '0' & ib(20 downto 18) when OPC_OR,   --or
-    '0' & ib(22 downto 21) when OPC_IADD, --iadd
-    '0' & ib(26 downto 24) when OPC_SHL,  --shl
-    '0' & ib(26 downto 24) when OPC_SHR,  --shr
-    '0' & ib(26 downto 24) when OPC_LDM,  --ldm
-    --"1111" when "1100", --ldd
-    --'0' & ib(27 downto 25) when "1100", --ldd                 -- must be 1111
-    SP                     when OPC_PUSH, --push                -- destination must be sp
-    SP                     when OPC_POP,  --pop                 -- destination must be sp
-    '0' & ib(26 downto 24) when OPC_SWAP, --swap                -- destination must be the source
-
-    "1111"                 when others;
-
-    --rdst2_sel
-    with ib(31 downto 27) select rdst2_sel <=
-    '0' & ib(23 downto 21) when OPC_SWAP, --swap                -- destination must be the destination
-    '0' & ib(26 downto 24) when OPC_LDD,  -- LDD                -- memory operation out on dest_2 operation
-    '0' & ib(26 downto 24) when OPC_POP,  -- pop                -- second destination must be the destination
-    "1111"                 when others;
-
-    -----------------------------------------------------------------------------------------------------------------
-
-    with ib(31 downto 27) select rsrc2_val <=
-    --IMM
-    sign_extend(ib(20 downto 5)) when OPC_IADD, --iadd
-    sign_extend(ib(23 downto 8)) when OPC_SHL, --shl
-    sign_extend(ib(23 downto 8)) when OPC_SHR, --shr
-    sign_extend(ib(23 downto 8)) when OPC_LDM, --ldm
-    --EA
-    X"000" & ib(23 downto 4)     when OPC_LDD,     --ldd
-    X"000" & ib(23 downto 4)     when OPC_STD,     --std
-
-    X"00000000"                  when others;
-
-    -- in case of in operation
-    with ib(31 downto 24) select rsrc2_val <=
-    in_port_value                when OPC_IN,
-    incremented_pc               when OPC_CALL,
-    X"00000000"                  when others;
-
-    --which output to expect, the reg_file or our ea/imm
-    with ib(31 downto 27) select op2_sel <=
-    '1' when OPC_IADD, --iadd
-    '1' when OPC_SHL, --shl
-    '1' when OPC_SHR, --shr
-    '1' when OPC_LDM, --ldm
-    '1' when OPC_LDD, --ldd
-    '1' when OPC_STD, --std
-    '0' when others;
-
-    with ib(31 downto 24) select op2_sel <=
-    '1' when OPC_CALL,
-    '1' when OPC_IN,
-    '0' when others;
-
-    op2_sel                              <= '1' when intr_bit = '1' else '0';
-    rsrc2_val                            <= incremented_pc when intr_bit = '1' else X"00000000" ;
-  --  with ib(31 downto 25) select branch_io <=
-  --  "01" when "1111100", --out
-  --  "10" when "1111000", --in
-  --  "11" when "0000010", --jmp
-  --  "11" when "0000001", --jz
-  --  "00" when others;
-  --  with ib(31 downto 25) select branch_enable <=
-  --  '1' when "0000001", --jz
-  --  '0' when others;
-
-    -- what 11 stands for ?  00 : NO OP , 01: read , 10 : write
-
-    with ib(31 downto 24) select r_w_control <=
-    "10" when OPC_CALL, --call
-    "01" when OPC_RET,  --ret
-    "01" when OPC_RTI,  --rti
-    "00" when others;
-
-    with ib(31 downto 27) select r_w_control <=
-    --"11" when "1011", --ldm
-    "01" when OPC_LDD,  --ldd
-    "10" when OPC_STD,  --std
-    "10" when OPC_PUSH, --push
-    "01" when OPC_POP,  --pop
-    "00" when others;
 end architecture;
