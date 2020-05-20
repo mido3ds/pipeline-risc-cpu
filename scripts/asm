@@ -124,19 +124,23 @@ def assemble():
                     REGISTERS[line_words[3].upper()] + "00"
                 ram_entries[ram_div].append(new_entry)
             elif (inst in ["shl", "shr"]):
+                im_val = bin(int(line_words[2], 16))[2:]
+                im_val = '0'*(16-len(im_val)) + im_val
                 new_entry = "1" + new_entry + \
                     REGISTERS[line_words[1].upper()] + \
-                    bin(int(line_words[2], 16))[2:][:8]
+                    im_val[:8]
                 ram_entries[ram_div].append(new_entry)
                 ram_entries[ram_div].append(
-                    bin(int(line_words[2], 16))[2:][8:]+"00000000")
+                    im_val[8:]+"00000000")
             else:
+                im_val = bin(int(line_words[3], 16))[2:]
+                im_val = '0'*(16-len(im_val)) + im_val
                 new_entry = "1" + new_entry + REGISTERS[line_words[1].upper()] + \
                             REGISTERS[line_words[2].upper()] + \
-                    bin(int(line_words[3], 16))[2:][:5]
+                    im_val[:5]
                 ram_entries[ram_div].append(new_entry)
                 ram_entries[ram_div].append(
-                    bin(int(line_words[3], 16))[2:][5:]+"00000")
+                    im_val[5:]+"00000")
 
         # handle memory instruction
         elif (inst in INST_MEM):
@@ -146,19 +150,23 @@ def assemble():
                     REGISTERS[line_words[1].upper()] + "00000000"
                 ram_entries[ram_div].append(new_entry)
             elif (inst in ["ldd", "std"]):
+                eff_adr = bin(int(line_words[2], 16))[2:]
+                eff_adr = '0'*(20-len(eff_adr)) + eff_adr
                 new_entry = "1" + new_entry + \
                     REGISTERS[line_words[1].upper()] + \
-                    bin(int(line_words[2], 16))[2:][:8]
+                    eff_adr[:8]
                 ram_entries[ram_div].append(new_entry)
                 ram_entries[ram_div].append(
-                    bin(int(line_words[2], 16))[2:][8:]+"0000")
+                    eff_adr[8:]+"0000")
             else:
+                im_val = bin(int(line_words[2], 16))[2:]
+                im_val = '0'*(16-len(im_val)) + im_val
                 new_entry = "1" + new_entry + \
                     REGISTERS[line_words[1].upper()] + \
-                    bin(int(line_words[2], 16))[2:][:8]
+                    im_val[:8]
                 ram_entries[ram_div].append(new_entry)
                 ram_entries[ram_div].append(
-                    bin(int(line_words[2], 16))[2:][8:]+"00000000")
+                    im_val[8:]+"00000000")
 
         # handle branch instruction
         elif (inst in INST_BR):
