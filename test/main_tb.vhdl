@@ -321,6 +321,8 @@ begin
 
             reset_cpu;
             wait until hlt = '1';
+
+            test_reg(to_vec(0, src0_adr'length), to_vec('1', out_src0_value'length));
         end if;
 
         -- `playground` test-case runs only with `playground` script
