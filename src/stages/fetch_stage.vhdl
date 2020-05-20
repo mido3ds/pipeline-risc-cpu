@@ -100,7 +100,6 @@ begin
         if rst = '1' then
             pc           <= (others => '0'); -- TODO
             mem_data_in  <= (others => '0');
-            mem_data_out <= (others => '0');
             len_bit      <= '0';
             mem_rd       <= '1';
             mem_wr       <= '0';
