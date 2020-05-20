@@ -9,10 +9,7 @@ library vunit_lib;
 context vunit_lib.vunit_context;
 
 entity main_tb is
-    generic (
-        runner_cfg        : string;
-        ENABLE_PLAYGROUND : boolean := false
-    );
+    generic (runner_cfg : string);
 end entity;
 
 architecture tb of main_tb is
@@ -25,7 +22,7 @@ architecture tb of main_tb is
     signal interrupt      : std_logic;
     signal hlt            : std_logic;
 
-    signal in_value       : std_logic_vector(31 downto 0)  := "00000000000000000000000000001000";
+    signal in_value       : std_logic_vector(31 downto 0) := "00000000000000000000000000001000";
     signal out_value      : std_logic_vector(31 downto 0);
 
     -- testing signals
@@ -119,17 +116,25 @@ begin
             ccr_sel       <= '0';
         end procedure;
 
-        -- set keep_data = true to keep instr_mem and reg_file from resetting
-        procedure reset_cpu(keep_data : boolean) is
+        -- keep instr_mem and reg_file from resetting
+        procedure reset_cpu is
         begin
             clear_signals;
             info("reset_cpu");
 
-            if keep_data then
-                tb_controls <= '1';
-            end if;
-
             rst <= '1';
+            wait until falling_edge(clk);
+
+            clear_signals;
+        end procedure;
+
+        procedure reset_all is
+        begin
+            clear_signals;
+            info("reset_cpu");
+
+            tb_controls <= '1';
+            rst         <= '1';
             wait until falling_edge(clk);
 
             clear_signals;
@@ -140,11 +145,11 @@ begin
         begin
             clear_signals;
             info("start filling ram");
+            tb_controls <= '1';
 
             check_equal(clk, '1', "clock should be high at beginning", warning);
             wait until clk = '1';
 
-            tb_controls <= '1';
             for i in ramdata'range loop
                 im_adr     <= to_vec(i, im_adr'length);
                 im_data_in <= ramdata(i);
@@ -167,11 +172,11 @@ begin
         begin
             clear_signals;
             info("start filling instr_mem");
+            tb_controls <= '1';
 
             check_equal(clk, '1', "clock should be high at beginning", warning);
             wait until clk = '1';
 
-            tb_controls <= '1';
             while not endfile(file_handler) loop
                 readline(file_handler, row);
                 read(row, data);
@@ -195,13 +200,13 @@ begin
         begin
             clear_signals;
             info("start filling data_mem");
+            tb_controls <= '1';
 
             check_equal(ramdata'length mod 2, 0, "data_mem input must be even number of data, given " & to_str(ramdata'length), failure);
 
             check_equal(clk, '1', "clock should be high at beginning", warning);
             wait until clk = '1';
 
-            tb_controls <= '1';
             while i < ramdata'length loop
                 dm_adr     <= to_vec(i, im_adr'length);
                 dm_data_in <= ramdata(i) & ramdata(i + 1);
@@ -213,6 +218,21 @@ begin
             end loop;
 
             info("done filling data_mem");
+            clear_signals;
+        end procedure;
+
+        procedure test_reg(adr : std_logic_vector(src0_adr'range); expected : std_logic_vector(out_src0_value'range)) is
+        begin
+            clear_signals;
+            tb_controls <= '1';
+
+            check_equal(clk, '1', "clock should be high at beginning", warning);
+            wait until clk = '1';
+
+            src0_adr <= adr;
+            wait until rising_edge(clk);
+
+            check_equal(out_src0_value, expected, "test_reg failed");
             clear_signals;
         end procedure;
 
@@ -250,11 +270,11 @@ begin
         begin
             clear_signals;
             info("start dumping reg_file");
+            tb_controls <= '1';
 
             check_equal(clk, '1', "clock should be high at beginning", warning);
             wait until clk = '1';
 
-            tb_controls <= '1';
             for i in 0 to 8 loop
                 src0_adr <= to_vec(i, src0_adr'length);
                 wait until rising_edge(clk);
@@ -292,17 +312,29 @@ begin
         test_runner_setup(runner, runner_cfg);
         set_stop_level(failure);
 
+        if run("not_r0") then
+            reset_all;
+            fill_instr_mem((
+            to_vec("0111100100000000"),
+            to_vec("0111000000000000")
+            ));
+
+            reset_cpu;
+            wait until hlt = '1';
+        end if;
+
         -- `playground` test-case runs only with `playground` script
         --      `run-test` should ignore `playground` test-case
         -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
         -- dumps final data_mem content into out/data_mem.playground.out
         -- dumps final ccr value into out/ccr.playground.out
         -- and dumps final reg_file content into out/reg_file.playground.out
-        if run("playground") and ENABLE_PLAYGROUND then
-            reset_cpu(keep_data => false);
+        if run("playground") then
+            -- vunit: .playground
+            reset_all;
             fill_instr_mem_file;
-            reset_cpu(keep_data => true);
 
+            reset_cpu;
             wait until hlt = '1';
 
             dump_data_mem;

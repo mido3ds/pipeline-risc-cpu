@@ -20,7 +20,7 @@ main() {
     run-daemon
     
     echo "run tests for project.$TEST"
-    docker exec -w "$PWD" -e ENABLE_PLAYGROUND=$ENABLE_PLAYGROUND ghdld_arch python3 scripts/vunit-main.py project.$TEST -p 5 -x out/report.xml  --minimal --keep-compiling --gtkwave-fmt ghw -o out -q
+    docker exec -w "$PWD" -e ENABLE_PLAYGROUND=$ENABLE_PLAYGROUND ghdld_arch python3 scripts/vunit-main.py project.$TEST $([[ $ENABLE_PLAYGROUND = '1' ]] && echo --with-attribute=.playground || echo --without-attribute=.playground) -p 5 -x out/report.xml  --minimal --keep-compiling --gtkwave-fmt ghw -o out -q
 }
 
 if [[ "$1" = "" ]]; then
