@@ -291,6 +291,7 @@ begin
         -- dumps final ccr value into out/ccr.playground.out
         -- and dumps final reg_file content into out/reg_file.playground.out
         if run("playground") and ENABLE_PLAYGROUND then
+            reset_cpu(keep_data => false);
             fill_instr_mem_file;
             reset_cpu(keep_data => true);
 
