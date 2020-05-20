@@ -92,7 +92,6 @@ architecture rtl of main is
     signal ds_rf_src0_adr                : std_logic_vector(3 downto 0);
     signal ds_rf_src1_adr                : std_logic_vector(3 downto 0);
     signal ds_rf_br_io_enbl              : std_logic_vector(1 downto 0);
-    signal ds_rf_rst                     : std_logic;
 
     -- reg_file --> decode_stage
     signal rf_dxb_op0_value              : std_logic_vector(31 downto 0);
@@ -269,7 +268,7 @@ begin
 
     -- mux between (reg_file and tb) signals
     --IN
-    rf_rst           <= '0' when tb_controls = '1' else rst or ds_rf_rst;
+    rf_rst           <= '0' when tb_controls = '1' else rst;
     rf_dst0_adr      <= tb_rf_dst0_adr when tb_controls = '1' else ws_rf_dest_reg_1;  --> reg_file.dest_reg_1
     rf_dst1_adr      <= (others => '1') when tb_controls = '1' else ws_rf_dest_reg_2; --> reg_file.dest_reg_2
 
