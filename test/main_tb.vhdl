@@ -163,7 +163,7 @@ begin
 
             variable row       : line;
             variable data      : std_logic_vector(15 downto 0);
-            variable i         : integer := 1;
+            variable i         : integer := 0;
         begin
             clear_signals;
             info("start filling instr_mem");
