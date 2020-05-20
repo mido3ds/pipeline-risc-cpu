@@ -147,8 +147,10 @@ begin
             info("start filling ram");
             tb_controls <= '1';
 
-            check_equal(clk, '1', "clock should be high at beginning", warning);
-            wait until clk = '1';
+            if clk /= '1' then
+                warning("clock should be high at beginning");
+                wait until clk = '1';
+            end if;
 
             for i in ramdata'range loop
                 im_adr     <= to_vec(i, im_adr'length);
@@ -174,8 +176,10 @@ begin
             info("start filling instr_mem");
             tb_controls <= '1';
 
-            check_equal(clk, '1', "clock should be high at beginning", warning);
-            wait until clk = '1';
+            if clk /= '1' then
+                warning("clock should be high at beginning");
+                wait until clk = '1';
+            end if;
 
             while not endfile(file_handler) loop
                 readline(file_handler, row);
@@ -204,8 +208,10 @@ begin
 
             check_equal(ramdata'length mod 2, 0, "data_mem input must be even number of data, given " & to_str(ramdata'length), failure);
 
-            check_equal(clk, '1', "clock should be high at beginning", warning);
-            wait until clk = '1';
+            if clk /= '1' then
+                warning("clock should be high at beginning");
+                wait until clk = '1';
+            end if;
 
             while i < ramdata'length loop
                 dm_adr     <= to_vec(i, im_adr'length);
@@ -221,18 +227,37 @@ begin
             clear_signals;
         end procedure;
 
-        procedure test_reg(adr : std_logic_vector(src0_adr'range); expected : std_logic_vector(out_src0_value'range)) is
+        procedure test_reg(adr : integer; expected : std_logic_vector(out_src0_value'range)) is
         begin
             clear_signals;
             tb_controls <= '1';
 
-            check_equal(clk, '1', "clock should be high at beginning", warning);
-            wait until clk = '1';
+            if clk /= '1' then
+                warning("clock should be high at beginning");
+                wait until clk = '1';
+            end if;
 
-            src0_adr <= adr;
+            src0_adr <= to_vec(adr, src0_adr'length);
             wait until rising_edge(clk);
 
             check_equal(out_src0_value, expected, "test_reg failed");
+            clear_signals;
+        end procedure;
+
+        procedure set_reg(adr : integer; value : std_logic_vector(in_dst0_value'range)) is
+        begin
+            clear_signals;
+            tb_controls <= '1';
+
+            if clk /= '0' then
+                warning("clock should be low at beginning");
+                wait until clk = '0';
+            end if;
+
+            dst0_adr      <= to_vec(adr, src0_adr'length);
+            in_dst0_value <= value;
+            wait until falling_edge(clk);
+
             clear_signals;
         end procedure;
 
@@ -272,8 +297,10 @@ begin
             info("start dumping reg_file");
             tb_controls <= '1';
 
-            check_equal(clk, '1', "clock should be high at beginning", warning);
-            wait until clk = '1';
+            if clk /= '1' then
+                warning("clock should be high at beginning");
+                wait until clk = '1';
+            end if;
 
             for i in 0 to 8 loop
                 src0_adr <= to_vec(i, src0_adr'length);
@@ -323,7 +350,76 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(to_vec(0, src0_adr'length), to_vec('1', out_src0_value'length));
+            test_reg(0, to_vec('1', out_src0_value'length));
+        end if;
+
+        if run("inc_r1") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'inc r1 \n end' | ./scripts/asm | head -n2
+            to_vec("0111101000100000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(1, to_vec(5, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(1, to_vec(6, out_src0_value'length));
+        end if;
+
+        if run("dec_r2") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'dec r2 \n end' | ./scripts/asm | head -n2
+            to_vec("0111101101000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(2, to_vec(200, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec(199, out_src0_value'length));
+        end if;
+
+        if run("in_r3") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'in r3 \n end' | ./scripts/asm | head -n2
+            to_vec("0111100001100000"),
+            to_vec("0111000000000000")
+            ));
+            for i in 0 to 8 loop
+                set_reg(i, to_vec(-1, out_src0_value'length));
+            end loop;
+            in_value <= to_vec(50, in_value'length);
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            for i in 0 to 8 loop
+                if i = 3 then
+                    test_reg(3, to_vec(50, out_src0_value'length));
+                else
+                    test_reg(i, to_vec(-1, out_src0_value'length));
+                end if;
+            end loop;
+        end if;
+
+        if run("in_r4") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'out r4 \n end' | ./scripts/asm | head -n2
+            to_vec("0111110010000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(4, to_vec(12, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            check_equal(out_value, to_vec(12, out_value'length));
         end if;
 
         -- `playground` test-case runs only with `playground` script
