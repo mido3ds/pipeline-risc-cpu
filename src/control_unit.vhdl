@@ -135,15 +135,15 @@ architecture rtl of control_unit is
     '0' & ib(23 downto 21) when OPC_DEC, --dec
     "1110"                 when OPC_OUT, --out             -- so main out the src_1_value on out port signal
     '0' & ib(23 downto 21) when OPC_IN,  --in
-    SP                     when OPC_CALL, --call            -- destination must be sp
+    SP                     when OPC_CALL,--call            -- destination must be sp
     "1111"                 when others;
 
     with ib(31 downto 27) select rdst1_sel <=
-    '0' & ib(21 downto 18) when OPC_ADD,  --add
-    '0' & ib(21 downto 18) when OPC_SUB,  --sub
-    '0' & ib(21 downto 18) when OPC_AND,  --and
-    '0' & ib(21 downto 18) when OPC_OR,   --or
-    '0' & ib(24 downto 21) when OPC_IADD, --iadd
+    '0' & ib(20 downto 18) when OPC_ADD,  --add
+    '0' & ib(20 downto 18) when OPC_SUB,  --sub
+    '0' & ib(20 downto 18) when OPC_AND,  --and
+    '0' & ib(20 downto 18) when OPC_OR,   --or
+    '0' & ib(22 downto 21) when OPC_IADD, --iadd
     '0' & ib(26 downto 24) when OPC_SHL,  --shl
     '0' & ib(26 downto 24) when OPC_SHR,  --shr
     '0' & ib(26 downto 24) when OPC_LDM,  --ldm
