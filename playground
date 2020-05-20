@@ -9,5 +9,5 @@
 set -e -o pipefail
 
 mkdir -p out
-./scripts/asm >out/instr_mem.playground.in
+python3 scripts/asm >out/instr_mem.playground.in
 exec env ENABLE_PLAYGROUND=1 ./run-test main_tb

@@ -102,7 +102,7 @@ def assemble():
 
         # handle END instruction
         elif (inst == "end"):
-            ram_entries[ram_div].append("1110000000000000")
+            ram_entries[ram_div].append("0111000000000000")
 
         # handle 1-operand instruction
         elif (inst in INST_1OP):

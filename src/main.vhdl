@@ -100,6 +100,8 @@ architecture rtl of main is
     signal dxb_xs_alu_op                 : std_logic_vector (3 downto 0);
     signal dxb_xs_operand0               : std_logic_vector(32 - 1 downto 0);
     signal dxb_xs_operand1               : std_logic_vector(32 - 1 downto 0);
+    signal dxb_xs_src2_value             : std_logic_vector(32 - 1 downto 0);
+    signal dxb_xs_sel_src2               : std_logic;
     signal dxb_xs_dest_0                 : std_logic_vector(4 - 1 downto 0);
     signal dxb_xs_dest_1                 : std_logic_vector(4 - 1 downto 0);
     signal dxb_xs_opcode                 : std_logic_vector(7 - 1 downto 0);
@@ -282,28 +284,30 @@ begin
     d_x_buffer : entity work.d_x_buffer
         port map(
             --IN
-            clk           => clk,
+            clk            => clk,
 
-            in_stall      => hdu_stall,         --> hdu.Stall_signal
-            in_operand0   => rf_dxb_op0_value,  --> reg_file.op0_value
-            in_operand1   => rf_dxb_op1_value,  --> reg_file.op1_value
-            in_alu_op     => ds_dxb_alu_op,     --> decode_stage.dxb_alu_op
-            in_src2_value => ds_dxb_src2_value, --> decode_stage.src2_value
-            in_sel_src2   => ds_dxb_src2_sel,   --> decode_stage.src2_value_selector
-            in_dest_0     => ds_dxb_dest_0,     --> decode_stage.dxb_dest_0
-            in_dest_1     => ds_dxb_dest_1,     --> decode_stage.dxb_dest_1
-            in_opcode     => ds_dxb_opcode,     --> decode_stage.dxb_opcode
-            in_r_w        => ds_dxb_r_w,        --> decode_stage.dxb_r_w
-            in_interrupt  => ds_dxb_interrupt,  --> decode_stage.dxb_interrupt
+            in_stall       => hdu_stall,         --> hdu.Stall_signal
+            in_operand0    => rf_dxb_op0_value,  --> reg_file.op0_value
+            in_operand1    => rf_dxb_op1_value,  --> reg_file.op1_value
+            in_alu_op      => ds_dxb_alu_op,     --> decode_stage.dxb_alu_op
+            in_src2_value  => ds_dxb_src2_value, --> decode_stage.src2_value
+            in_sel_src2    => ds_dxb_src2_sel,   --> decode_stage.src2_value_selector
+            in_dest_0      => ds_dxb_dest_0,     --> decode_stage.dxb_dest_0
+            in_dest_1      => ds_dxb_dest_1,     --> decode_stage.dxb_dest_1
+            in_opcode      => ds_dxb_opcode,     --> decode_stage.dxb_opcode
+            in_r_w         => ds_dxb_r_w,        --> decode_stage.dxb_r_w
+            in_interrupt   => ds_dxb_interrupt,  --> decode_stage.dxb_interrupt
             -- OUT
-            out_alu_op    => dxb_xs_alu_op,     --> execute_stage.alu_operation
-            out_operand0  => dxb_xs_operand0,   --> execute_stage.operand_1
-            out_operand1  => dxb_xs_operand1,   --> execute_stage.operand_2
-            out_dest_0    => dxb_xs_dest_0,     --> execute_stage.destination_register_1_in
-            out_dest_1    => dxb_xs_dest_1,     --> execute_stage.destination_register_2_in
-            out_opcode    => dxb_xs_opcode,     --> execute_stage.opCode_in
-            out_interrupt => dxb_xs_interrupt,  --> execute_stage.int_bit_in
-            out_r_w       => dxb_xs_r_w         --> execute_stage.r_w_control_in
+            out_alu_op     => dxb_xs_alu_op,     --> execute_stage.alu_operation
+            out_operand0   => dxb_xs_operand0,   --> execute_stage.operand_1
+            out_operand1   => dxb_xs_operand1,   --> execute_stage.operand_2
+            out_src2_value => dxb_xs_src2_value, --> execute_stage.in_src_value
+            out_sel_src2   => dxb_xs_sel_src2,   --> execute_stage.src_value_sel
+            out_dest_0     => dxb_xs_dest_0,     --> execute_stage.destination_register_1_in
+            out_dest_1     => dxb_xs_dest_1,     --> execute_stage.destination_register_2_in
+            out_opcode     => dxb_xs_opcode,     --> execute_stage.opCode_in
+            out_interrupt  => dxb_xs_interrupt,  --> execute_stage.int_bit_in
+            out_r_w        => dxb_xs_r_w         --> execute_stage.r_w_control_in
         );
 
     execute_stage : entity work.execute_stage
@@ -316,6 +320,8 @@ begin
             operand_2                  => dxb_xs_operand1,      --> d_x_buffer.out_operand1
             destination_register_1_in  => dxb_xs_dest_0,        --> d_x_buffer.out_dest_0
             destination_register_2_in  => dxb_xs_dest_1,        --> d_x_buffer.dxb_xs_dest_1
+            in_src_value               => dxb_xs_src2_value,    --> d_x_buffer.out_src2_value
+            src_value_sel              => dxb_xs_sel_src2,      --> d_x_buffer.out_sel_src2
             opCode_in                  => dxb_xs_opcode,        --> d_x_buffer.dxb_xs_opcode
             int_bit_in                 => dxb_xs_interrupt,     --> d_x_buffer.dxb_xs_interrupt
             r_w_control_in             => dxb_xs_r_w,           --> d_x_buffer.out_r_w
@@ -325,8 +331,6 @@ begin
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout,     --> x_m_buffer.out_aluout
             forwarded_data_2           => mwb_ws_xs_mem,        --> m_w_buffer.out_mem
-            in_src_value => (others => 'U'),                    --> TODO.TODO replace U with its signal
-            src_value_sel              => 'U',                  --> TODO.TODO replace U with its signal
             --OUT
             ccr_out                    => xs_ccr,               --> main
             alu_output                 => xs_xmb_alu_output,    --> x_m_buffer.in_aluout
