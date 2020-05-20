@@ -104,7 +104,6 @@ begin
                 rf_src1_adr             <= "1111";
                 src2_value              <= (others => '0');
                 src2_value_selector     <= '0';
-                hlt                     <= '0';
             elsif(mem_stalling_bit = '0') then
                 dxb_interrupt                        <= fdb_interrupt;
                 dxb_opcode                           <= fdb_instr(30 downto 24);
