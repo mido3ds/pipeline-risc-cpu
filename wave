@@ -24,6 +24,10 @@ SAV=${2-out/gtkwave-saves/${UNIT}.sav}
 
 touch ${SAV}
 
+if [[ -n $(find out | grep -E '.ghw' | grep $UNIT | grep main_tb) ]] && [[ ! -s $SAV ]]; then
+    cp main-gtkwave-sav.gtkw $SAV
+fi
+
 find out | grep -E '.ghw' | grep $UNIT | xargs echo gtkwave -a ${SAV}
 
 find out | grep -E '.ghw' | grep $UNIT | xargs gtkwave -a ${SAV} & disown
