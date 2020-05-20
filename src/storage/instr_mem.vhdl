@@ -30,7 +30,7 @@ begin
     begin
         if rst = '1' then
             for i in data'range loop
-                data(i) <= "0111000000000000";
+                data(i) <= "0000000000000000";
             end loop;
         else
             if address'length >= 32 then
