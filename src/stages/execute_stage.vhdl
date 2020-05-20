@@ -91,18 +91,18 @@ begin
     process(clk , opt, rst)
     begin
         if rst = '1' then
-            --alu_output                         <= TODO;
-            --ccr_out                            <= TODO;
-            --update_ccr                         <= TODO;
-            --memory_address                     <= TODO;
-            --memory_input                       <= TODO;
-            --opCode_out                         <= TODO;
-            --destination_register_1_out         <= TODO;
-            --destination_register_2_out         <= TODO;
-            --destination_1_value_out            <= TODO;
-            --destination_2_value_out            <= TODO;
-            --r_w_control_out                    <= TODO;
-            --interrupt_bit_out                  <= TODO;
+            alu_output                         <= (others => '0');
+            ccr_out                            <= (others => '0');
+            update_ccr                         <= '0';
+            memory_address                     <= (others => '0');
+            memory_input                       <= (others => '0');
+            opCode_out                         <= (others => '0');
+            destination_register_1_out         <= "1111";
+            destination_register_2_out         <= "1111";
+            destination_1_value_out            <= (others => '0');
+            destination_2_value_out            <= (others => '0');
+            r_w_control_out                    <= (others => '0');
+            interrupt_bit_out                  <= '0';
         elsif (rising_edge(clk) and mem_stalling_bit = '0') then
             -- works at rising edge and stalling disabled only
 

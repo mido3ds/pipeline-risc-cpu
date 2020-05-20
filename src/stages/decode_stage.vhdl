@@ -94,17 +94,17 @@ begin
         process(mem_stalling_bit, rst)
         begin
             if rst = '1' then
-                --dxb_alu_op              <= TODO
-                --dxb_dest_0              <= TODO
-                --dxb_dest_1              <= TODO
-                --dxb_opcode              <= TODO
-                --dxb_r_w                 <= TODO
-                --dxb_interrupt           <= TODO
-                --rf_src0_adr             <= TODO
-                --rf_src1_adr             <= TODO
-                --src2_value              <= TODO
-                --src2_value_selector     <= TODO
-                --hlt                     <= TODO
+                dxb_alu_op              <= (others => '0');
+                dxb_dest_0              <= "1111";
+                dxb_dest_1              <= "1111";
+                dxb_opcode              <= (others => '0');
+                dxb_r_w                 <= (others => '0');
+                dxb_interrupt           <= '0';
+                rf_src0_adr             <= "1111";
+                rf_src1_adr             <= "1111";
+                src2_value              <= (others => '0');
+                src2_value_selector     <= '0';
+                hlt                     <= '0';
             elsif(mem_stalling_bit = '0') then
                 dxb_interrupt                        <= fdb_interrupt;
                 dxb_opcode                           <= fdb_instr(30 downto 24);

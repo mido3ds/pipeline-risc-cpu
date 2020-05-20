@@ -41,10 +41,10 @@ begin
         dest_reg_2           <= destination_register_2;
         
         if rst = '1' then
-            --dest_reg_1                  <= TODO;
-            --dest_reg_2                  <= TODO;
-            --dest_reg_1_value            <= TODO;
-            --dest_reg_2_value            <= TODO;
+            dest_reg_1       <= "1111";
+            dest_reg_2       <= "1111";
+            dest_reg_1_value <= (others => '0');
+            dest_reg_2_value <= (others => '0');
         elsif (rising_edge(clk)) then
             -- works in the first half of the clock cycle
 
