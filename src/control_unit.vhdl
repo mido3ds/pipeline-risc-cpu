@@ -30,57 +30,42 @@ end entity;
 
 architecture rtl of control_unit is
 
-    --sign extend function
-    function sign_extend(value : std_logic_vector(15 downto 0)) return std_logic_vector is
-        variable return_this       : std_logic_vector(31 downto 0);
     begin
-        if (value(15) = '0') then
-            return_this(31 downto 16) := X"0000";
-            return_this(15 downto 0)  := value;
-            return return_this;
-        else
-            return_this(31 downto 16) := X"FFFF";
-            return_this(15 downto 0)  := value;
-            return return_this;
-        end if;
-    end function;
-
-    begin
-
-        process
+        process(ib, in_port_value, incremented_pc, intr_bit)
         begin
-            case( ib(30 downto 27) ) is
-                when "1111"     =>
+            case( ib(31 downto 27) ) is
+                when "01111"     =>
+                    hlt                          <= '0';
                     rsrc1_sel                    <= '0' & ib(23 downto 21);
                     rsrc2_sel                    <= "1111";
                     rdst2_sel                    <= "1111";
                     r_w_control                  <= "00";
                     case( ib(26 downto 24) ) is
-                        when OPC_IN    =>                 -- IN
+                        when "000"    =>                 -- IN
                             aluop                        <= ALUOP_NOP;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= in_port_value;
                             op2_sel                      <= '1';
 
-                        when OPC_NOT   =>                 -- NOT
+                        when "001"   =>                 -- NOT
                             aluop                        <= ALUOP_NOT;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
 
-                        when OPC_INC   =>                 -- INC
+                        when "010"   =>                 -- INC
                             aluop                        <= ALUOP_INC;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
 
-                        when OPC_DEC   =>                 -- DEC
+                        when "011"   =>                 -- DEC
                             aluop                        <= ALUOP_DEC;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
 
-                        when OPC_OUT   =>                 -- OUT
+                        when "100"   =>                 -- OUT
                             aluop                        <= ALUOP_NOP;
                             rdst1_sel                    <= "1110";
                             rsrc2_val                    <= "00000000000000000000000000000000";
@@ -93,10 +78,11 @@ architecture rtl of control_unit is
                             op2_sel                      <= '0';
 
                     end case ;
-                when "0000"     =>
+                when "00000"     =>
+                        hlt                              <= '0';
                         case( ib(26 downto 24) ) is
 
-                            when OPC_JZ    =>
+                            when "001"    =>
                                 --null;           -- TODO
                                 aluop                      <= ALUOP_NOP;
                                 rsrc1_sel                  <= "1111";
@@ -107,7 +93,7 @@ architecture rtl of control_unit is
                                 op2_sel                    <= '0';
                                 r_w_control                <= "00";
 
-                            when OPC_JMP   =>
+                            when "010"   =>
 
                                 --null;          --TODO
                                 aluop                      <= ALUOP_NOP;
@@ -119,7 +105,7 @@ architecture rtl of control_unit is
                                 op2_sel                    <= '0';
                                 r_w_control                <= "00";
 
-                            when OPC_CALL  =>
+                            when "011"  =>
 
                                 aluop                      <= ALUOP_DEC2;
                                 rsrc1_sel                  <= SP;
@@ -130,7 +116,7 @@ architecture rtl of control_unit is
                                 op2_sel                    <= '1';
                                 r_w_control                <= "10";
 
-                            when OPC_RET   =>
+                            when "100"   =>
 
                                 aluop                      <= ALUOP_INC2;
                                 rsrc1_sel                  <= SP;
@@ -141,7 +127,7 @@ architecture rtl of control_unit is
                                 op2_sel                    <= '0';
                                 r_w_control                <= "01";
 
-                            when OPC_RTI   =>
+                            when "101"   =>
 
                                 aluop                      <= ALUOP_INC2;
                                 rsrc1_sel                  <= SP;
@@ -174,6 +160,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_ADD    =>
                     aluop                      <= ALUOP_ADD;
@@ -184,6 +171,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_SUB    =>
                     aluop                      <= ALUOP_SUB;
@@ -194,6 +182,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_AND    =>
                     aluop                      <= ALUOP_AND;
@@ -204,6 +193,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_OR     =>
                     aluop                      <= ALUOP_OR;
@@ -214,6 +204,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_SHL    =>
                     aluop                      <= ALUOP_SHL;
@@ -221,9 +212,10 @@ architecture rtl of control_unit is
                     rsrc2_sel                  <= "1111";
                     rdst1_sel                  <= '0' & ib(26 downto 24);
                     rdst2_sel                  <= "1111";
-                    rsrc2_val                  <= sign_extend(ib(23 downto 8));
+                    rsrc2_val                  <= ib(23) & ib(23) & ib(23) & ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23) &  ib(23 downto 8);
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_SHR    =>
                     aluop                      <= ALUOP_SHR;
@@ -231,9 +223,10 @@ architecture rtl of control_unit is
                     rsrc2_sel                  <= "1111";
                     rdst1_sel                  <= '0' & ib(26 downto 24);
                     rdst2_sel                  <= "1111";
-                    rsrc2_val                  <= sign_extend(ib(23 downto 8));
+                    rsrc2_val                  <= ib(23) & ib(23) & ib(23) & ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23) &  ib(23 downto 8);
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_IADD   =>
                     aluop                      <= ALUOP_ADD;
@@ -241,9 +234,10 @@ architecture rtl of control_unit is
                     rsrc2_sel                  <= "1111";
                     rdst1_sel                  <= '0' & ib(23 downto 21);
                     rdst2_sel                  <= "1111";
-                    rsrc2_val                  <= sign_extend(ib(20 downto 5));
+                    rsrc2_val                  <= ib(20) & ib(20) & ib(20) & ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20)& ib(20) &  ib(20 downto 5);
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_PUSH   =>
                     aluop                      <= ALUOP_DEC2;
@@ -254,6 +248,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "10";
+                    hlt                        <= '0';
 
                 when OPC_POP    =>
 
@@ -265,6 +260,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "01";
+                    hlt                        <= '0';
 
                 when OPC_LDM    =>
 
@@ -273,9 +269,10 @@ architecture rtl of control_unit is
                     rsrc2_sel                  <= "1111";
                     rdst1_sel                  <= '0' & ib(26 downto 24);
                     rdst2_sel                  <= "1111";
-                    rsrc2_val                  <= sign_extend(ib(23 downto 8));
+                    rsrc2_val                  <= ib(23) & ib(23) & ib(23) & ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23)& ib(23) &  ib(23 downto 8);
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
 
                 when OPC_LDD    =>
 
@@ -287,6 +284,7 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= X"000" & ib(23 downto 4);
                     op2_sel                    <= '1';
                     r_w_control                <= "01";
+                    hlt                        <= '0';
 
                 when OPC_STD    =>
 
@@ -298,7 +296,17 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= X"000" & ib(23 downto 4);
                     op2_sel                    <= '1';
                     r_w_control                <= "10";
-
+                    hlt                        <= '0';
+                when "01110"    =>
+                    aluop                      <= ALUOP_NOP;
+                    rsrc1_sel                  <= "1111";
+                    rsrc2_sel                  <= "1111";
+                    rdst1_sel                  <= "1111";
+                    rdst2_sel                  <= "1111";
+                    rsrc2_val                  <= "00000000000000000000000000000000";
+                    op2_sel                    <= '0';
+                    r_w_control                <= "00";
+                    hlt                        <= '1';
                 when others     =>
                     aluop                      <= ALUOP_NOP;
                     rsrc1_sel                  <= "1111";
@@ -308,12 +316,8 @@ architecture rtl of control_unit is
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
+                    hlt                        <= '0';
             end case ;
         end process;
-
-    --base conditions
-    --OpCode is simple..
-    --OpCode <= ib(31 downto 25);
-    hlt <= '1' when ib(31 downto 0) = "01110000000000000000000000000000" else '0';
     -----------------------------------------------------------------------------------------------------------------------------
 end architecture;
