@@ -98,11 +98,14 @@ begin
     process (clk, rst, mem_data_out)
     begin
         if rst = '1' then
-            pc           <= (others => '0'); -- TODO
-            mem_data_in  <= (others => '0');
-            len_bit      <= '0';
-            mem_rd       <= '1';
-            mem_wr       <= '0';
+            pc                    <= (others => '0'); -- TODO
+            mem_data_in           <= (others => '0');
+            len_bit               <= '0';
+            mem_rd                <= '1';
+            mem_wr                <= '0';
+            out_interrupt         <= '0';
+            out_instruction_bits  <= (others => '0');
+            out_predicted_address <= (others => '0');
 
         elsif falling_edge(clk) then
             -- decide PC next address

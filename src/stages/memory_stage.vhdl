@@ -7,6 +7,7 @@ entity memory_stage is
     port (
 
         clk                                : in  std_logic;
+        rst                                : in  std_logic;
         memory_in                          : in  std_logic_vector(31 downto 0);
         memory_address                     : in  std_logic_vector(31 downto 0);
         r_w_control                        : in  std_logic_vector(1  downto 0);
@@ -112,9 +113,21 @@ begin
 
     alu_output                                 <= sp when stalling_in = '1' else alu_result;
 
-    process(clk)
+    process(clk,rst)
     begin
-        if rising_edge(clk) then
+        if rst = '1' then
+            memory_out                         <= (others => '0');
+            alu_output                         <= (others => '0'); -- solve conflict
+            opCode_out                         <= (others => '0');
+            destination_register_1_out         <= "1111";
+            destination_register_2_out         <= "1111";
+            destination_1_value_out            <= (others => '0');
+            destination_2_value_out            <= (others => '0');
+            ccr_out                            <= (others => '0');
+            ccr_out_selector                   <= '0';
+            pc_selector                        <= '0'; -- solve conflict
+            stalling_enable                    <= '0'; -- solve conflict
+        elsif rising_edge(clk) then
             if stalling_in = '1' then      --we get the ccr only
                 pc_nav_enable                  <= '1';
                 address                        <= sp;

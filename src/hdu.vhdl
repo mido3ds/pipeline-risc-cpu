@@ -5,6 +5,8 @@ use work.common.all;
 
 entity hdu is
     port (
+        rst              : in std_logic;
+
         opcode_decode    : in std_logic_vector(6 downto 0);
         opcode_execute   : in std_logic_vector(6 downto 0);
         opcode_memory    : in std_logic_vector(6 downto 0);

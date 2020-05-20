@@ -7,6 +7,7 @@ entity wb_stage is
     port (
 
         clk                         : in  std_logic;
+        rst                         : in  std_logic;
         memory_output               : in  std_logic_vector(31 downto 0);
         alu_output                  : in  std_logic_vector(31 downto 0);
         destination_register_1      : in  std_logic_vector(3  downto 0);
@@ -33,15 +34,19 @@ architecture rtl of wb_stage is
 
 begin
 
-    process(clk)
+    process(clk, rst)
     begin
-
+        
         dest_reg_1           <= destination_register_1;
         dest_reg_2           <= destination_register_2;
-
-        -- works in the first half of the clock cycle
-
-        if (rising_edge(clk)) then
+        
+        if rst = '1' then
+            dest_reg_1       <= "1111";
+            dest_reg_2       <= "1111";
+            dest_reg_1_value <= (others => '0');
+            dest_reg_2_value <= (others => '0');
+        elsif (rising_edge(clk)) then
+            -- works in the first half of the clock cycle
 
             if opCode(6 downto 3) = "0001" then
 
