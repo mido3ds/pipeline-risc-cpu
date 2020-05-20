@@ -106,8 +106,6 @@ begin
             out_interrupt         <= '0';
             out_instruction_bits  <= (others => '0');
             out_predicted_address <= (others => '0');
-            out_hashed_address    <= (others => '0');
-            out_inc_pc            <= (others => '0');
 
         elsif falling_edge(clk) then
             -- decide PC next address
