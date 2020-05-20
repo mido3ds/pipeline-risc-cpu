@@ -119,7 +119,7 @@ begin
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
-            elsif mem_data_out(15 downto 8) = OPC_CALL then
+            elsif mem_data_out(14 downto 8) = "0000011" then
                 pc <= (others => '0'); -- TODO
 
             elsif in_interrupt = '1' then

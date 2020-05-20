@@ -69,6 +69,7 @@ architecture rtl of memory_stage is
     signal stalling_in                     : std_logic                        := '0';
     signal stalling_out                    : std_logic                        := '0';
 
+    signal pc_sel                          : std_logic                        := '0';
     --> data_mem
     signal dm_rd        : std_logic;
     signal dm_wr        : std_logic;
@@ -106,18 +107,17 @@ begin
         address                                => memory_address,
         stalling                               => stalling_in,
         stack_pointer                          => sp,
-        pc_selector                            => pc_selector,
+        pc_selector                            => pc_sel,
         stalling_enable                        => stalling_out
 
     );
 
-    alu_output                                 <= sp when stalling_in = '1' else alu_result;
 
-    process(clk,rst)
+    process(clk,rst, pc_sel)
     begin
         if rst = '1' then
             memory_out                         <= (others => '0');
-            alu_output                         <= (others => '0'); -- solve conflict
+            alu_output                         <= (others => '0'); -- solve conflict  -- done
             opCode_out                         <= (others => '0');
             destination_register_1_out         <= "1111";
             destination_register_2_out         <= "1111";
@@ -125,20 +125,31 @@ begin
             destination_2_value_out            <= (others => '0');
             ccr_out                            <= (others => '0');
             ccr_out_selector                   <= '0';
-            pc_selector                        <= '0'; -- solve conflict
-            stalling_enable                    <= '0'; -- solve conflict
+            pc_selector                        <= '0'; -- solve conflict              -- done
+            stalling_enable                    <= '0'; -- solve conflict              -- done
         elsif rising_edge(clk) then
+
+            if (pc_sel = '1') then
+                pc_selector                    <= pc_sel;
+            else
+                pc_selector                   <= pc_sel;
+            end if;
+
             if stalling_in = '1' then      --we get the ccr only
                 pc_nav_enable                  <= '1';
                 address                        <= sp;
                 input_data                     <= memory_in;
+                alu_output                     <= sp;
 
                 if (opCode_in = OPC_RTI) then         -- loading ccr from stack
                     ccr_out                    <= output_data(2 downto 0);
                     ccr_out_selector           <= '1';
+
                 end if;
                 stalling_in                    <= '0';
             else
+
+                alu_output                     <= alu_result;
                 stalling_in                    <= stalling_out;
                 -- normal situation
                 opCode_out                     <= opCode_in;
@@ -168,6 +179,7 @@ begin
                 end if;
 
             end if;
+            stalling_enable                    <= stalling_in;
         end if;
 
     end process;
