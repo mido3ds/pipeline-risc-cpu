@@ -95,7 +95,7 @@ begin
 
     out_hashed_address <= pc(3 downto 0);
 
-    process (clk, rst)
+    process (clk, rst, mem_data_out)
     begin
         if rst = '1' then
             pc           <= (others => '0'); -- TODO
