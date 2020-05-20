@@ -50,6 +50,7 @@ architecture rtl of main is
     signal xs_ccr                        : std_logic_vector(ccr'range);
     signal ms_ccr                        : std_logic_vector(ccr'range);
     signal ms_ccr_sel                    : std_logic;
+    signal xs_ccr_sel                    : std_logic;
 
     -- hdu --> fetch_stage,f_d_buffer,d_x_buffer
     signal hdu_stall                     : std_logic;
@@ -334,6 +335,7 @@ begin
             forwarded_data_2           => mwb_ws_xs_mem,        --> m_w_buffer.out_mem
             --OUT
             ccr_out                    => xs_ccr,               --> main
+            update_ccr                 => xs_ccr_sel,
             alu_output                 => xs_xmb_alu_output,    --> x_m_buffer.in_aluout
             memory_address             => xs_xmb_mem_adr,       --> x_m_buffer.in_mem_adr
             memory_input               => xs_xmb_mem_input,     --> x_m_buffer.in_mem_inp
@@ -429,9 +431,10 @@ begin
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
-    ccr <= tb_ccr_in when tb_ccr_sel = '1'
-        else ms_ccr when ms_ccr_sel = '1'
-        else xs_ccr;
+    ccr <= tb_ccr_in when tb_controls = '1'
+        else ms_ccr  when ms_ccr_sel = '1'
+        else xs_ccr  when xs_ccr_sel = '1';
+
 
     tb_ccr_out <= ccr;
 

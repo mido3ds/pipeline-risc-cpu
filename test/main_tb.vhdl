@@ -25,7 +25,7 @@ architecture tb of main_tb is
     signal interrupt      : std_logic;
     signal hlt            : std_logic;
 
-    signal in_value       : std_logic_vector(31 downto 0);
+    signal in_value       : std_logic_vector(31 downto 0)  := "00000000000000000000000000001000";
     signal out_value      : std_logic_vector(31 downto 0);
 
     -- testing signals

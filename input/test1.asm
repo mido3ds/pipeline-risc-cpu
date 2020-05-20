@@ -1,5 +1,6 @@
-out R2
-iadd R1,R2,5
+in R2
+nop
+nop
 nop
 nop
 nop
