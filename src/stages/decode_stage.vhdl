@@ -94,7 +94,7 @@ begin
         begin
             if(mem_stalling_bit = '0') then
                 dxb_interrupt                        <= fdb_interrupt;
-                dxb_opcode                           <= fdb_instr(31 downto 25);
+                dxb_opcode                           <= fdb_instr(30 downto 24);
                 dxb_alu_op                           <= alu_op;
                 dxb_dest_0                           <= dest_0;
                 dxb_dest_1                           <= dest_1;

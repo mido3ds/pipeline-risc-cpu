@@ -101,7 +101,7 @@ begin
             --destination_1_value_out         <= destination_1_value;
             --destination_2_value_out         <= destination_2_value;
 
-            if (opCode_in(6 downto 3) = OPC_SWAP) then           -- swap case
+            if (opCode_in(6 downto 3) = "0001") then           -- swap case
                 destination_1_value_out     <= operand_1;
                 destination_2_value_out     <= operand_2;
             else
@@ -112,7 +112,7 @@ begin
             opCode_out                      <= opCode_in;
             interrupt_bit_out               <= int_bit_in;
 
-            if (opCode_in(6 downto 0) = OPC_IN or opCode_in(6 downto 3) = OPC_LDM) then                    -- in case of IN or LDM no operation performed
+            if (opCode_in(6 downto 0) = "1111000" or opCode_in(6 downto 3) = "1011") then                    -- in case of IN or LDM no operation performed
 
                 memory_address              <= (others => '0');
                 memory_input                <= (others => '0');
@@ -120,7 +120,7 @@ begin
                 ccr_out                     <= (others => '0');
                 update_ccr                  <= '0';
                 --operation                   <= ALUOP_NOP;
-            elsif (opCode_in = OPC_LDD or opCode_in = OPC_STD ) then
+            elsif (opCode_in = "1100" or opCode_in = "1101" ) then
                 memory_address              <= in_src_value;
                 memory_input                <= operand_1;
                 alu_output                  <= (others => '0');
@@ -165,7 +165,7 @@ begin
                     update_ccr              <= '1';
                 end if;
 
-                if (opCode_in(6 downto 3) = OPC_POP or opCode_in = OPC_RET or opCode_in = OPC_RTI ) then
+                if (opCode_in(6 downto 3) = "1010" or opCode_in = "0000100" or opCode_in = "0000101" ) then
                     memory_address              <= opt;
                 else
                     memory_address              <= operand_1;

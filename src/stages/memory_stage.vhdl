@@ -146,7 +146,7 @@ begin
                     pc_nav_enable              <= '1';
                     input_data                 <= "00000000000000000000000000000" & ccr_in;        --store ccr first then store pc !
 
-                elsif (opCode_in = OPC_RTI or opCode_in = OPC_RET) then                     -- opcode of rti or ret operations activate pc navigator
+                elsif (opCode_in = "000100" or opCode_in = "000101") then                     -- opcode of rti or ret operations activate pc navigator
                     pc_nav_enable              <= '1';
                     input_data                 <= memory_in;
                 else

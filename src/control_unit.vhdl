@@ -50,9 +50,9 @@ architecture rtl of control_unit is
     --base conditions
     --OpCode is simple..
     --OpCode <= ib(31 downto 25);
-    hlt <= '1' when ib(31 downto 25) = OPC_END else '0';
+    hlt <= '1' when ib(31 downto 0) = "01110000000000000000000000000000" else '0';
     --aluop selection
-    with ib(31 downto 25) select aluop <=
+    with ib(31 downto 24) select aluop <=
     ALUOP_NOT  when OPC_NOT, --not
     ALUOP_INC  when OPC_INC, --inc
     ALUOP_DEC  when OPC_DEC, --dec
@@ -66,7 +66,7 @@ architecture rtl of control_unit is
     --"0111" when "0000000", --nop
     ALUOP_NOP when others;
 
-    with ib(31 downto 28) select aluop <=
+    with ib(31 downto 27) select aluop <=
     --"0000" when "0001", --swap
     ALUOP_ADD  when OPC_ADD, --add
     ALUOP_SUB  when OPC_SUB, --sub
@@ -84,106 +84,106 @@ architecture rtl of control_unit is
 
     -----------------------------------------------------------------------------------------------------------------------------
     --Rsrc1 selection
-    with ib(31 downto 25) select rsrc1_sel <=
-    '0' & ib(24 downto 22) when OPC_NOT, --not
-    '0' & ib(24 downto 22) when OPC_INC, --inc
-    '0' & ib(24 downto 22) when OPC_DEC, --dec
-    '0' & ib(24 downto 22) when OPC_OUT, --out
+    with ib(31 downto 24) select rsrc1_sel <=
+    '0' & ib(23 downto 21) when OPC_NOT, --not
+    '0' & ib(23 downto 21) when OPC_INC, --inc
+    '0' & ib(23 downto 21) when OPC_DEC, --dec
+    '0' & ib(23 downto 21) when OPC_OUT, --out
     --'0' & ib(24 downto 22) when "1111000", --in              -- no need for that
     SP                     when OPC_CALL, --call            -- must be sp
     SP                     when OPC_RET, --ret             -- mut be sp
     SP                     when OPC_RTI, --rti             -- must be sp
-    '0' & ib(27 downto 25) when OPC_JMP, --jmp             -- no need for that ?
-    '0' & ib(27 downto 25) when OPC_JZ, --jz              -- no need for that ?
+    --'0' & ib(27 downto 25) when OPC_JMP, --jmp             -- no need for that ?
+    --'0' & ib(27 downto 25) when OPC_JZ, --jz              -- no need for that ?
     --"1111"                 when OPC_NOP,                 --nop
     "1111"                 when others;
 
-    with ib(31 downto 28) select rsrc1_sel <=
-    '0' & ib(27 downto 25) when OPC_SWAP, --swap
-    '0' & ib(27 downto 25) when OPC_ADD,  --add
-    '0' & ib(27 downto 25) when OPC_SUB,  --sub
-    '0' & ib(27 downto 25) when OPC_AND,  --and
-    '0' & ib(27 downto 25) when OPC_OR,   --or
-    '0' & ib(27 downto 25) when OPC_SHL,  --shl
-    '0' & ib(27 downto 25) when OPC_SHR,  --shr
-    '0' & ib(27 downto 25) when OPC_IADD, --iadd
+    with ib(31 downto 27) select rsrc1_sel <=
+    '0' & ib(26 downto 24) when OPC_SWAP, --swap
+    '0' & ib(26 downto 24) when OPC_ADD,  --add
+    '0' & ib(26 downto 24) when OPC_SUB,  --sub
+    '0' & ib(26 downto 24) when OPC_AND,  --and
+    '0' & ib(26 downto 24) when OPC_OR,   --or
+    '0' & ib(26 downto 24) when OPC_SHL,  --shl
+    '0' & ib(26 downto 24) when OPC_SHR,  --shr
+    '0' & ib(26 downto 24) when OPC_IADD, --iadd
     SP                     when OPC_PUSH, --push               -- source must be sp :\
     SP                     when OPC_POP,  --pop                -- source must be sp :\
     --"1111"                 when "1011", --ldm
     --'0' & ib(27 downto 25) when "1100", --ldd
     --"1111"                 when "1100", --ldd
-    '0' & ib(27 downto 25) when OPC_STD, --std
+    '0' & ib(26 downto 24) when OPC_STD, --std
     "1111"                 when others;
 
     --Rsrc2 selection
-    with ib(31 downto 28) select rsrc2_sel <=
-    '0' & ib(24 downto 22) when OPC_ADD,  --add
-    '0' & ib(24 downto 22) when OPC_SUB,  --sub
-    '0' & ib(24 downto 22) when OPC_AND,  --and
-    '0' & ib(24 downto 22) when OPC_OR,   --or
-    '0' & ib(24 downto 22) when OPC_SWAP, --swap
-    '0' & ib(27 downto 25) when OPC_PUSH, --push
+    with ib(31 downto 27) select rsrc2_sel <=
+    '0' & ib(23 downto 21) when OPC_ADD,  --add
+    '0' & ib(23 downto 21) when OPC_SUB,  --sub
+    '0' & ib(23 downto 21) when OPC_AND,  --and
+    '0' & ib(23 downto 21) when OPC_OR,   --or
+    '0' & ib(23 downto 21) when OPC_SWAP, --swap
+    '0' & ib(26 downto 24) when OPC_PUSH, --push
     --'0' & ib(27 downto 25) when OPC_STD,  -- std
     --"1000" when "1010",                 --pop                -- don't care
     "1111"                 when others;
 
     ------------------------------------------------------------------------------------------------------------------------------
     --rdst1_sel
-    with ib(31 downto 25) select rdst1_sel <=
-    '0' & ib(24 downto 22) when OPC_NOT, --not
-    '0' & ib(24 downto 22) when OPC_INC, --inc
-    '0' & ib(24 downto 22) when OPC_DEC, --dec
+    with ib(31 downto 24) select rdst1_sel <=
+    '0' & ib(23 downto 21) when OPC_NOT, --not
+    '0' & ib(23 downto 21) when OPC_INC, --inc
+    '0' & ib(23 downto 21) when OPC_DEC, --dec
     "1110"                 when OPC_OUT, --out             -- so main out the src_1_value on out port signal
-    '0' & ib(24 downto 22) when OPC_IN,  --in
+    '0' & ib(23 downto 21) when OPC_IN,  --in
     SP                     when OPC_CALL, --call            -- destination must be sp
     "1111"                 when others;
 
-    with ib(31 downto 28) select rdst1_sel <=
-    '0' & ib(21 downto 19) when OPC_ADD,  --add
-    '0' & ib(21 downto 19) when OPC_SUB,  --sub
-    '0' & ib(21 downto 19) when OPC_AND,  --and
-    '0' & ib(21 downto 19) when OPC_OR,   --or
-    '0' & ib(24 downto 22) when OPC_IADD, --iadd
-    '0' & ib(27 downto 25) when OPC_SHL,  --shl
-    '0' & ib(27 downto 25) when OPC_SHR,  --shr
-    '0' & ib(27 downto 25) when OPC_LDM,  --ldm
+    with ib(31 downto 27) select rdst1_sel <=
+    '0' & ib(21 downto 18) when OPC_ADD,  --add
+    '0' & ib(21 downto 18) when OPC_SUB,  --sub
+    '0' & ib(21 downto 18) when OPC_AND,  --and
+    '0' & ib(21 downto 18) when OPC_OR,   --or
+    '0' & ib(24 downto 21) when OPC_IADD, --iadd
+    '0' & ib(26 downto 24) when OPC_SHL,  --shl
+    '0' & ib(26 downto 24) when OPC_SHR,  --shr
+    '0' & ib(26 downto 24) when OPC_LDM,  --ldm
     --"1111" when "1100", --ldd
     --'0' & ib(27 downto 25) when "1100", --ldd                 -- must be 1111
     SP                     when OPC_PUSH, --push                -- destination must be sp
     SP                     when OPC_POP,  --pop                 -- destination must be sp
-    '0' & ib(27 downto 25) when OPC_SWAP, --swap                -- destination must be the source
+    '0' & ib(26 downto 24) when OPC_SWAP, --swap                -- destination must be the source
 
     "1111"                 when others;
 
     --rdst2_sel
-    with ib(31 downto 28) select rdst2_sel <=
-    '0' & ib(24 downto 22) when OPC_SWAP, --swap                -- destination must be the destination
-    '0' & ib(27 downto 25) when OPC_LDD,  -- LDD                -- memory operation out on dest_2 operation
-    '0' & ib(27 downto 25) when OPC_POP,  -- pop                -- second destination must be the destination
+    with ib(31 downto 27) select rdst2_sel <=
+    '0' & ib(23 downto 21) when OPC_SWAP, --swap                -- destination must be the destination
+    '0' & ib(26 downto 24) when OPC_LDD,  -- LDD                -- memory operation out on dest_2 operation
+    '0' & ib(26 downto 24) when OPC_POP,  -- pop                -- second destination must be the destination
     "1111"                 when others;
 
     -----------------------------------------------------------------------------------------------------------------
 
-    with ib(31 downto 28) select rsrc2_val <=
+    with ib(31 downto 27) select rsrc2_val <=
     --IMM
-    sign_extend(ib(21 downto 6)) when OPC_IADD, --iadd
-    sign_extend(ib(24 downto 9)) when OPC_SHL, --shl
-    sign_extend(ib(24 downto 9)) when OPC_SHR, --shr
-    sign_extend(ib(24 downto 9)) when OPC_LDM, --ldm
+    sign_extend(ib(20 downto 5)) when OPC_IADD, --iadd
+    sign_extend(ib(23 downto 8)) when OPC_SHL, --shl
+    sign_extend(ib(23 downto 8)) when OPC_SHR, --shr
+    sign_extend(ib(23 downto 8)) when OPC_LDM, --ldm
     --EA
-    X"000" & ib(24 downto 5)     when OPC_LDD,     --ldd
-    X"000" & ib(24 downto 5)     when OPC_STD,     --std
+    X"000" & ib(23 downto 4)     when OPC_LDD,     --ldd
+    X"000" & ib(23 downto 4)     when OPC_STD,     --std
 
     X"00000000"                  when others;
 
     -- in case of in operation
-    with ib(31 downto 25) select rsrc2_val <=
+    with ib(31 downto 24) select rsrc2_val <=
     in_port_value                when OPC_IN,
     incremented_pc               when OPC_CALL,
     X"00000000"                  when others;
 
     --which output to expect, the reg_file or our ea/imm
-    with ib(31 downto 28) select op2_sel <=
+    with ib(31 downto 27) select op2_sel <=
     '1' when OPC_IADD, --iadd
     '1' when OPC_SHL, --shl
     '1' when OPC_SHR, --shr
@@ -192,7 +192,7 @@ architecture rtl of control_unit is
     '1' when OPC_STD, --std
     '0' when others;
 
-    with ib(31 downto 25) select op2_sel <=
+    with ib(31 downto 24) select op2_sel <=
     '1' when OPC_CALL,
     '1' when OPC_IN,
     '0' when others;
@@ -211,13 +211,13 @@ architecture rtl of control_unit is
 
     -- what 11 stands for ?  00 : NO OP , 01: read , 10 : write
 
-    with ib(31 downto 25) select r_w_control <=
+    with ib(31 downto 24) select r_w_control <=
     "10" when OPC_CALL, --call
     "01" when OPC_RET,  --ret
     "01" when OPC_RTI,  --rti
     "00" when others;
 
-    with ib(31 downto 28) select r_w_control <=
+    with ib(31 downto 27) select r_w_control <=
     --"11" when "1011", --ldm
     "01" when OPC_LDD,  --ldd
     "10" when OPC_STD,  --std

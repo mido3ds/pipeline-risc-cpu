@@ -7,35 +7,36 @@ package common is
     -- SP
     constant SP                    : std_logic_vector(3 downto 0)  := "1000";
     -- opcodes
-    constant OPC_IN                : std_logic_vector(6 downto 0) := "1111000";
-    constant OPC_NOT               : std_logic_vector(6 downto 0) := "1111001";
-    constant OPC_INC               : std_logic_vector(6 downto 0) := "1111010";
-    constant OPC_DEC               : std_logic_vector(6 downto 0) := "1111011";
-    constant OPC_OUT               : std_logic_vector(6 downto 0) := "1111100";
+    constant OPC_IN                : std_logic_vector(7 downto 0) := "01111000";
+    constant OPC_NOT               : std_logic_vector(7 downto 0) := "01111001";
+    constant OPC_INC               : std_logic_vector(7 downto 0) := "01111010";
+    constant OPC_DEC               : std_logic_vector(7 downto 0) := "01111011";
+    constant OPC_OUT               : std_logic_vector(7 downto 0) := "01111100";
 
-    constant OPC_NOP               : std_logic_vector(6 downto 0) := "0000000";
-    constant OPC_END               : std_logic_vector(6 downto 0) := "1111000";
+    constant OPC_NOP               : std_logic_vector(7 downto 0) := "00000000";
+    constant OPC_END               : std_logic_vector(7 downto 0) := "01111000";
 
-    constant OPC_JZ                : std_logic_vector(6 downto 0) := "0000001";
-    constant OPC_JMP               : std_logic_vector(6 downto 0) := "0000010";
-    constant OPC_CALL              : std_logic_vector(6 downto 0) := "0000011";
-    constant OPC_RET               : std_logic_vector(6 downto 0) := "0000100";
-    constant OPC_RTI               : std_logic_vector(6 downto 0) := "0000101";
 
-    constant OPC_SWAP              : std_logic_vector(3 downto 0) := "0001";
-    constant OPC_ADD               : std_logic_vector(3 downto 0) := "0010";
-    constant OPC_SUB               : std_logic_vector(3 downto 0) := "0011";
-    constant OPC_AND               : std_logic_vector(3 downto 0) := "0100";
-    constant OPC_OR                : std_logic_vector(3 downto 0) := "0101";
-    constant OPC_SHL               : std_logic_vector(3 downto 0) := "0110";
-    constant OPC_SHR               : std_logic_vector(3 downto 0) := "0111";
-    constant OPC_IADD              : std_logic_vector(3 downto 0) := "1000";
+    constant OPC_JZ                : std_logic_vector(7 downto 0) := "00000001";
+    constant OPC_JMP               : std_logic_vector(7 downto 0) := "00000010";
+    constant OPC_CALL              : std_logic_vector(7 downto 0) := "00000011";
+    constant OPC_RET               : std_logic_vector(7 downto 0) := "00000100";
+    constant OPC_RTI               : std_logic_vector(7 downto 0) := "00000101";
 
-    constant OPC_PUSH              : std_logic_vector(3 downto 0) := "1001";
-    constant OPC_POP               : std_logic_vector(3 downto 0) := "1010";
-    constant OPC_LDM               : std_logic_vector(3 downto 0) := "1011";
-    constant OPC_LDD               : std_logic_vector(3 downto 0) := "1100";
-    constant OPC_STD               : std_logic_vector(3 downto 0) := "1101";
+    constant OPC_SWAP              : std_logic_vector(4 downto 0) := "00001";
+    constant OPC_ADD               : std_logic_vector(4 downto 0) := "00010";
+    constant OPC_SUB               : std_logic_vector(4 downto 0) := "00011";
+    constant OPC_AND               : std_logic_vector(4 downto 0) := "00100";
+    constant OPC_OR                : std_logic_vector(4 downto 0) := "00101";
+    constant OPC_SHL               : std_logic_vector(4 downto 0) := "10110";
+    constant OPC_SHR               : std_logic_vector(4 downto 0) := "10111";
+    constant OPC_IADD              : std_logic_vector(4 downto 0) := "11000";
+
+    constant OPC_PUSH              : std_logic_vector(4 downto 0) := "01001";
+    constant OPC_POP               : std_logic_vector(4 downto 0) := "01010";
+    constant OPC_LDM               : std_logic_vector(4 downto 0) := "11011";
+    constant OPC_LDD               : std_logic_vector(4 downto 0) := "11100";
+    constant OPC_STD               : std_logic_vector(4 downto 0) := "11101";
 
 
     -- ALU operations
