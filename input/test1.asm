@@ -71,7 +71,27 @@ nop
 nop
 nop
 nop
-SHR  r1, 2
+inc r1
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+SHL  r1, 2
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+SUB  r4, r1, r3
 nop
 nop
 nop

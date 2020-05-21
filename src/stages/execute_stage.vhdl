@@ -47,7 +47,7 @@ entity execute_stage is
         ccr_out                            : out std_logic_vector(2  downto 0);
 
         -- to be updated or no
-        update_ccr                         : out std_logic;                               -- if 0 keep the previous value , if 1 take the output ccr
+        update_ccr                         : out std_logic;  -- if 0 keep the previous value , if 1 take the output ccr
 
         memory_address                     : out std_logic_vector(31 downto 0);
         memory_input                       : out std_logic_vector(31 downto 0);
@@ -124,7 +124,7 @@ begin
             opCode_out                      <= opCode_in;
             interrupt_bit_out               <= int_bit_in;
 
-            if (opCode_in(6 downto 0) = "1111000" or opCode_in(6 downto 3) = "1011" ) then                    -- in case of IN or LDM no operation performed
+            if (opCode_in(6 downto 0) = "1111000" or opCode_in(6 downto 3) = "1011" ) then  -- in case of IN or LDM no operation performed
 
                 memory_address              <= (others => '0');
                 memory_input                <= (others => '0');
