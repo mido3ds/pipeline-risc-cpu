@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use IEEE.math_real.all;
 use work.common.all;
 
 library vunit_lib;
@@ -197,15 +198,15 @@ begin
             clear_signals;
         end procedure;
 
-        -- for some reason, ramdata must have 2 vectors at least
-        procedure fill_data_mem(ramdata : WordArrType) is
-            variable i                      : integer := 0;
+        procedure fill_data_mem(adr : integer; ramdata : WordArrType) is
+            variable i : integer := adr;
         begin
             clear_signals;
             info("start filling data_mem");
             tb_controls <= '1';
 
             check_equal(ramdata'length mod 2, 0, "data_mem input must be even number of data, given " & to_str(ramdata'length), failure);
+            check_equal(adr mod 2, 0, "addr must be even number", failure);
 
             if clk /= '1' then
                 warning("clock should be high at beginning");
@@ -240,6 +241,29 @@ begin
             wait until rising_edge(clk);
 
             check_equal(out_src0_value, expected, "test_reg failed");
+            clear_signals;
+        end procedure;
+
+        procedure test_data_mem(adr : integer; expected : std_logic_vector(15 downto 0)) is
+        begin
+            clear_signals;
+            tb_controls <= '1';
+
+            if adr mod 2 = 0 then
+                dm_adr <= to_vec(adr, im_adr'length);
+            else
+                dm_adr <= to_vec(adr - 1, im_adr'length);
+            end if;
+            dm_rd <= '1';
+            dm_wr <= '0';
+            wait for 1 ps;
+
+            if adr mod 2 = 0 then
+                check_equal(dm_data_out(31 downto 16), expected, "test_data_mem failed");
+            else
+                check_equal(dm_data_out(15 downto 0), expected, "test_data_mem failed");
+            end if;
+
             clear_signals;
         end procedure;
 
@@ -301,7 +325,7 @@ begin
                 wait until clk = '1';
             end if;
 
-            for i in 0 to 8 loop
+            for i in 0 to 9 loop
                 src0_adr <= to_vec(i, src0_adr'length);
                 wait until rising_edge(clk);
 
@@ -349,7 +373,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(0, to_vec('1', out_src0_value'length));
+            test_reg(0, to_vec('1', 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
         end if;
@@ -361,12 +385,12 @@ begin
             to_vec("0111101000100000"),
             to_vec("0111000000000000")
             ));
-            set_reg(1, to_vec(5, out_src0_value'length));
+            set_reg(1, to_vec(5, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(1, to_vec(6, out_src0_value'length));
+            test_reg(1, to_vec(6, 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
         end if;
@@ -378,12 +402,12 @@ begin
             to_vec("0111101101000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(2, to_vec(200, out_src0_value'length));
+            set_reg(2, to_vec(200, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(2, to_vec(199, out_src0_value'length));
+            test_reg(2, to_vec(199, 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
         end if;
@@ -395,19 +419,19 @@ begin
             to_vec("0111100001100000"),
             to_vec("0111000000000000")
             ));
-            for i in 0 to 8 loop
-                set_reg(i, to_vec(-1, out_src0_value'length));
+            for i in 0 to 9 loop
+                set_reg(i, to_vec(-1, 32));
             end loop;
             in_value <= to_vec(50, in_value'length);
 
             reset_cpu;
             wait until hlt = '1';
 
-            for i in 0 to 8 loop
+            for i in 0 to 9 loop
                 if i = 3 then
-                    test_reg(3, to_vec(50, out_src0_value'length));
+                    test_reg(3, to_vec(50, 32));
                 else
-                    test_reg(i, to_vec(-1, out_src0_value'length));
+                    test_reg(i, to_vec(-1, 32));
                 end if;
             end loop;
         end if;
@@ -419,7 +443,7 @@ begin
             to_vec("0111110010000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(4, to_vec(12, out_src0_value'length));
+            set_reg(4, to_vec(12, 32));
 
             reset_cpu;
             wait until hlt = '1';
@@ -434,14 +458,14 @@ begin
             to_vec("0000100000100000"),
             to_vec("0111000000000000")
             ));
-            set_reg(0, to_vec(12, out_src0_value'length));
-            set_reg(1, to_vec(100, out_src0_value'length));
+            set_reg(0, to_vec(12, 32));
+            set_reg(1, to_vec(100, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(1, to_vec(12, out_src0_value'length));
-            test_reg(0, to_vec(100, out_src0_value'length));
+            test_reg(1, to_vec(12, 32));
+            test_reg(0, to_vec(100, 32));
         end if;
 
         if run("add_r1_r2_r3") then
@@ -451,13 +475,13 @@ begin
             to_vec("0001000101001100"),
             to_vec("0111000000000000")
             ));
-            set_reg(2, to_vec(12, out_src0_value'length));
-            set_reg(3, to_vec(-100, out_src0_value'length));
+            set_reg(2, to_vec(12, 32));
+            set_reg(3, to_vec(-100, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(1, to_vec(-88, out_src0_value'length));
+            test_reg(1, to_vec(-88, 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
         end if;
@@ -469,13 +493,13 @@ begin
             to_vec("0001101001110000"),
             to_vec("0111000000000000")
             ));
-            set_reg(3, to_vec(12, out_src0_value'length));
-            set_reg(4, to_vec(12, out_src0_value'length));
+            set_reg(3, to_vec(12, 32));
+            set_reg(4, to_vec(12, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(2, to_vec(88, out_src0_value'length));
+            test_reg(2, to_vec(88, 32));
             check_equal(ccr_out(CCR_ZERO), '1', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
         end if;
@@ -487,13 +511,13 @@ begin
             to_vec("0010001110010100"),
             to_vec("0111000000000000")
             ));
-            set_reg(4, to_vec(X"0F0F0F0F", out_src0_value'length));
-            set_reg(5, to_vec(X"0F00000F", out_src0_value'length));
+            set_reg(4, to_vec(X"0F0F0F0F", 32));
+            set_reg(5, to_vec(X"0F00000F", 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(3, to_vec(X"0F00000F", out_src0_value'length));
+            test_reg(3, to_vec(X"0F00000F", 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
         end if;
@@ -505,13 +529,13 @@ begin
             to_vec("0010101110010100"),
             to_vec("0111000000000000")
             ));
-            set_reg(4, to_vec(X"0F0F0F0F", out_src0_value'length));
-            set_reg(5, to_vec(X"FFF0000F", out_src0_value'length));
+            set_reg(4, to_vec(X"0F0F0F0F", 32));
+            set_reg(5, to_vec(X"FFF0000F", 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(3, to_vec(X"FFFF0F0F", out_src0_value'length));
+            test_reg(3, to_vec(X"FFFF0F0F", 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
         end if;
@@ -524,12 +548,12 @@ begin
             to_vec("0000000100000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(7, to_vec(X"80000000", out_src0_value'length));
+            set_reg(7, to_vec(X"80000000", 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(7, to_vec(0, out_src0_value'length));
+            test_reg(7, to_vec(0, 32));
             check_equal(ccr_out(CCR_CARRY), '1', "ccr(carry)");
         end if;
 
@@ -541,31 +565,95 @@ begin
             to_vec("0000001000000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(0, to_vec(X"00000002", out_src0_value'length));
+            set_reg(0, to_vec(X"00000002", 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(0, to_vec(0, out_src0_value'length));
+            test_reg(0, to_vec(0, 32));
             check_equal(ccr_out(CCR_CARRY), '1', "ccr(carry)");
         end if;
 
-        if run("iadd_r1_r5_3") then
+        if run("push_r0") then
             reset_all;
+            test_reg(9, to_vec(2 ** 11 - 1, 32));
+
             fill_instr_mem((
-            --$ printf 'iadd r1, r5, 3 \n end' | ./scripts/asm | head -n3
-            to_vec("1100000110100000"),
-            to_vec("0000000001100000"),
+            --$ printf 'push r0 \n end' | ./scripts/asm | head -n2
+            to_vec("0100100000000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(5, to_vec(-100, out_src0_value'length));
+            set_reg(0, to_vec(100, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(1, to_vec(3 - 100, out_src0_value'length));
-            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
-            check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
+            test_reg(9, to_vec(2 ** 11 - 2, 32));
+            test_data_mem(2 ** 11 - 1, to_vec(100, 16));
+        end if;
+
+        if run("pop_r1") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'pop r1 \n end' | ./scripts/asm | head -n2
+            to_vec("0101000100000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(9, to_vec(2, 32));
+            fill_data_mem(2, to_vec(0, 16) & to_vec(100, 16));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(9, to_vec(3, 32));
+            test_reg(1, to_vec(100, 16));
+        end if;
+
+        if run("ldm_r2_50") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'ldm r2, 50 \n end' | ./scripts/asm | head -n3
+            to_vec("1101101000000000"),
+            to_vec("0101000000000000"),
+            to_vec("0111000000000000")
+            ));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec(50, 32));
+        end if;
+
+        if run("ldd_r3_20") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'ldd r3, 20 \n end' | ./scripts/asm | head -n3
+            to_vec("1110001100000000"),
+            to_vec("0000001000000000"),
+            to_vec("0111000000000000")
+            ));
+            fill_data_mem(20, to_vec(14, 16) & to_vec(0, 16));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(3, to_vec(14, 16) & to_vec(0, 16));
+        end if;
+
+        if run("std_r4_36") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'std r4, 36 \n end' | ./scripts/asm | head -n3
+            to_vec("1110110000000000"),
+            to_vec("0000001101100000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(4, to_vec(14, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_data_mem(36, to_vec(14, 16) & to_vec(0, 16));
         end if;
 
         -- `playground` test-case runs only with `playground` script
