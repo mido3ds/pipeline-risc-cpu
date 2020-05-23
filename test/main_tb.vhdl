@@ -99,7 +99,6 @@ begin
         begin
             rst           <= '0';
             interrupt     <= '0';
-            in_value      <= "00000000000000000000000000001111";
             tb_controls   <= '0';
             src0_adr      <= (others => '1');
             dst0_adr      <= (others => '1');
@@ -407,7 +406,7 @@ begin
             end loop;
         end if;
 
-        if run("in_r4") then
+        if run("out_r4") then
             reset_all;
             fill_instr_mem((
             --$ printf 'out r4 \n end' | ./scripts/asm | head -n2
@@ -419,7 +418,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            check_equal(out_value, to_vec(12, out_value'length));
+            test_reg(4, to_vec(12, out_src0_value'length));
         end if;
 
         -- `playground` test-case runs only with `playground` script
