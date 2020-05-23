@@ -427,6 +427,147 @@ begin
             check_equal(out_value, to_vec(12, out_value'length));
         end if;
 
+        if run("swap_r0_r1") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'swap r0, r1 \n end' | ./scripts/asm | head -n2
+            to_vec("0000100000100000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(0, to_vec(12, out_src0_value'length));
+            set_reg(1, to_vec(100, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(1, to_vec(12, out_src0_value'length));
+            test_reg(0, to_vec(100, out_src0_value'length));
+        end if;
+
+        if run("add_r1_r2_r3") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'add r1, r2, r3 \n end' | ./scripts/asm | head -n2
+            to_vec("0001000101001100"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(2, to_vec(12, out_src0_value'length));
+            set_reg(3, to_vec(-100, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(1, to_vec(-88, out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
+        end if;
+
+        if run("sub_r2_r3_r4") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'sub r2, r3, r4 \n end' | ./scripts/asm | head -n2
+            to_vec("0001101001110000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(3, to_vec(12, out_src0_value'length));
+            set_reg(4, to_vec(12, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec(88, out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '1', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
+        end if;
+
+        if run("and_r3_r4_r5") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'and r3, r4, r5 \n end' | ./scripts/asm | head -n2
+            to_vec("0010001110010100"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(4, to_vec(X"0F0F0F0F", out_src0_value'length));
+            set_reg(5, to_vec(X"0F00000F", out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(3, to_vec(X"0F00000F", out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
+        end if;
+
+        if run("or_r3_r4_r5") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'or r3, r4, r5 \n end' | ./scripts/asm | head -n2
+            to_vec("0010101110010100"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(4, to_vec(X"0F0F0F0F", out_src0_value'length));
+            set_reg(5, to_vec(X"FFF0000F", out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(3, to_vec(X"FFFF0F0F", out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
+        end if;
+
+        if run("shl_r7_1") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'shl r7, 1 \n end' | ./scripts/asm | head -n3
+            to_vec("1011011100000000"),
+            to_vec("0000000100000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(7, to_vec(X"80000000", out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(7, to_vec(0, out_src0_value'length));
+            check_equal(ccr_out(CCR_CARRY), '1', "ccr(carry)");
+        end if;
+
+        if run("shr_r0_2") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'shr r0, 2 \n end' | ./scripts/asm | head -n3
+            to_vec("1011100000000000"),
+            to_vec("0000001000000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(0, to_vec(X"00000002", out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(0, to_vec(0, out_src0_value'length));
+            check_equal(ccr_out(CCR_CARRY), '1', "ccr(carry)");
+        end if;
+
+        if run("iadd_r1_r5_3") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'iadd r1, r5, 3 \n end' | ./scripts/asm | head -n3
+            to_vec("1100000110100000"),
+            to_vec("0000000001100000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(5, to_vec(-100, out_src0_value'length));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(1, to_vec(3 - 100, out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
+        end if;
+
         -- `playground` test-case runs only with `playground` script
         --      `run-test` should ignore `playground` test-case
         -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
