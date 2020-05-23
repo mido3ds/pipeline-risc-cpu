@@ -350,6 +350,8 @@ begin
             wait until hlt = '1';
 
             test_reg(0, to_vec('1', out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '1', "ccr(zero)");
         end if;
 
         if run("inc_r1") then
@@ -365,6 +367,8 @@ begin
             wait until hlt = '1';
 
             test_reg(1, to_vec(6, out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '0', "ccr(zero)");
         end if;
 
         if run("dec_r2") then
@@ -380,6 +384,8 @@ begin
             wait until hlt = '1';
 
             test_reg(2, to_vec(199, out_src0_value'length));
+            check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
+            check_equal(ccr_out(CCR_NEG), '0', "ccr(zero)");
         end if;
 
         if run("in_r3") then
