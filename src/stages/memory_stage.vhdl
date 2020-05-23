@@ -113,7 +113,7 @@ begin
     );
 
 
-    process(clk,rst, pc_sel)
+    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address)
     begin
         if rst = '1' then
             memory_out                         <= (others => '0');

@@ -91,7 +91,7 @@ begin
             hlt                  => hlt
         );
 
-        process(mem_stalling_bit, rst)
+        process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val)
         begin
             if rst = '1' then
                 dxb_alu_op              <= (others => '0');

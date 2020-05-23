@@ -47,7 +47,7 @@ entity execute_stage is
         ccr_out                            : out std_logic_vector(2  downto 0);
 
         -- to be updated or no
-        update_ccr                         : out std_logic;                               -- if 0 keep the previous value , if 1 take the output ccr
+        update_ccr                         : out std_logic;  -- if 0 keep the previous value , if 1 take the output ccr
 
         memory_address                     : out std_logic_vector(31 downto 0);
         memory_input                       : out std_logic_vector(31 downto 0);
@@ -88,7 +88,7 @@ begin
         c                                   => opt
     );
 
-    process(clk , opt, rst)
+    process(clk , opt, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, alu_operation, opCode_in, alu_output)
     begin
         if rst = '1' then
             alu_output                         <= (others => '0');
@@ -103,7 +103,7 @@ begin
             destination_2_value_out            <= (others => '0');
             r_w_control_out                    <= (others => '0');
             interrupt_bit_out                  <= '0';
-        elsif (rising_edge(clk) and mem_stalling_bit = '0') then
+        elsif ( mem_stalling_bit = '0') then
             -- works at rising edge and stalling disabled only
 
             destination_register_1_out      <= destination_register_1_in;
@@ -124,11 +124,11 @@ begin
             opCode_out                      <= opCode_in;
             interrupt_bit_out               <= int_bit_in;
 
-            if (opCode_in(6 downto 0) = "1111000" or opCode_in(6 downto 3) = "1011") then                    -- in case of IN or LDM no operation performed
+            if (opCode_in(6 downto 0) = "1111000" or opCode_in(6 downto 3) = "1011" ) then  -- in case of IN or LDM no operation performed
 
                 memory_address              <= (others => '0');
                 memory_input                <= (others => '0');
-                alu_output                  <= in_src_value;
+                alu_output                  <= operand_2;
                 ccr_out                     <= (others => '0');
                 update_ccr                  <= '0';
                 --operation                   <= ALUOP_NOP;

@@ -107,7 +107,7 @@ begin
             out_instruction_bits  <= (others => '0');
             out_predicted_address <= (others => '0');
 
-        elsif falling_edge(clk) then
+        elsif rising_edge(clk) then
             -- decide PC next address
             if in_if_flush = '1' then
                 pc <= in_branch_address;

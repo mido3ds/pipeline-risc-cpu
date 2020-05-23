@@ -72,6 +72,19 @@ begin
             for i in 0 to 8 loop
                 in_reg(to_vec(i, 4), to_vec(0, 32));
             end loop;
+        elsif falling_edge(clk) then -- read
+        case br_io_enbl is
+            when "00" =>
+                out_reg(src0_adr, op0_value);
+                out_reg(src1_adr, op1_value);
+            when "01" =>
+                null;
+            when "10" =>
+                out_reg(src0_adr, out_value);
+            when others =>
+                out_reg(src0_adr, instr_adr);
+        end case;
+        out_reg(fetch_adr, fetch_value);
         elsif rising_edge(clk) then -- write
             case br_io_enbl is
                 when "00" =>
@@ -82,19 +95,6 @@ begin
                 when others =>
                     null;
             end case;
-        elsif falling_edge(clk) then -- read
-            case br_io_enbl is
-                when "00" =>
-                    out_reg(src0_adr, op0_value);
-                    out_reg(src1_adr, op1_value);
-                when "01" =>
-                    null;
-                when "10" =>
-                    out_reg(src0_adr, out_value);
-                when others =>
-                    out_reg(src0_adr, instr_adr);
-            end case;
-            out_reg(fetch_adr, fetch_value);
         end if;
     end process;
 end architecture;

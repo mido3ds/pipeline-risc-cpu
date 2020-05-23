@@ -99,7 +99,7 @@ begin
         begin
             rst           <= '0';
             interrupt     <= '0';
-            in_value      <= (others => '0');
+            in_value      <= "00000000000000000000000000001111";
             tb_controls   <= '0';
             src0_adr      <= (others => '1');
             dst0_adr      <= (others => '1');
