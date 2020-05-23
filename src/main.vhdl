@@ -449,7 +449,7 @@ begin
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
-    ccr <= tb_ccr_in when tb_controls = '1'
+    ccr <= tb_ccr_in when tb_ccr_sel = '1'
         else ms_ccr  when ms_ccr_sel = '1'
         else xs_ccr  when xs_ccr_sel = '1';
 
