@@ -12,6 +12,7 @@ entity m_w_buffer is
         in_destination_1  : in std_logic_vector(4 - 1 downto 0);
         in_dest_value_0   : in std_logic_vector(32 - 1 downto 0);
         in_dest_value_1   : in std_logic_vector(32 - 1 downto 0);
+        in_hlt            : in std_logic;
 
         out_aluout        : out std_logic_vector(32 - 1 downto 0);
         out_mem           : out std_logic_vector(32 - 1 downto 0);
@@ -19,7 +20,8 @@ entity m_w_buffer is
         out_destination_0 : out std_logic_vector(4 - 1 downto 0);
         out_destination_1 : out std_logic_vector(4 - 1 downto 0);
         out_dest_value_0  : out std_logic_vector(32 - 1 downto 0);
-        out_dest_value_1  : out std_logic_vector(32 - 1 downto 0)
+        out_dest_value_1  : out std_logic_vector(32 - 1 downto 0);
+        out_hlt           : out std_logic
     );
 end entity;
 
@@ -31,6 +33,7 @@ architecture rtl of m_w_buffer is
     signal destination_1 : std_logic_vector(4 - 1 downto 0);
     signal dest_value_0  : std_logic_vector(32 - 1 downto 0);
     signal dest_value_1  : std_logic_vector(32 - 1 downto 0);
+    signal hlt           : std_logic;
 begin
     aluout        <= in_aluout;
     mem           <= in_mem;
@@ -39,6 +42,7 @@ begin
     destination_1 <= in_destination_1;
     dest_value_0  <= in_dest_value_0;
     dest_value_1  <= in_dest_value_1;
+    hlt           <= in_hlt;
 
     process (clk)
     begin
@@ -50,6 +54,7 @@ begin
             out_destination_1 <= destination_1;
             out_dest_value_0  <= dest_value_0;
             out_dest_value_1  <= dest_value_1;
+            out_hlt           <= hlt;
         end if;
     end process;
 end architecture;

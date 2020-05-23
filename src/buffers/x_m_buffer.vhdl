@@ -16,6 +16,7 @@ entity x_m_buffer is
         in_dest_value_1   : in std_logic_vector(32 - 1 downto 0);
         in_r_w            : in std_logic_vector(2 - 1 downto 0);
         in_interrupt      : in std_logic;
+        in_hlt            : in std_logic;
 
         out_mem_adr       : out std_logic_vector(32 - 1 downto 0);
         out_mem_inp       : out std_logic_vector(32 - 1 downto 0);
@@ -26,7 +27,8 @@ entity x_m_buffer is
         out_dest_value_0  : out std_logic_vector(32 - 1 downto 0);
         out_dest_value_1  : out std_logic_vector(32 - 1 downto 0);
         out_r_w           : out std_logic_vector(2 - 1 downto 0);
-        out_interrupt     : out std_logic
+        out_interrupt     : out std_logic;
+        out_hlt           : out std_logic
     );
 end entity;
 
@@ -42,6 +44,7 @@ architecture rtl of x_m_buffer is
     signal dest_value_1  : std_logic_vector(32 - 1 downto 0);
     signal r_w           : std_logic_vector(2 - 1 downto 0);
     signal interrupt     : std_logic;
+    signal hlt           : std_logic;
 begin
     aluout        <= in_aluout;
     mem           <= in_mem_adr;
@@ -53,6 +56,7 @@ begin
     dest_value_1  <= in_dest_value_1;
     r_w           <= in_r_w;
     interrupt     <= in_interrupt;
+    hlt           <= in_hlt;
 
     process (clk)
     begin
@@ -67,6 +71,7 @@ begin
             out_mem_inp       <= data;
             out_r_w           <= r_w;
             out_interrupt     <= interrupt;
+            out_hlt           <= hlt;
         end if;
     end process;
 end architecture;

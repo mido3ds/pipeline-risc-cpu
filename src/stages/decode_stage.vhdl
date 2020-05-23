@@ -53,7 +53,7 @@ entity decode_stage is
 
         src2_value              : out std_logic_vector(31 downto 0);
         src2_value_selector     : out std_logic;
-        hlt                     : out std_logic
+        hlt_out                 : out std_logic
         --rf_br_io_enbl           : out std_logic_vector(1  downto 0); -- STATE
         --rf_rst                  : out std_logic                     --will_see
     );
@@ -88,7 +88,7 @@ begin
             --branch_io          => rf_br_io_enbl,
             --branch_enable      => branch_enable,
             r_w_control          => r_w_control,
-            hlt                  => hlt
+            hlt                  => hlt_out
         );
 
         process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val)

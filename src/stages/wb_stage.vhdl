@@ -18,6 +18,7 @@ entity wb_stage is
         destination_reg_2_val       : in  std_logic_vector(31 downto 0);
 
         opCode                      : in  std_logic_vector(6  downto 0);
+        hlt_in                      : in  std_logic;
 
         --int_bit_in                  : in  std_logic;
 
@@ -25,8 +26,8 @@ entity wb_stage is
         dest_reg_2                  : out std_logic_vector(3  downto 0);
 
         dest_reg_1_value            : out std_logic_vector(31 downto 0);
-        dest_reg_2_value            : out std_logic_vector(31 downto 0)
-
+        dest_reg_2_value            : out std_logic_vector(31 downto 0);
+        hlt_out                     : out std_logic
     );
 end entity;
 
@@ -34,7 +35,7 @@ architecture rtl of wb_stage is
 
 begin
 
-    process(clk, rst, dest_reg_1, dest_reg_2, destination_register_1, destination_register_2)
+    process(clk, rst, dest_reg_1, dest_reg_2, destination_register_1, destination_register_2, hlt_in)
     begin
 
         if rst = '1' then
@@ -42,9 +43,11 @@ begin
             dest_reg_2       <= "1111";
             dest_reg_1_value <= (others => '0');
             dest_reg_2_value <= (others => '0');
+            hlt_out          <= '0';
         elsif (rising_edge(clk)) then
             dest_reg_1           <= destination_register_1;
             dest_reg_2           <= destination_register_2;
+            hlt_out              <= hlt_in;
             -- works in the first half of the clock cycle
 
             if opCode(6 downto 3) = "0001" then

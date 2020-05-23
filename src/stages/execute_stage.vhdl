@@ -41,6 +41,7 @@ entity execute_stage is
         opCode_in                          : in  std_logic_vector(6  downto 0);
         r_w_control_in                     : in  std_logic_vector(1  downto 0);
         int_bit_in                         : in  std_logic;
+        hlt_in                             : in  std_logic;
 
 
         alu_output                         : out std_logic_vector(31 downto 0);
@@ -62,9 +63,8 @@ entity execute_stage is
         destination_2_value_out            : out std_logic_vector(31 downto 0);
 
         r_w_control_out                    : out std_logic_vector(1  downto 0);
-        interrupt_bit_out                  : out std_logic
-
-
+        interrupt_bit_out                  : out std_logic;
+        hlt_out                            : out std_logic
     );
 end entity;
 
@@ -88,7 +88,7 @@ begin
         c                                   => opt
     );
 
-    process(clk , opt, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, alu_operation, opCode_in, alu_output)
+    process(clk , opt, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, alu_operation, opCode_in, alu_output, hlt_in)
     begin
         if rst = '1' then
             alu_output                         <= (others => '0');
@@ -103,6 +103,7 @@ begin
             destination_2_value_out            <= (others => '0');
             r_w_control_out                    <= (others => '0');
             interrupt_bit_out                  <= '0';
+            hlt_out                            <= '0';
         elsif ( mem_stalling_bit = '0') then
             -- works at rising edge and stalling disabled only
 
@@ -110,6 +111,7 @@ begin
             destination_register_2_out      <= destination_register_2_in;
 
             r_w_control_out                 <= r_w_control_in;
+            hlt_out                         <= hlt_in;
             --destination_1_value_out         <= destination_1_value;
             --destination_2_value_out         <= destination_2_value;
 

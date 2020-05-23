@@ -20,6 +20,7 @@ entity memory_stage is
         destination_1_value                : in  std_logic_vector(31 downto 0);
         destination_2_value                : in  std_logic_vector(31 downto 0);
         opCode_in                          : in  std_logic_vector(6  downto 0);
+        hlt_in                             : in  std_logic;
 
         --stalling                           : in  std_logic;
 
@@ -36,6 +37,7 @@ entity memory_stage is
 
         destination_1_value_out            : out std_logic_vector(31 downto 0);
         destination_2_value_out            : out std_logic_vector(31 downto 0);
+        hlt_out                            : out std_logic;
 
 
         ccr_out                            : out std_logic_vector(2  downto 0);
@@ -113,7 +115,7 @@ begin
     );
 
 
-    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address)
+    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address, hlt_in)
     begin
         if rst = '1' then
             memory_out                         <= (others => '0');
@@ -127,6 +129,7 @@ begin
             ccr_out_selector                   <= '0';
             pc_selector                        <= '0';
             stalling_enable                    <= '0';
+            hlt_out                            <= '0';
         elsif rising_edge(clk) then
 
             if (pc_sel = '1') then
@@ -162,6 +165,7 @@ begin
 
                 address                        <= memory_address;
                 memory_out                     <= output_data;
+                hlt_out                        <= hlt_in;
 
                 -- check the operation to output the stack pointer
                 -- interrupt or return from interrupt situation

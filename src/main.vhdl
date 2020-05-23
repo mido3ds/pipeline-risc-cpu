@@ -87,6 +87,7 @@ architecture rtl of main is
     signal ds_dxb_interrupt              : std_logic;
     signal ds_dxb_src2_value             : std_logic_vector(32 - 1 downto 0);
     signal ds_dxb_src2_sel               : std_logic;
+    signal ds_dxb_hlt                    : std_logic;
 
     -- decode_stage --> reg_file
     signal ds_rf_src0_adr                : std_logic_vector(3 downto 0);
@@ -108,6 +109,7 @@ architecture rtl of main is
     signal dxb_xs_opcode                 : std_logic_vector(7 - 1 downto 0);
     signal dxb_xs_r_w                    : std_logic_vector(1 downto 0);
     signal dxb_xs_interrupt              : std_logic;
+    signal dxb_xs_hlt                    : std_logic;
 
     --> reg_file
     signal rf_dst0_adr                   : std_logic_vector(3 downto 0);
@@ -129,11 +131,12 @@ architecture rtl of main is
     signal xs_xmb_mem_input              : std_logic_vector(31 downto 0);
     signal xs_xmb_opcode                 : std_logic_vector(6 downto 0);
     signal xs_xmb_r_w                    : std_logic_vector(1 downto 0);
+    signal xs_xmb_hlt                    : std_logic;
 
     -- memory_stage --> execute_stage,decode_stage
     signal ms_stalling_enable            : std_logic;
 
-    -- execute_stage --> memory_stage
+    -- x_m_buffer --> memory_stage
     signal xmb_ms_xs_aluout              : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_mem_adr                : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_mem_input              : std_logic_vector(32 - 1 downto 0);
@@ -144,6 +147,7 @@ architecture rtl of main is
     signal xmb_ms_dest_value_1           : std_logic_vector(32 - 1 downto 0);
     signal xmb_ms_r_w                    : std_logic_vector(2 - 1 downto 0);
     signal xmb_ms_interrupt              : std_logic;
+    signal xmb_ms_hlt                    : std_logic;
 
     -- memory_stage --> m_w_buffer
     signal ms_mwb_aluout                 : std_logic_vector(32 - 1 downto 0);
@@ -153,6 +157,7 @@ architecture rtl of main is
     signal ms_mwb_dest_1_adr             : std_logic_vector(4 - 1 downto 0);
     signal ms_mwb_dest_1_value_out       : std_logic_vector(31 downto 0);
     signal ms_mwb_dest_2_value_out       : std_logic_vector(31 downto 0);
+    signal ms_mwb_hlt                    : std_logic;
 
     -- m_w_buffer --> wb_stage
     signal mwb_ws_aluout                 : std_logic_vector(32 - 1 downto 0);
@@ -162,6 +167,7 @@ architecture rtl of main is
     signal mwb_ws_destination_1          : std_logic_vector(4 - 1 downto 0);
     signal mwb_ws_dest_value_0           : std_logic_vector(32 - 1 downto 0);
     signal mwb_ws_dest_value_1           : std_logic_vector(32 - 1 downto 0);
+    signal mwb_ws_hlt                    : std_logic;
 
     --> wb_stage --> reg_file
     signal ws_rf_dest_reg_1              : std_logic_vector(3 downto 0);
@@ -236,7 +242,7 @@ begin
 
             rf_src0_adr         => ds_rf_src0_adr,     --> main
             rf_src1_adr         => ds_rf_src1_adr,     --> main
-            hlt                 => hlt                 --> main
+            hlt_out             => ds_dxb_hlt          --> main
         );
 
     reg_file : entity work.reg_file
@@ -299,6 +305,7 @@ begin
             in_opcode      => ds_dxb_opcode,     --> decode_stage.dxb_opcode
             in_r_w         => ds_dxb_r_w,        --> decode_stage.dxb_r_w
             in_interrupt   => ds_dxb_interrupt,  --> decode_stage.dxb_interrupt
+            in_hlt         => ds_dxb_hlt,        --> decode_stage.dxb_hlt
             -- OUT
             out_alu_op     => dxb_xs_alu_op,     --> execute_stage.alu_operation
             out_operand0   => dxb_xs_operand0,   --> execute_stage.operand_1
@@ -309,7 +316,8 @@ begin
             out_dest_1     => dxb_xs_dest_1,     --> execute_stage.destination_register_2_in
             out_opcode     => dxb_xs_opcode,     --> execute_stage.opCode_in
             out_interrupt  => dxb_xs_interrupt,  --> execute_stage.int_bit_in
-            out_r_w        => dxb_xs_r_w         --> execute_stage.r_w_control_in
+            out_r_w        => dxb_xs_r_w,        --> execute_stage.r_w_control_in
+            out_hlt        => dxb_xs_hlt         --> execute_stage.hlt_in
         );
 
     execute_stage : entity work.execute_stage
@@ -328,6 +336,7 @@ begin
             opCode_in                  => dxb_xs_opcode,        --> d_x_buffer.dxb_xs_opcode
             int_bit_in                 => dxb_xs_interrupt,     --> d_x_buffer.dxb_xs_interrupt
             r_w_control_in             => dxb_xs_r_w,           --> d_x_buffer.out_r_w
+            hlt_in                     => dxb_xs_hlt,           --> d_x_buffer.out_hlt
 
             mem_stalling_bit           => ms_stalling_enable,   --> memory_stage.stalling_enable
             alu_op_1_selector          => hdu_xs_op_1_sel,      --> hdu.operand_1_select
@@ -346,7 +355,8 @@ begin
             destination_1_value_out    => xs_xmb_dest_value_0,  --> x_m_buffer.in_dest_value_0
             destination_2_value_out    => xs_xmb_dest_value_1,  --> x_m_buffer.in_dest_value_1
             interrupt_bit_out          => xs_xmb_interpt,       --> x_m_buffer.in_interrupt
-            r_w_control_out            => xs_xmb_r_w            --> x_m_buffer.in_r_w
+            r_w_control_out            => xs_xmb_r_w,           --> x_m_buffer.in_r_w
+            hlt_out                    => xs_xmb_hlt            --> x_m_buffer.out_hlt
         );
 
     hdu : entity work.hdu
@@ -382,6 +392,7 @@ begin
             in_dest_value_1   => xs_xmb_dest_value_1,  --> execute_stage.destination_2_value_out
             in_interrupt      => xs_xmb_interpt,       --> execute_stage.interrupt_bit_out
             in_r_w            => xs_xmb_r_w,           --> execute_stage.r_w_control_out
+            in_hlt            => xs_xmb_hlt,           --> execute_stage.hlt_out
             --OUT
             out_aluout        => xmb_ms_xs_aluout,     --> memory_stage.alu_result
             out_mem_adr       => xmb_ms_mem_adr,       --> memory_stage.memory_address
@@ -392,7 +403,8 @@ begin
             out_dest_value_0  => xmb_ms_dest_value_0,  --> memory_stage.destination_1_value
             out_dest_value_1  => xmb_ms_dest_value_1,  --> memory_stage.destination_2_value
             out_r_w           => xmb_ms_r_w,           --> memory_stage.r_w_control
-            out_interrupt     => xmb_ms_interrupt      --> memory_stage.int_bit_in
+            out_interrupt     => xmb_ms_interrupt,     --> memory_stage.int_bit_in
+            out_hlt           => xmb_ms_hlt            --> memory_stage.hlt_in
         );
 
     memory_stage : entity work.memory_stage
@@ -412,6 +424,7 @@ begin
             destination_2_value        => xmb_ms_dest_value_1,     --> x_m_buffer.out_dest_value_1
             opCode_in                  => xmb_ms_opcode,           --> x_m_buffer.out_opcode
             int_bit_in                 => xmb_ms_interrupt,        --> x_m_buffer.out_interrupt
+            hlt_in                     => xmb_ms_hlt,              --> x_m_buffer.out_hlt
             --OUT
             alu_output                 => ms_mwb_aluout,           --> m_w_buffer.in_aluout
             memory_out                 => ms_mwb_mem_input,        --> m_w_buffer.in_mem
@@ -421,6 +434,7 @@ begin
             destination_1_value_out    => ms_mwb_dest_1_value_out, --> m_w_buffer.in_dest_value_0
             destination_2_value_out    => ms_mwb_dest_2_value_out, --> m_w_buffer.in_dest_value_1
             ccr_out                    => ms_ccr,                  --> main
+            hlt_out                    => ms_mwb_hlt,              --> m_w_buffer.in_hlt
             -- pc_selector                => TODO,                   --> TODO.TODO
             stalling_enable            => ms_stalling_enable,      --> execute_stage.mem_stalling_bit
             ccr_out_selector           => ms_ccr_sel,              --> main
@@ -454,6 +468,7 @@ begin
             in_destination_1  => ms_mwb_dest_1_adr,       --> memory_stage.destination_register_2_out
             in_dest_value_0   => ms_mwb_dest_1_value_out, --> memory_stage.destination_1_value_out
             in_dest_value_1   => ms_mwb_dest_2_value_out, --> memory_stage.destination_2_value_out
+            in_hlt            => ms_mwb_hlt,              --> memory_stage.hlt_out
             --OUT
             out_aluout        => mwb_ws_aluout,           --> wb_stage.alu_output
             out_mem           => mwb_ws_xs_mem,           --> wb_stage.memory_output
@@ -461,7 +476,8 @@ begin
             out_destination_0 => mwb_ws_destination_0,    --> wb_stage.destination_register_1
             out_destination_1 => mwb_ws_destination_1,    --> wb_stage.destination_register_2
             out_dest_value_0  => mwb_ws_dest_value_0,     --> wb_stage.destination_reg_1_val
-            out_dest_value_1  => mwb_ws_dest_value_1      --> wb_stage.destination_reg_2_val
+            out_dest_value_1  => mwb_ws_dest_value_1,     --> wb_stage.destination_reg_2_val
+            out_hlt           => mwb_ws_hlt               --> wb_stage.hlt_in
         );
 
     wb_stage : entity work.wb_stage
@@ -477,10 +493,12 @@ begin
             destination_register_2 => mwb_ws_destination_1,   --> m_w_buffer.out_destination_1
             destination_reg_1_val  => mwb_ws_dest_value_0,    --> m_w_buffer.out_dest_value_0
             destination_reg_2_val  => mwb_ws_dest_value_1,    --> m_w_buffer.out_dest_value_1
+            hlt_in                 => mwb_ws_hlt,             --> m_w_buffer.out_hlt
             --OUT
             dest_reg_1             => ws_rf_dest_reg_1,       --> reg_file.dst0_value
             dest_reg_2             => ws_rf_dest_reg_2,       --> reg_file.dst1_value
             dest_reg_1_value       => ws_rf_dest_reg_1_value, --> reg_file.wb0_value
-            dest_reg_2_value       => ws_rf_dest_reg_2_value  --> reg_file.wb1_value
+            dest_reg_2_value       => ws_rf_dest_reg_2_value, --> reg_file.wb1_value
+            hlt_out                => hlt                     --> main
         );
 end architecture;
