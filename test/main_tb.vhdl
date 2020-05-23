@@ -418,7 +418,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(4, to_vec(12, out_src0_value'length));
+            check_equal(out_value, to_vec(12, out_value'length));
         end if;
 
         -- `playground` test-case runs only with `playground` script
