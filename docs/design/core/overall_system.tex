@@ -31,7 +31,8 @@ The cpu follows Harvard architecture and thus uses the following 2 separate memo
         On read, data-memory loads data bus with data from A and A+1~.\\
         On write, data-memory stores data from data bus to both A and A+1 addresses.
         \item \textbf{Total Number of Words}: $2^{11}$ words = 2048 words = 4096 bytes = 4KB.
-        \item \textbf{Valid Address Range}: Even Adresses From 0x000 inclusive to 0x7FF exclusive. Formaly $A \in $[0x000, 0x7FF) and $A ~mod~ 2 = 0$~.\\
+        \item \textbf{Valid Address Range}: Even Adresses From 0x000 inclusive to 0x7FF exclusive. Formaly $A \in $[0x000, 0x7FF) and $A ~mod~ 2 = 0$~.
+        \item \textbf{Stack Pointer}: Starts with $2^{11}-2$ and either increments by 2 or -2.
     \end{itemize}
 \end{itemize}
 
