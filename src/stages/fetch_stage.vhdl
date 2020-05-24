@@ -38,13 +38,13 @@ entity fetch_stage is
 end entity;
 
 architecture rtl of fetch_stage is
+    --> inst_mem initials
     signal pc           : std_logic_vector(31 downto 0);
     signal len_bit      : std_logic                     := '0';
     signal mem_rd       : std_logic                     := '1';
     signal mem_wr       : std_logic                     := '0';
     signal mem_data_in  : std_logic_vector(15 downto 0) := (others => '0');
     signal mem_data_out : std_logic_vector(15 downto 0) := (others => '0');
-    signal inst_store   : std_logic_vector(15 downto 0) := (others => '0');
 
     --> inst_mem
     signal im_rd        : std_logic;
@@ -52,6 +52,13 @@ architecture rtl of fetch_stage is
     signal im_data_in   : std_logic_vector(mem_data_in'range);
     signal im_adr       : std_logic_vector(pc'range);
     signal im_rst       : std_logic;
+
+    --> temp stores
+    signal inst_store   : std_logic_vector(15 downto 0) := (others => '0');
+    signal pc_store   : std_logic_vector(15 downto 0) := (others => '0');
+
+    --> logic states
+    signal rst_state    : std_logic_vector(1 downto 0)  := (others => '0');
 
     --> branch_pred
     signal br_pred_en   : std_logic                     := '0';
@@ -95,10 +102,11 @@ begin
 
     out_hashed_address <= pc(3 downto 0);
 
-    process (clk, rst, mem_data_out)
+    process (clk, rst, mem_data_out, br_pred)
     begin
-        if rst = '1' then
-            pc                    <= (others => '0'); -- TODO
+        if rst = '1' and rst_state = "00" then
+            -- reset logic start
+            pc                    <= (others => '0');
             mem_data_in           <= (others => '0');
             len_bit               <= '0';
             mem_rd                <= '1';
@@ -106,6 +114,19 @@ begin
             out_interrupt         <= '0';
             out_instruction_bits  <= (others => '0');
             out_predicted_address <= (others => '0');
+            rst_state             <= "01";
+
+        elsif rst_state = "01" then
+            -- read upper part of pc
+            pc_store              <= mem_data_out;
+            pc                    <= to_vec(to_int(pc) + 1, pc'length);
+            rst_state             <= "10";
+
+        elsif rst_state = "10" then
+            -- read lower part of pc
+            pc(31 downto 16)      <= pc_store;
+            pc(15 downto 0)       <= mem_data_out;
+            rst_state             <= "00";
 
         elsif rising_edge(clk) then
             -- decide PC next address
