@@ -770,11 +770,11 @@ begin
         if run("ret_r4") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'ret # sp=5-2=3
+            --$ printf 'ret # sp=-2, M[0]=5
             --$ end
             --$ .org 5
             --$ not r2
-            --$ end' | ./scripts/asm | head -n9
+            --$ end' | ./scripts/asm | head -n7
             to_vec("0000010000000000"),
             to_vec("0000000000000000"),
             to_vec("0000000000000000"),
@@ -783,7 +783,11 @@ begin
             to_vec("0111100101000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(8, to_vec(3, 32));
+            set_reg(8, to_vec(-2, 32));
+            fill_data_mem(0, (
+            to_vec(5, 16),
+            to_vec(0, 16)
+            ));
 
             reset_cpu;
             wait until hlt = '1';
@@ -819,6 +823,30 @@ begin
             test_reg(2, to_vec(50, 32));
             test_reg(8, to_vec(2 ** 11 - 1, 32));
             test_data_mem(2 ** 11 - 1, to_vec(1, 16));
+        end if;
+
+        if run("reset") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf '6
+            --$ end
+            --$ .org 6
+            --$ not r2
+            --$ end' | ./scripts/asm | head -n8
+            to_vec("0000000000000000"),
+            to_vec("0000000000000110"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0111000000000000")
+            ));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec('1', 32));
         end if;
 
         -- `playground` test-case runs only with `playground` script
