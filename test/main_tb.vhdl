@@ -875,7 +875,8 @@ begin
             wait until hlt = '1';
 
             test_reg(0, to_vec('1', 32));
-            test_data_mem(2 ** 11 - 2, to_vec(0, 16 - 32) & "101"); -- stored flags ccr
+            test_reg(8, to_vec(2 ** 11 - 6, 32));
+            test_data_mem(2 ** 11 - 2, to_vec(0, 16 - 3) & "101"); -- stored flags ccr
         end if;
 
         if run("interrupt_after_end") then
@@ -904,6 +905,72 @@ begin
             wait until hlt = '1';
 
             test_reg(0, to_vec(0, 32));
+        end if;
+
+        if run("rti") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'rti # m[2^11-2] = 010, m[2^11-4] = 5, sp = 2^11-6
+            --$ end
+            --$ .org 5
+            --$ not r0
+            --$ end' | ./scripts/asm | head -n7
+            to_vec("0000010100000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0111100100000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(8, to_vec(2 ** 11 - 6, 32));
+            fill_data_mem(2 ** 11 - 4, (
+            to_vec(5, 16),                     -- 2^11-4
+            to_vec(0, 16),                     -- 2^11-3
+            to_vec(to_vec(0, 16 - 3) & "010"), -- 2^11-2
+            to_vec(0, 16)                      -- 2^11-1
+            ));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(0, to_vec('1', 32));
+            check_equal(ccr_out, to_vec("010", 3), "ccr");
+        end if;
+
+        if run("interrupt_rti") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'end # interrupt before this, M[2:3] = 7
+            --$ not r1
+            --$ end
+            --$ .org 7 
+            --$ not r0
+            --$ rti' | ./scripts/asm | head -n9
+            to_vec("0111000000000000"),
+            to_vec("0111100100100000"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100100000000"),
+            to_vec("0000010100000000")
+            ));
+            fill_data_mem(2, (
+            to_vec(0, 16),
+            to_vec(7, 16)
+            ));
+            set_ccr("101");
+
+            reset_cpu;
+            interrupt <= '1';
+            wait for CLK_PERD;
+            interrupt <= '0';
+            wait until hlt = '1';
+
+            test_reg(0, to_vec('1', 32));
+            test_reg(1, to_vec('1', 32));
         end if;
 
         -- `playground` test-case runs only with `playground` script
