@@ -57,12 +57,13 @@ architecture rtl of fetch_stage is
 
     --> temp stores
     signal inst_store   : std_logic_vector(15 downto 0) := (others => '0');
-    signal pc_store   : std_logic_vector(15 downto 0) := (others => '0');
+    signal pc_store     : std_logic_vector(15 downto 0) := (others => '0');
 
     --> logic states
     signal rst_state    : std_logic_vector(1 downto 0)  := (others => '0');
     signal int_state    : std_logic_vector(1 downto 0)  := (others => '0');
     signal call_state   : std_logic                     := '0';
+    signal jz_state     : std_logic                     := '0';
 
     --> branch_pred
     signal br_pred_en   : std_logic                     := '0';
@@ -118,8 +119,16 @@ begin
             out_interrupt         <= '0';
             out_instruction_bits  <= (others => '0');
             out_predicted_address <= (others => '0');
-            rst_state             <= "01";
             out_reg_idx           <= "1111";
+            inst_store            <= (others => '0');
+            pc_store              <= (others => '0');
+            int_state             <= (others => '0');
+            call_state            <= '0';
+            jz_state              <= '0';
+            br_pred_en            <= '0';
+            hashed_adr            <= (others => '0');
+            opcode                <= (others => '0');
+            rst_state             <= "01";
 
         elsif rst_state = "01" then
             -- read upper part of pc
@@ -168,25 +177,55 @@ begin
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
-            elsif mem_data_out(14 downto 8) = "0000011" and mem_data_out(14 downto 8) = "0000010" then
-                -- call and jump instructions
-                if call_state = '0' then
-                    -- get value from register file
-                    out_reg_idx          <= mem_data_out(7 downto 5);
-                    -- output NOP
-                    out_instruction_bits <= (others => '0');
-                    call_state           <= '1';
-                else
-                    -- assign branch value
-                    pc                    <= in_reg_value;
-                    out_instruction_bits  <= mem_data_out;
-                    out_predicted_address <= in_reg_value;
-                    call_state            <= '0';
-                end if;
-
             elsif in_stall = '1' then
                 -- fetch stage stall
                 null; -- do nothing and preserve current PC
+
+            elsif len_bit = '0' and mem_data_out(14 downto 8) = "0000011" and mem_data_out(14 downto 8) = "0000010" then
+                -- call and jump instructions
+                if call_state = '0' then
+                    -- get value from register file
+                    out_reg_idx(3)          <= '0';
+                    out_reg_idx(2 downto 0) <= mem_data_out(7 downto 5);
+                    -- output NOP
+                    out_instruction_bits    <= (others => '0');
+                    call_state              <= '1';
+                else
+                    -- assign branch value
+                    pc                      <= in_reg_value;
+                    out_instruction_bits    <= mem_data_out;
+                    out_predicted_address   <= in_reg_value;
+                    call_state              <= '0';
+                end if;
+
+            elsif len_bit = '0' and mem_data_out(14 downto 8) = "0000001" then
+                -- JZ instruction
+                if jz_state = '0' then
+                    -- activate dynamic branch predictor
+                    hashed_adr              <= pc(3 downto 0);
+                    opcode                  <= mem_data_out(14 downto 11);
+                    -- get value from register file
+                    out_reg_idx(3)          <= '0';
+                    out_reg_idx(2 downto 0) <= mem_data_out(7 downto 5);
+                    -- output NOP
+                    out_instruction_bits    <= (others => '0');
+                    jz_state                <= '1';
+                else
+                    -- determine PC next value and predicted address output
+                    if br_pred = '0' then
+                        pc                    <= to_vec(to_int(pc) + 1, pc'length);
+                        out_predicted_address <= to_vec(to_int(pc) + 1, pc'length);
+                        out_instruction_bits  <= mem_data_out;
+                        br_pred_en            <= '1';
+                        jz_state              <= '0';
+                    else
+                        pc                    <= in_reg_value;
+                        out_predicted_address <= in_reg_value;
+                        out_instruction_bits  <= mem_data_out;
+                        br_pred_en            <= '1';
+                        jz_state              <= '0';
+                    end if;
+                end if;
 
             else
                 pc <= to_vec(to_int(pc) + 1, pc'length);
@@ -205,24 +244,14 @@ begin
                     out_instruction_bits(31 downto 16) <= inst_store;
                     out_instruction_bits(15 downto 0)  <= mem_data_out;
                     len_bit                            <= '0';
-                end if;
-
-                -- branch prediction handling
-                if len_bit = '0' and mem_data_out(15) = '0' and mem_data_out(14 downto 8) = "0000001" then
-                    -- JZ instruction
-                    -- activate dynamic branch predictor
-                    hashed_adr                <= pc(3 downto 0);
-                    opcode                    <= mem_data_out(14 downto 11);
-                    -- determine PC next value and predicted address output
-                    if br_pred = '0' then
-                        pc                    <= to_vec(to_int(pc) + 1, pc'length);
-                        out_predicted_address <= to_vec(to_int(pc) + 1, pc'length);
-                    else
-                        pc                    <= (others => '0'); -- TODO
-                        out_predicted_address <= (others => '0'); -- TODO
-                    end if;
-                end if;
+                end if; 
             end if;  
+            
+            -- reset branch prediction update enable
+            if br_pred_en = '1' then
+                br_pred_en <= '0';
+            end if;
+
         end if;
 
     end process;
