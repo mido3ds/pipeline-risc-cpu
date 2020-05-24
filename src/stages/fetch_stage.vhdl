@@ -15,12 +15,14 @@ entity fetch_stage is
         in_loaded_pc_value           : in std_logic_vector(31 downto 0);
         in_branch_address            : in std_logic_vector(31 downto 0);
         in_hashed_address            : in std_logic_vector(3 downto 0);
+        in_reg_value                 : in std_logic_vector(31 downto 0);
 
         out_interrupt                : out std_logic;
         out_instruction_bits         : out std_logic_vector(31 downto 0);
         out_predicted_address        : out std_logic_vector(31 downto 0);
         out_hashed_address           : out std_logic_vector(3 downto 0);
         out_inc_pc                   : out std_logic_vector(31 downto 0);
+        out_reg_idx                  : out std_logic_vector(3 downto 0);
 
         -- testing signals
 

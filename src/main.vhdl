@@ -65,6 +65,8 @@ architecture rtl of main is
     signal fsi_loaded_pc_value           : std_logic_vector(31 downto 0);
     signal fsi_branch_address            : std_logic_vector(31 downto 0);
     signal fsi_hashed_address            : std_logic_vector(3 downto 0);
+    signal fsi_out_reg_idx               : std_logic_vector(3 downto 0);
+    signal fsi_in_reg_value              : std_logic_vector(31 downto 0);
 
     -- fetch_stage --> f_d_buffer
     signal fs_fdb_interrupt              : std_logic;
@@ -188,12 +190,14 @@ begin
             in_loaded_pc_value           => fsi_loaded_pc_value,           --> TODO.TODO
             in_branch_address            => fsi_branch_address,            --> TODO.TODO
             in_hashed_address            => fsi_hashed_address,            --> TODO.TODO
+            in_reg_value                 => fsi_in_reg_value,              --> reg_file.fetch_value
             --OUT
             out_interrupt                => fs_fdb_interrupt,
             out_instruction_bits         => fs_fdb_instruction_bits,  --> f_d_buffer.in_instr
             out_predicted_address        => fs_fdb_predicted_address, --> TODO.TODO
             out_hashed_address           => fs_fdb_hashed_address,    --> TODO.TODO
             out_inc_pc                   => fs_fdb_inc_pc,            --> f_d_buffer.in_inc_pc
+            out_reg_idx                  => fsi_out_reg_idx,          --> reg_file.fetch_adr
 
             -- testing
             tb_controls                  => tb_controls,              --> tb
@@ -248,29 +252,29 @@ begin
     reg_file : entity work.reg_file
         port map(
             --IN
-            clk        => clk,
+            clk         => clk,
 
-            rst        => rf_rst,                 --> main
-            dst0_adr   => rf_dst0_adr,            --> main
-            dst1_adr   => rf_dst1_adr,            --> main
-            src0_adr   => rf_src0_adr,            --> main
-            src1_adr   => rf_src1_adr,            --> main
-            fetch_adr => (others => 'U'),         --> TODO.TODO replace U with its signal
+            rst         => rf_rst,                 --> main
+            dst0_adr    => rf_dst0_adr,            --> main
+            dst1_adr    => rf_dst1_adr,            --> main
+            src0_adr    => rf_src0_adr,            --> main
+            src1_adr    => rf_src1_adr,            --> main
+            fetch_adr   => fsi_out_reg_idx,        --> fetch_stage.out_reg_idx
 
-            wb0_value  => rf_wb0_value,           --> main
-            wb1_value  => ws_rf_dest_reg_2_value, --> wb_stage.dest_reg_2_value
+            wb0_value   => rf_wb0_value,           --> main
+            wb1_value   => ws_rf_dest_reg_2_value, --> wb_stage.dest_reg_2_value
 
-            in_value   => in_value,               --> main
+            in_value    => in_value,               --> main
 
-            br_io_enbl => rf_br_io_enbl,          --> main
+            br_io_enbl  => rf_br_io_enbl,          --> main
             --OUT
-            op0_value  => rf_dxb_op0_value,       --> d_x_buffer.in_operand0, tb
-            op1_value  => rf_dxb_op1_value,       --> d_x_buffer.in_operand1
+            op0_value   => rf_dxb_op0_value,       --> d_x_buffer.in_operand0, tb
+            op1_value   => rf_dxb_op1_value,       --> d_x_buffer.in_operand1
 
-            -- fetch_value => TODO, --> TODO.TODO
+            fetch_value => fsi_in_reg_value,       --> fetch_stage.in_reg_value
             -- instr_adr   => TODO, --> TODO.TODO
 
-            out_value  => out_value               --> main
+            out_value   => out_value               --> main
         );
 
     -- mux between (reg_file and tb) signals
