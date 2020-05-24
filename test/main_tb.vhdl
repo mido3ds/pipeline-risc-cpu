@@ -655,6 +655,172 @@ begin
             test_data_mem(36, to_vec(14, 16) & to_vec(0, 16));
         end if;
 
+        if run("jz_r0_true") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'jz r0 # r0=7, ccr(zero) = 1
+            --$ ldm r2, 50
+            --$ end
+            --$ .org 7
+            --$ not r2
+            --$ end' | ./scripts/asm | head -n10
+            to_vec("0000000000000000"),
+            to_vec("0000000100000000"),
+            to_vec("1101101000000000"),
+            to_vec("0101000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0111000000000000")
+            ));
+            set_ccr((CCR_ZERO => '1', others => '0'));
+            set_reg(0, to_vec(7, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec('1', 32));
+        end if;
+
+        if run("jz_r0_false") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'jz r0 # r0=7, ccr(zero) = 0
+            --$ ldm r2, 50
+            --$ end
+            --$ .org 7
+            --$ not r2
+            --$ end' | ./scripts/asm | head -n10
+            to_vec("0000000000000000"),
+            to_vec("0000000100000000"),
+            to_vec("1101101000000000"),
+            to_vec("0101000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0111000000000000")
+            ));
+            set_ccr((CCR_ZERO => '0', others => '0'));
+            set_reg(0, to_vec(7, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec(50, 32));
+        end if;
+
+        if run("jmp_r3") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'jmp r3 # r3=7
+            --$ ldm r2, 50
+            --$ end
+            --$ .org 7
+            --$ not r2
+            --$ end' | ./scripts/asm | head -n9
+            to_vec("0000001001100000"),
+            to_vec("1101101000000000"),
+            to_vec("0101000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(3, to_vec(7, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec('1', 32));
+        end if;
+
+        if run("call_r4") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'call r4 # r4=7
+            --$ ldm r2, 50
+            --$ end
+            --$ .org 7
+            --$ not r2
+            --$ end' | ./scripts/asm | head -n9
+            to_vec("0000001110000000"),
+            to_vec("1101101000000000"),
+            to_vec("0101000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(4, to_vec(7, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec('1', 32));
+            test_reg(8, to_vec(2 ** 11 - 3, 32));
+            test_data_mem(2 ** 11 - 1, to_vec(1, 16));
+        end if;
+
+        if run("ret_r4") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'ret # sp=5-2=3
+            --$ end
+            --$ .org 5
+            --$ not r2
+            --$ end' | ./scripts/asm | head -n9
+            to_vec("0000010000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0111000000000000")
+            ));
+            set_reg(8, to_vec(3, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec('1', 32));
+        end if;
+
+        if run("call_r4_ret") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'call r4 # r4=7
+            --$ ldm r2, 50
+            --$ end
+            --$ .org 7
+            --$ not r2
+            --$ ret
+            --$ end' | ./scripts/asm | head -n9
+            to_vec("0000001110000000"),
+            to_vec("1101101000000000"),
+            to_vec("0101000000000000"),
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100101000000"),
+            to_vec("0000010000000000")
+            ));
+            set_reg(4, to_vec(7, 32));
+
+            reset_cpu;
+            wait until hlt = '1';
+
+            test_reg(2, to_vec(50, 32));
+            test_reg(8, to_vec(2 ** 11 - 1, 32));
+            test_data_mem(2 ** 11 - 1, to_vec(1, 16));
+        end if;
+
         -- `playground` test-case runs only with `playground` script
         --      `run-test` should ignore `playground` test-case
         -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
