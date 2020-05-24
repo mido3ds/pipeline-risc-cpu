@@ -62,6 +62,7 @@ architecture rtl of fetch_stage is
     --> logic states
     signal rst_state    : std_logic_vector(1 downto 0)  := (others => '0');
     signal int_state    : std_logic_vector(1 downto 0)  := (others => '0');
+    signal call_state   : std_logic                     := '0';
 
     --> branch_pred
     signal br_pred_en   : std_logic                     := '0';
@@ -118,6 +119,7 @@ begin
             out_instruction_bits  <= (others => '0');
             out_predicted_address <= (others => '0');
             rst_state             <= "01";
+            out_reg_idx           <= "1111";
 
         elsif rst_state = "01" then
             -- read upper part of pc
@@ -155,19 +157,35 @@ begin
                 int_state            <= "00";
             
             elsif in_if_flush = '1' then
+                -- instruction flush
                 pc                   <= in_branch_address;
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
             elsif in_parallel_load_pc_selector = '1' then
+                -- load from data memory
                 pc                   <= in_loaded_pc_value;
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
-            elsif mem_data_out(14 downto 8) = "0000011" then
-                pc <= (others => '0'); -- TODO
+            elsif mem_data_out(14 downto 8) = "0000011" and mem_data_out(14 downto 8) = "0000010" then
+                -- call and jump instructions
+                if call_state = '0' then
+                    -- get value from register file
+                    out_reg_idx          <= mem_data_out(7 downto 5);
+                    -- output NOP
+                    out_instruction_bits <= (others => '0');
+                    call_state           <= '1';
+                else
+                    -- assign branch value
+                    pc                    <= in_reg_value;
+                    out_instruction_bits  <= mem_data_out;
+                    out_predicted_address <= in_reg_value;
+                    call_state            <= '0';
+                end if;
 
             elsif in_stall = '1' then
+                -- fetch stage stall
                 null; -- do nothing and preserve current PC
 
             else
@@ -190,7 +208,8 @@ begin
                 end if;
 
                 -- branch prediction handling
-                if len_bit = '0' and mem_data_out(15) = '0' then
+                if len_bit = '0' and mem_data_out(15) = '0' and mem_data_out(14 downto 8) = "0000001" then
+                    -- JZ instruction
                     -- activate dynamic branch predictor
                     hashed_adr                <= pc(3 downto 0);
                     opcode                    <= mem_data_out(14 downto 11);
