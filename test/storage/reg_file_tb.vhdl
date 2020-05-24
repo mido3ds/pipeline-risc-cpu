@@ -80,7 +80,11 @@ begin
                 br_io_enbl <= "00";
                 wait for CLK_PERD;
                 check_equal(op0_value, to_vec(0, op0_value'length));
-                check_equal(op1_value, to_vec(0, op1_value'length));
+                if i = 4 then
+                    check_equal(op1_value, to_vec(0, 32 - 11) & to_vec('1', 11));
+                else
+                    check_equal(op1_value, to_vec(0, op1_value'length));
+                end if;
             end loop;
         end if;
 
