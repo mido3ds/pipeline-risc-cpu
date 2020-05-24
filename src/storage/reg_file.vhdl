@@ -75,7 +75,7 @@ begin
             for i in 0 to 7 loop
                 in_reg(to_vec(i, 4), to_vec(0, 32));
             end loop;
-            in_reg(to_vec(8, 4), "11111111111111111111111111111111");
+            in_reg(to_vec(8, 4), to_vec(0, 32 - 11) & to_vec(-2, 11));
         elsif falling_edge(clk) then -- read
             case br_io_enbl is
                 when "00" =>
