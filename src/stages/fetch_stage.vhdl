@@ -57,7 +57,7 @@ architecture rtl of fetch_stage is
 
     --> temp stores
     signal inst_store   : std_logic_vector(15 downto 0) := (others => '0');
-    signal pc_store   : std_logic_vector(15 downto 0) := (others => '0');
+    signal pc_store     : std_logic_vector(15 downto 0) := (others => '0');
 
     --> logic states
     signal rst_state    : std_logic_vector(1 downto 0)  := (others => '0');
