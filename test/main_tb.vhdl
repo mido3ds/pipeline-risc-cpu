@@ -849,6 +849,63 @@ begin
             test_reg(2, to_vec('1', 32));
         end if;
 
+        if run("interrupt_before_end") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'end # interrupt before this, M[2:3] = 3
+            --$ .org 3 
+            --$ not r0
+            --$ end' | ./scripts/asm | head -n5
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100100000000"),
+            to_vec("0111000000000000")
+            ));
+            fill_data_mem(2, (
+            to_vec(0, 16),
+            to_vec(3, 16)
+            ));
+            set_ccr("101");
+
+            reset_cpu;
+            interrupt <= '1';
+            wait for CLK_PERD;
+            interrupt <= '0';
+            wait until hlt = '1';
+
+            test_reg(0, to_vec('1', 32));
+            test_data_mem(2 ** 11 - 1, to_vec(0, 16 - 32) & "101"); -- stored flags ccr
+        end if;
+
+        if run("interrupt_after_end") then
+            reset_all;
+            fill_instr_mem((
+            --$ printf 'end # interrupt after this, M[2:3] = 3
+            --$ .org 3 
+            --$ not r0
+            --$ end' | ./scripts/asm | head -n5
+            to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000000"),
+            to_vec("0111100100000000"),
+            to_vec("0111000000000000")
+            ));
+            fill_data_mem(2, (
+            to_vec(0, 16),
+            to_vec(3, 16)
+            ));
+
+            reset_cpu;
+            wait for CLK_PERD;
+            interrupt <= '1';
+            wait for CLK_PERD;
+            interrupt <= '0';
+            wait until hlt = '1';
+
+            test_reg(0, to_vec(0, 32));
+        end if;
+
         -- `playground` test-case runs only with `playground` script
         --      `run-test` should ignore `playground` test-case
         -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
