@@ -325,7 +325,7 @@ begin
                 wait until clk = '1';
             end if;
 
-            for i in 0 to 9 loop
+            for i in 0 to 8 loop
                 src0_adr <= to_vec(i, src0_adr'length);
                 wait until rising_edge(clk);
 
@@ -419,7 +419,7 @@ begin
             to_vec("0111100001100000"),
             to_vec("0111000000000000")
             ));
-            for i in 0 to 9 loop
+            for i in 0 to 7 loop
                 set_reg(i, to_vec(-1, 32));
             end loop;
             in_value <= to_vec(50, in_value'length);
@@ -427,7 +427,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            for i in 0 to 9 loop
+            for i in 0 to 7 loop
                 if i = 3 then
                     test_reg(3, to_vec(50, 32));
                 else
@@ -543,12 +543,12 @@ begin
         if run("shl_r7_1") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'shl r7, 1 \n end' | ./scripts/asm | head -n3
+            --$ printf 'shl r7, 2 \n end' | ./scripts/asm | head -n3
             to_vec("1011011100000000"),
-            to_vec("0000000100000000"),
+            to_vec("0000001000000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(7, to_vec(X"80000000", 32));
+            set_reg(7, to_vec(X"40000000", 32));
 
             reset_cpu;
             wait until hlt = '1';
@@ -560,9 +560,9 @@ begin
         if run("shr_r0_2") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'shr r0, 2 \n end' | ./scripts/asm | head -n3
+            --$ printf 'shr r0, 1 \n end' | ./scripts/asm | head -n3
             to_vec("1011100000000000"),
-            to_vec("0000001000000000"),
+            to_vec("0000000100000000"),
             to_vec("0111000000000000")
             ));
             set_reg(0, to_vec(X"00000002", 32));
@@ -570,13 +570,12 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(0, to_vec(0, 32));
-            check_equal(ccr_out(CCR_CARRY), '1', "ccr(carry)");
+            test_reg(0, to_vec(1, 32));
         end if;
 
         if run("push_r0") then
             reset_all;
-            test_reg(9, to_vec(2 ** 11 - 1, 32));
+            test_reg(8, to_vec(2 ** 11 - 1, 32));
 
             fill_instr_mem((
             --$ printf 'push r0 \n end' | ./scripts/asm | head -n2
@@ -588,7 +587,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(9, to_vec(2 ** 11 - 2, 32));
+            test_reg(8, to_vec(2 ** 11 - 2, 32));
             test_data_mem(2 ** 11 - 1, to_vec(100, 16));
         end if;
 
@@ -599,13 +598,13 @@ begin
             to_vec("0101000100000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(9, to_vec(2, 32));
+            set_reg(8, to_vec(2, 32));
             fill_data_mem(2, to_vec(0, 16) & to_vec(100, 16));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(9, to_vec(3, 32));
+            test_reg(8, to_vec(3, 32));
             test_reg(1, to_vec(100, 16));
         end if;
 
