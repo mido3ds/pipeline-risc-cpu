@@ -68,7 +68,6 @@ architecture rtl of fetch_stage is
     --> branch_pred
     signal br_pred_en   : std_logic                     := '0';
     signal hashed_adr   : std_logic_vector(3 downto 0)  := (others => '0');
-    signal opcode       : std_logic_vector(3 downto 0)  := (others => '0');
     signal br_pred      : std_logic                     := '0';
 
 begin
@@ -86,11 +85,11 @@ begin
 
     branch_pred : entity work.dyn_branch_pred(rtl)
         port map(
+            rst             => rst,
             prev_hashed_adr => in_hashed_address,
             update          => in_if_flush,
             enable          => br_pred_en,
             cur_hashed_adr  => hashed_adr,
-            opcode          => opcode,
             taken           => br_pred
         );
 
@@ -127,7 +126,6 @@ begin
             jz_state              <= '0';
             br_pred_en            <= '0';
             hashed_adr            <= (others => '0');
-            opcode                <= (others => '0');
             rst_state             <= "01";
 
         elsif rst_state = "01" then
@@ -203,7 +201,6 @@ begin
                 if jz_state = '0' then
                     -- activate dynamic branch predictor
                     hashed_adr              <= pc(3 downto 0);
-                    opcode                  <= mem_data_out(14 downto 11);
                     -- get value from register file
                     out_reg_idx(3)          <= '0';
                     out_reg_idx(2 downto 0) <= mem_data_out(7 downto 5);
