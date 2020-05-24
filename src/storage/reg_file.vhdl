@@ -33,22 +33,25 @@ end entity;
 
 architecture rtl of reg_file is
     -- why don't i put them in an array? because arrays don't appear in ghdl signals dump.
-    signal r0, r1, r2, r3, r4, r5, r6, r7, sp : std_logic_vector(31 downto 0);
+    signal r0, r1, r2, r3, r4, r5, r6, r7 : std_logic_vector(31 downto 0);
+    signal sp                             : std_logic_vector(10 downto 0);
 begin
     process (dst0_adr, dst1_adr, src0_adr, src1_adr, fetch_adr, wb0_value, wb1_value, in_value, rst, clk, br_io_enbl)
         procedure out_reg(adr : std_logic_vector(3 downto 0); signal o : out std_logic_vector(31 downto 0)) is
         begin
             case adr is
-                when x"0"   => o <= r0;
-                when x"1"   => o <= r1;
-                when x"2"   => o <= r2;
-                when x"3"   => o <= r3;
-                when x"4"   => o <= r4;
-                when x"5"   => o <= r5;
-                when x"6"   => o <= r6;
-                when x"7"   => o <= r7;
-                when x"8"   => o <= sp;
-                when others => null;
+                when x"0" => o <= r0;
+                when x"1" => o <= r1;
+                when x"2" => o <= r2;
+                when x"3" => o <= r3;
+                when x"4" => o <= r4;
+                when x"5" => o <= r5;
+                when x"6" => o <= r6;
+                when x"7" => o <= r7;
+                when x"8" =>
+                    o(10 downto 0)  <= sp;
+                    o(31 downto 11) <= (others => '0');
+                when others                => null;
             end case;
         end procedure;
 
@@ -63,7 +66,7 @@ begin
                 when x"5"   => r5 <= i;
                 when x"6"   => r6 <= i;
                 when x"7"   => r7 <= i;
-                when x"8"   => sp <= i;
+                when x"8"   => sp <= i(10 downto 0);
                 when others => null;
             end case;
         end procedure;
