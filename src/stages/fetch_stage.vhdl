@@ -192,10 +192,10 @@ begin
                     call_state              <= '1';
                 else
                     -- assign branch value
-                    pc                      <= in_reg_value;
-                    out_instruction_bits    <= mem_data_out;
-                    out_predicted_address   <= in_reg_value;
-                    call_state              <= '0';
+                    pc                                    <= in_reg_value;
+                    out_instruction_bits(31 downto 16)    <= mem_data_out;
+                    out_predicted_address                 <= in_reg_value;
+                    call_state                            <= '0';
                 end if;
 
             elsif len_bit = '0' and mem_data_out(14 downto 8) = "0000001" then
@@ -213,17 +213,17 @@ begin
                 else
                     -- determine PC next value and predicted address output
                     if br_pred = '0' then
-                        pc                    <= to_vec(to_int(pc) + 1, pc'length);
-                        out_predicted_address <= to_vec(to_int(pc) + 1, pc'length);
-                        out_instruction_bits  <= mem_data_out;
-                        br_pred_en            <= '1';
-                        jz_state              <= '0';
+                        pc                                  <= to_vec(to_int(pc) + 1, pc'length);
+                        out_predicted_address               <= to_vec(to_int(pc) + 1, pc'length);
+                        out_instruction_bits(31 downto 16)  <= mem_data_out;
+                        br_pred_en                          <= '1';
+                        jz_state                            <= '0';
                     else
-                        pc                    <= in_reg_value;
-                        out_predicted_address <= in_reg_value;
-                        out_instruction_bits  <= mem_data_out;
-                        br_pred_en            <= '1';
-                        jz_state              <= '0';
+                        pc                                  <= in_reg_value;
+                        out_predicted_address               <= in_reg_value;
+                        out_instruction_bits(31 downto 16)  <= mem_data_out;
+                        br_pred_en                          <= '1';
+                        jz_state                            <= '0';
                     end if;
                 end if;
 
