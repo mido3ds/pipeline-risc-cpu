@@ -365,7 +365,11 @@ begin
         if run("not_r0") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'not r0 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ not r0
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
@@ -381,7 +385,11 @@ begin
         if run("inc_r1") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'inc r1 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ inc r1
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111101000100000"),
             to_vec("0111000000000000")
             ));
@@ -398,7 +406,11 @@ begin
         if run("dec_r2") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'dec r2 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ dec r2
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111101101000000"),
             to_vec("0111000000000000")
             ));
@@ -415,7 +427,11 @@ begin
         if run("in_r3") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'in r3 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ in r3
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111100001100000"),
             to_vec("0111000000000000")
             ));
@@ -439,7 +455,11 @@ begin
         if run("out_r4") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'out r4 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ out r4
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111110010000000"),
             to_vec("0111000000000000")
             ));
@@ -454,7 +474,11 @@ begin
         if run("swap_r0_r1") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'swap r0, r1 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ swap r0, r1
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000100000100000"),
             to_vec("0111000000000000")
             ));
@@ -471,7 +495,11 @@ begin
         if run("add_r1_r2_r3") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'add r1, r2, r3 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ add r1, r2, r3
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0001000101001100"),
             to_vec("0111000000000000")
             ));
@@ -489,7 +517,11 @@ begin
         if run("sub_r2_r3_r4") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'sub r2, r3, r4 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ sub r2, r3, r4
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0001101001110000"),
             to_vec("0111000000000000")
             ));
@@ -507,7 +539,11 @@ begin
         if run("and_r3_r4_r5") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'and r3, r4, r5 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ and r3, r4, r5
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0010001110010100"),
             to_vec("0111000000000000")
             ));
@@ -525,7 +561,11 @@ begin
         if run("or_r3_r4_r5") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'or r3, r4, r5 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ or r3, r4, r5
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0010101110010100"),
             to_vec("0111000000000000")
             ));
@@ -543,7 +583,11 @@ begin
         if run("shl_r7_1") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'shl r7, 2 \n end' | ./scripts/asm | head -n3
+            --$ printf '2\n.org 2
+            --$ shl r7, 2
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("1011011100000000"),
             to_vec("0000001000000000"),
             to_vec("0111000000000000")
@@ -560,7 +604,11 @@ begin
         if run("shr_r0_2") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'shr r0, 1 \n end' | ./scripts/asm | head -n3
+            --$ printf '2\n.org 2
+            --$ shr r0, 1
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("1011100000000000"),
             to_vec("0000000100000000"),
             to_vec("0111000000000000")
@@ -578,7 +626,11 @@ begin
             test_reg(8, to_vec(2 ** 11 - 2, 32));
 
             fill_instr_mem((
-            --$ printf 'push r0 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ push r0
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0100100000000000"),
             to_vec("0111000000000000")
             ));
@@ -594,7 +646,11 @@ begin
         if run("pop_r1") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'pop r1 \n end' | ./scripts/asm | head -n2
+            --$ printf '2\n.org 2
+            --$ pop r1
+            --$ end' | ./scripts/asm | head -n$((2+2))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0101000100000000"),
             to_vec("0111000000000000")
             ));
@@ -611,7 +667,11 @@ begin
         if run("ldm_r2_50") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'ldm r2, 50 \n end' | ./scripts/asm | head -n3
+            --$ printf '2\n.org 2
+            --$ ldm r2, 50
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("1101101000000000"),
             to_vec("0101000000000000"),
             to_vec("0111000000000000")
@@ -626,7 +686,11 @@ begin
         if run("ldd_r3_20") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'ldd r3, 20 \n end' | ./scripts/asm | head -n3
+            --$ printf '2\n.org 2
+            --$ ldd r3, 20
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("1110001100000000"),
             to_vec("0000001000000000"),
             to_vec("0111000000000000")
@@ -642,7 +706,11 @@ begin
         if run("std_r4_36") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'std r4, 36 \n end' | ./scripts/asm | head -n3
+            --$ printf '2\n.org 2
+            --$ std r4, 36
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("1110110000000000"),
             to_vec("0000001101100000"),
             to_vec("0111000000000000")
@@ -658,12 +726,15 @@ begin
         if run("jz_r0_true") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'jz r0 # r0=7, ccr(zero) = 1
+            --$ printf '2\n.org 2
+            --$ jz r0 # r0=7, ccr(zero) = 1
             --$ ldm r2, 50
             --$ end
             --$ .org 7
             --$ not r2
-            --$ end' | ./scripts/asm | head -n10
+            --$ end' | ./scripts/asm | head -n$((2+10))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000000000000000"),
             to_vec("0000000100000000"),
             to_vec("1101101000000000"),
@@ -686,19 +757,20 @@ begin
         if run("jz_r0_false") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'jz r0 # r0=7, ccr(zero) = 0
+            --$ printf '2\n.org 2
+            --$ jz r0 # r0=7, ccr(zero) = 0
             --$ ldm r2, 50
             --$ end
             --$ .org 7
             --$ not r2
-            --$ end' | ./scripts/asm | head -n10
+            --$ end' | ./scripts/asm | head -n$((2+7))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000000000000000"),
             to_vec("0000000100000000"),
             to_vec("1101101000000000"),
             to_vec("0101000000000000"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0111100101000000"),
             to_vec("0111000000000000")
             ));
@@ -714,18 +786,19 @@ begin
         if run("jmp_r3") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'jmp r3 # r3=7
+            --$ printf '2\n.org 2
+            --$ jmp r3 # r3=7
             --$ ldm r2, 50
             --$ end
             --$ .org 7
             --$ not r2
-            --$ end' | ./scripts/asm | head -n9
+            --$ end' | ./scripts/asm | head -n$((2+9))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000001001100000"),
             to_vec("1101101000000000"),
             to_vec("0101000000000000"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0000000000000000"),
             to_vec("0111100101000000"),
             to_vec("0111000000000000")
@@ -741,18 +814,19 @@ begin
         if run("call_r4") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'call r4 # r4=7
+            --$ printf '2\n.org 2
+            --$ call r4 # r4=7
             --$ ldm r2, 50
             --$ end
             --$ .org 7
             --$ not r2
-            --$ end' | ./scripts/asm | head -n9
+            --$ end' | ./scripts/asm | head -n$((2+9))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000001110000000"),
             to_vec("1101101000000000"),
             to_vec("0101000000000000"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0000000000000000"),
             to_vec("0111100101000000"),
             to_vec("0111000000000000")
@@ -770,16 +844,17 @@ begin
         if run("ret_r4") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'ret # sp=-2, M[0]=5
+            --$ printf '2\n.org 2
+            --$ ret # sp=-2, M[0]=5
             --$ end
             --$ .org 5
             --$ not r2
-            --$ end' | ./scripts/asm | head -n7
+            --$ end' | ./scripts/asm | head -n$((2+5))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000010000000000"),
             to_vec("0000000000000000"),
             to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0111000000000000"),
             to_vec("0111100101000000"),
             to_vec("0111000000000000")
             ));
@@ -798,19 +873,20 @@ begin
         if run("call_r4_ret") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'call r4 # r4=7
+            --$ printf '2\n.org 2
+            --$ call r4 # r4=7
             --$ ldm r2, 50
             --$ end
             --$ .org 7
             --$ not r2
             --$ ret
-            --$ end' | ./scripts/asm | head -n9
+            --$ end' | ./scripts/asm | head -n$((2+7))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000001110000000"),
             to_vec("1101101000000000"),
             to_vec("0101000000000000"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0000000000000000"),
             to_vec("0111100101000000"),
             to_vec("0000010000000000")
@@ -852,13 +928,14 @@ begin
         if run("interrupt_before_end") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'end # interrupt before this, M[2:3] = 3
+            --$ printf '2\n.org 2
+            --$ end # interrupt before this, M[2:3] = 3
             --$ .org 3 
             --$ not r0
-            --$ end' | ./scripts/asm | head -n5
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
@@ -882,13 +959,14 @@ begin
         if run("interrupt_after_end") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'end # interrupt after this, M[2:3] = 3
+            --$ printf '2\n.org 2
+            --$ end # interrupt after this, M[2:3] = 3
             --$ .org 3 
             --$ not r0
-            --$ end' | ./scripts/asm | head -n5
+            --$ end' | ./scripts/asm | head -n$((2+3))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
@@ -910,16 +988,17 @@ begin
         if run("rti") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'rti # m[2^11-2] = 010, m[2^11-4] = 5, sp = 2^11-6
+            --$ printf '2\n.org 2
+            --$ rti # m[2^11-2] = 010, m[2^11-4] = 5, sp = 2^11-6
             --$ end
             --$ .org 5
             --$ not r0
-            --$ end' | ./scripts/asm | head -n7
+            --$ end' | ./scripts/asm | head -n$((2+5))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0000010100000000"),
             to_vec("0000000000000000"),
             to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0111000000000000"),
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
@@ -941,17 +1020,18 @@ begin
         if run("interrupt_rti") then
             reset_all;
             fill_instr_mem((
-            --$ printf 'end # interrupt before this, M[2:3] = 7
+            --$ printf '2\n.org 2
+            --$ end # interrupt before this, M[2:3] = 7
             --$ not r1
             --$ end
             --$ .org 7 
             --$ not r0
-            --$ rti' | ./scripts/asm | head -n9
+            --$ rti' | ./scripts/asm | head -n$((2+7))
+            to_vec("0000000000000000"),
+            to_vec("0000000000000010"),
             to_vec("0111000000000000"),
             to_vec("0111100100100000"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0000000000000000"),
             to_vec("0000000000000000"),
             to_vec("0111100100000000"),
