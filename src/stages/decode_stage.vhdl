@@ -12,6 +12,7 @@ entity decode_stage is
         mem_stalling_bit        : in  std_logic; -- signal from memory stage used in rti or interrupt operations
         in_zero_flag            : in  std_logic;
         in_port                 : in  std_logic_vector(31 downto 0);
+        instr_adr               : in  std_logic_vector(31 downto 0); -- actual instruction address from register file
 
         -- From F/D Buffer
         fdb_instr               : in  std_logic_vector(31 downto 0);
@@ -52,6 +53,7 @@ architecture rtl of decode_stage is
     signal src_1                : std_logic_vector(3  downto 0)  := (others => '0');
     signal src_2_val            : std_logic_vector(31 downto 0)  := (others => '0');
     signal src_2_val_enable     : std_logic                      := '0';
+    signal br_unit_enable       : std_logic                      := '0';
 begin
     control_unit_0 : entity work.control_unit(rtl)
         port map(
@@ -74,17 +76,17 @@ begin
     br_adr_unit : entity work.branch_adr(rtl)
         port map(
             next_pc_adr         => fdb_next_adr,
-            instr_adr           => (others => '0'), -- TODO
+            instr_adr           => instr_adr,
             incr_pc_adr         => fdb_inc_pc,
             hashed_adr          => fdb_hashed_adr,
-            branch_enable       => '0', -- TODO
+            branch_enable       => br_unit_enable,
             zero_flag           => in_zero_flag,
             if_flush            => out_if_flush,
             branch_adr_correct  => out_branch_adr_update,
             feedback_hashed_adr => out_feedback_hashed_adr
         );
 
-    process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val)
+    process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val, instr_adr)
     begin
         if rst = '1' then
             dxb_alu_op              <= (others => '0');
@@ -98,16 +100,16 @@ begin
             src2_value              <= (others => '0');
             src2_value_selector     <= '0';
         elsif(mem_stalling_bit = '0') then
-            dxb_interrupt                        <= fdb_interrupt;
-            dxb_opcode                           <= fdb_instr(30 downto 24);
-            dxb_alu_op                           <= alu_op;
-            dxb_dest_0                           <= dest_0;
-            dxb_dest_1                           <= dest_1;
-            rf_src0_adr                          <= src_0;
-            rf_src1_adr                          <= src_1;
-            src2_value_selector                  <= src_2_val_enable;
-            src2_value                           <= src_2_val;
-            dxb_r_w                              <= r_w_control;
+            dxb_interrupt           <= fdb_interrupt;
+            dxb_opcode              <= fdb_instr(30 downto 24);
+            dxb_alu_op              <= alu_op;
+            dxb_dest_0              <= dest_0;
+            dxb_dest_1              <= dest_1;
+            rf_src0_adr             <= src_0;
+            rf_src1_adr             <= src_1;
+            src2_value_selector     <= src_2_val_enable;
+            src2_value              <= src_2_val;
+            dxb_r_w                 <= r_w_control;
         end if;
     end process;
 

@@ -99,6 +99,9 @@ architecture rtl of main is
     signal ds_rf_br_io_enbl              : std_logic_vector(1 downto 0);
 
     -- reg_file --> decode_stage
+    signal rf_ds_instr_adr               : std_logic_vector(31 downto 0);
+
+    -- reg_file --> d_x_buffer
     signal rf_dxb_op0_value              : std_logic_vector(31 downto 0);
     signal rf_dxb_op1_value              : std_logic_vector(31 downto 0);
 
@@ -244,6 +247,7 @@ begin
             fdb_interrupt           => fdb_ds_interrupt,   --> f_d_buffer.out_interrupt
             mem_stalling_bit        => ms_stalling_enable, --> memory_stage.stalling_enable
             in_port                 => in_value,           --> main
+            instr_adr               => rf_ds_instr_adr,    --> reg_file.instr_adr
             --OUT
             dxb_alu_op              => ds_dxb_alu_op,      --> d_x_buffer.in_alu_op
             src2_value              => ds_dxb_src2_value,  --> d_x_buffer.in_src2_value
@@ -285,7 +289,7 @@ begin
             op1_value   => rf_dxb_op1_value,       --> d_x_buffer.in_operand1
 
             fetch_value => fsi_in_reg_value,       --> fetch_stage.in_reg_value
-            -- instr_adr   => TODO, --> TODO.TODO
+            instr_adr   => rf_ds_instr_adr,        --> decode_stage.instr_adr
 
             out_value   => out_value               --> main
         );
