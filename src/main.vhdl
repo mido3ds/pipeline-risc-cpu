@@ -78,6 +78,8 @@ architecture rtl of main is
     -- f_d_buffer --> decode_stage
     signal fdb_ds_instr                  : std_logic_vector(31 downto 0);
     signal fdb_ds_inc_pc                 : std_logic_vector(31 downto 0);
+    signal fdb_ds_next_adr               : std_logic_vector(31 downto 0);
+    signal fdb_ds_hashed_adr             : std_logic_vector(3 downto 0);
     signal fdb_ds_interrupt              : std_logic;
 
     -- decode_stage --> d_x_buffer
@@ -194,8 +196,8 @@ begin
             --OUT
             out_interrupt                => fs_fdb_interrupt,
             out_instruction_bits         => fs_fdb_instruction_bits,  --> f_d_buffer.in_instr
-            out_predicted_address        => fs_fdb_predicted_address, --> TODO.TODO
-            out_hashed_address           => fs_fdb_hashed_address,    --> TODO.TODO
+            out_predicted_address        => fs_fdb_predicted_address, --> f_d_buffer.in_next_adr
+            out_hashed_address           => fs_fdb_hashed_address,    --> f_d_buffer.in_hashed_adr
             out_inc_pc                   => fs_fdb_inc_pc,            --> f_d_buffer.in_inc_pc
             out_reg_idx                  => fsi_out_reg_idx,          --> reg_file.fetch_adr
 
@@ -211,16 +213,21 @@ begin
     f_d_buffer : entity work.f_d_buffer
         port map(
             --IN
-            clk           => clk,
+            clk            => clk,
 
-            in_flush      => fsi_if_flush,            --> TODO.TODO
-            in_instr      => fs_fdb_instruction_bits, --> fetch_stage.out_instruction_bits
-            in_inc_pc     => fs_fdb_inc_pc,           --> fetch_stage.out_inc_pc
-            in_interrupt  => fs_fdb_interrupt,        --> fetch_stage.out_interrupt
+            in_flush       => fsi_if_flush,            --> TODO.TODO
+            in_instr       => fs_fdb_instruction_bits, --> fetch_stage.out_instruction_bits
+            in_next_adr    => fs_fdb_predicted_address,--> fetch_stage.out_predicted_address
+            in_hashed_adr  => fs_fdb_hashed_address,   --> fetch_stage.out_hashed_address
+            in_inc_pc      => fs_fdb_inc_pc,           --> fetch_stage.out_inc_pc
+            in_interrupt   => fs_fdb_interrupt,        --> fetch_stage.out_interrupt
+            in_reset       => rst,                     --> main
             --OUT
-            out_instr     => fdb_ds_instr,            --> decode_stage.fdb_instr
-            out_inc_pc    => fdb_ds_inc_pc,           --> decode_stage.fdb_inc_pc
-            out_interrupt => fdb_ds_interrupt         --> decode_stage.fdb_interrupt
+            out_instr      => fdb_ds_instr,            --> decode_stage.fdb_instr
+            out_next_adr   => fdb_ds_next_adr,         --> decode_stage.fdb_next_adr
+            out_hashed_adr => fdb_ds_hashed_adr,       --> decode_stage.fdb_hashed_adr
+            out_inc_pc     => fdb_ds_inc_pc,           --> decode_stage.fdb_inc_pc
+            out_interrupt  => fdb_ds_interrupt         --> decode_stage.fdb_interrupt
         );
 
     decode_stage : entity work.decode_stage
