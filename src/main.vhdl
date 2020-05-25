@@ -187,11 +187,11 @@ begin
             in_interrupt                 => interrupt,
 
             in_stall                     => hdu_stall,                     --> hdu.Stall_signal
-            in_if_flush                  => fsi_if_flush,                  --> TODO.TODO
+            in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
             in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> TODO.TODO
             in_loaded_pc_value           => fsi_loaded_pc_value,           --> TODO.TODO
-            in_branch_address            => fsi_branch_address,            --> TODO.TODO
-            in_hashed_address            => fsi_hashed_address,            --> TODO.TODO
+            in_branch_address            => fsi_branch_address,            --> decode_stage.out_branch_adr_update
+            in_hashed_address            => fsi_hashed_address,            --> decode_stage.out_feedback_hashed_adr
             in_reg_value                 => fsi_in_reg_value,              --> reg_file.fetch_value
             --OUT
             out_interrupt                => fs_fdb_interrupt,
@@ -215,7 +215,7 @@ begin
             --IN
             clk            => clk,
 
-            in_flush       => fsi_if_flush,            --> TODO.TODO
+            in_flush       => fsi_if_flush,            --> decode_stage.out_if_flush
             in_instr       => fs_fdb_instruction_bits, --> fetch_stage.out_instruction_bits
             in_next_adr    => fs_fdb_predicted_address,--> fetch_stage.out_predicted_address
             in_hashed_adr  => fs_fdb_hashed_address,   --> fetch_stage.out_hashed_address
@@ -233,28 +233,35 @@ begin
     decode_stage : entity work.decode_stage
         port map(
             --IN
-            rst                 => rst,                --> main
-            in_zero_flag        => ccr(CCR_ZERO),      --> main
+            clk                     => clk,                --> main
+            rst                     => rst,                --> main
+            in_zero_flag            => ccr(CCR_ZERO),      --> main
 
-            fdb_instr           => fdb_ds_instr,       --> f_d_buffer.out_instr
-            fdb_inc_pc          => fdb_ds_inc_pc,      --> f_d_buffer.out_inc_pc
-            fdb_interrupt       => fdb_ds_interrupt,   --> f_d_buffer.out_interrupt
-            mem_stalling_bit    => ms_stalling_enable, --> memory_stage.stalling_enable
-            in_port             => in_value,           --> main
+            fdb_instr               => fdb_ds_instr,       --> f_d_buffer.out_instr
+            fdb_next_adr            => fdb_ds_next_adr,    --> f_d_buffer.out_next_adr
+            fdb_hashed_adr          => fdb_ds_hashed_adr,  --> f_d_buffer.out_hashed_adr
+            fdb_inc_pc              => fdb_ds_inc_pc,      --> f_d_buffer.out_inc_pc
+            fdb_interrupt           => fdb_ds_interrupt,   --> f_d_buffer.out_interrupt
+            mem_stalling_bit        => ms_stalling_enable, --> memory_stage.stalling_enable
+            in_port                 => in_value,           --> main
             --OUT
-            dxb_alu_op          => ds_dxb_alu_op,      --> d_x_buffer.in_alu_op
-            src2_value          => ds_dxb_src2_value,  --> d_x_buffer.in_src2_value
-            src2_value_selector => ds_dxb_src2_sel,    --> d_x_buffer.in_sel_src2
-            dxb_dest_0          => ds_dxb_dest_0,      --> d_x_buffer.in_dest_0
-            dxb_dest_1          => ds_dxb_dest_1,      --> d_x_buffer.in_dest_1
-            dxb_opcode          => ds_dxb_opcode,      --> d_x_buffer.in_opcode
-            dxb_r_w             => ds_dxb_r_w,         --> d_x_buffer.in_r_w
-            dxb_interrupt       => ds_dxb_interrupt,   --> d_x_buffer.in_interrupt
+            dxb_alu_op              => ds_dxb_alu_op,      --> d_x_buffer.in_alu_op
+            src2_value              => ds_dxb_src2_value,  --> d_x_buffer.in_src2_value
+            src2_value_selector     => ds_dxb_src2_sel,    --> d_x_buffer.in_sel_src2
+            dxb_dest_0              => ds_dxb_dest_0,      --> d_x_buffer.in_dest_0
+            dxb_dest_1              => ds_dxb_dest_1,      --> d_x_buffer.in_dest_1
+            dxb_opcode              => ds_dxb_opcode,      --> d_x_buffer.in_opcode
+            dxb_r_w                 => ds_dxb_r_w,         --> d_x_buffer.in_r_w
+            dxb_interrupt           => ds_dxb_interrupt,   --> d_x_buffer.in_interrupt
 
-            rf_src0_adr         => ds_rf_src0_adr,     --> main
-            rf_src1_adr         => ds_rf_src1_adr,     --> main
-            rf_br_io_enbl       => ds_rf_br_io_enbl,   --> main
-            hlt_out             => ds_dxb_hlt          --> main
+            out_if_flush            => fsi_if_flush,       --> fetch_stage.in_if_flush
+            out_branch_adr_update   => fsi_branch_address, --> fetch_stage.in_branch_address
+            out_feedback_hashed_adr => fsi_hashed_address, --> fetch_stage.in_hashed_address
+
+            rf_src0_adr             => ds_rf_src0_adr,     --> main
+            rf_src1_adr             => ds_rf_src1_adr,     --> main
+            rf_br_io_enbl           => ds_rf_br_io_enbl,   --> main
+            hlt_out                 => ds_dxb_hlt          --> main
         );
 
     reg_file : entity work.reg_file

@@ -7,7 +7,7 @@ entity decode_stage is
     port (
 
         --inputs from main entity
-        --clk                     : in  std_logic;
+        clk                     : in  std_logic;
         rst                     : in std_logic;
 
         mem_stalling_bit        : in  std_logic; -- signal from memory stage used in rti or interrupt operations
@@ -16,32 +16,19 @@ entity decode_stage is
 
         -- From F/D Buffer
         fdb_instr               : in  std_logic_vector(31 downto 0);
-        --fdb_next_adr            : in  std_logic_vector(31 downto 0);
+        fdb_next_adr            : in  std_logic_vector(31 downto 0);
         fdb_inc_pc              : in  std_logic_vector(31 downto 0);
-        --fdb_hashed_adr          : in  std_logic_vector(3  downto 0);
+        fdb_hashed_adr          : in  std_logic_vector(3  downto 0);
         fdb_interrupt           : in  std_logic;
-        --fdb_reset               : in  std_logic;
 
-        ------------------- assume the values will be read from main and decoder just selects the registers
-        -- From Register File
-        --rf_op0_value            : in  std_logic_vector(31 downto 0); -- OP
-        --rf_op1_value            : in  std_logic_vector(31 downto 0);
-
-        --out_if_flush            : out std_logic;
-        --out_branch_adr_update   : out std_logic_vector(31 downto 0);
-        --out_feedback_hashed_adr : out std_logic_vector(3  downto 0);
+        out_if_flush            : out std_logic;
+        out_branch_adr_update   : out std_logic_vector(31 downto 0);
+        out_feedback_hashed_adr : out std_logic_vector(3  downto 0);
 
         -- To D/X Buffer
         dxb_alu_op              : out std_logic_vector(3  downto 0);
-
-        -- main must set these values
-        --dxb_operand0            : out std_logic_vector(31 downto 0);
-        --dxb_operand1            : out std_logic_vector(31 downto 0);
         dxb_dest_0              : out std_logic_vector(3  downto 0);
         dxb_dest_1              : out std_logic_vector(3  downto 0);
-        --dxb_dest_1_value        : out std_logic_vector(31 downto 0);
-        --dxb_dest_2_value        : out std_logic_vector(31 downto 0);
-
         dxb_opcode              : out std_logic_vector(6  downto 0);
         dxb_r_w                 : out std_logic_vector(1  downto 0);
         dxb_interrupt           : out std_logic;
@@ -54,7 +41,6 @@ entity decode_stage is
         src2_value_selector     : out std_logic;
         hlt_out                 : out std_logic;
         rf_br_io_enbl           : out std_logic_vector(1  downto 0) -- STATE
-        --rf_rst                  : out std_logic                     --will_see
     );
 end entity;
 
