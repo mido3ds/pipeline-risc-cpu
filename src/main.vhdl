@@ -246,6 +246,7 @@ begin
 
             rf_src0_adr         => ds_rf_src0_adr,     --> main
             rf_src1_adr         => ds_rf_src1_adr,     --> main
+            rf_br_io_enbl       => ds_rf_br_io_enbl,   --> main
             hlt_out             => ds_dxb_hlt          --> main
         );
 
@@ -287,7 +288,6 @@ begin
     rf_wb0_value     <= tb_rf_dst0_value when tb_controls = '1' else ws_rf_dest_reg_1_value; --> wb_stage.dest_reg_1_value
 
     rf_br_io_enbl    <= "00" when tb_controls = '1' else ds_rf_br_io_enbl;
-    ds_rf_br_io_enbl <= "00"; -- TODO: ds_rf_br_io_enbl is removed from decode_stage, remove this line when it gets back
     --OUT
     rf_tb_src0_value <= rf_dxb_op0_value;
 

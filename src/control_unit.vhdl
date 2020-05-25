@@ -21,7 +21,7 @@ entity control_unit is
         --don't forget the sign extend ya evram!
         rsrc2_val     : out std_logic_vector(31 downto 0);
         op2_sel       : out std_logic;
-        --branch_io     : out std_logic_vector(1  downto 0);
+        branch_io     : out std_logic_vector(1  downto 0);
         --branch_enable : out std_logic;
         r_w_control   : out std_logic_vector(1  downto 0);
         hlt           : out std_logic
@@ -46,36 +46,42 @@ architecture rtl of control_unit is
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= in_port_value;
                             op2_sel                      <= '1';
+                            branch_io                    <= "00";
 
                         when "001"   =>                 -- NOT
                             aluop                        <= ALUOP_NOT;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
+                            branch_io                    <= "00";
 
                         when "010"   =>                 -- INC
                             aluop                        <= ALUOP_INC;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
+                            branch_io                    <= "00";
 
                         when "011"   =>                 -- DEC
                             aluop                        <= ALUOP_DEC;
                             rdst1_sel                    <= '0' & ib(23 downto 21);
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
+                            branch_io                    <= "00";
 
                         when "100"   =>                 -- OUT
                             aluop                        <= ALUOP_NOP;
                             rdst1_sel                    <= "1110";
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
+                            branch_io                    <= "10";
 
                         when others =>
                             aluop                        <= ALUOP_NOP;
                             rdst1_sel                    <= "1111";
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
+                            branch_io                    <= "00";
 
                     end case ;
                 when "00000"     =>
@@ -92,6 +98,7 @@ architecture rtl of control_unit is
                                 rsrc2_val                  <= "00000000000000000000000000000000";
                                 op2_sel                    <= '0';
                                 r_w_control                <= "00";
+                                branch_io                  <= "11";
 
                             when "010"   =>
 
@@ -104,6 +111,7 @@ architecture rtl of control_unit is
                                 rsrc2_val                  <= "00000000000000000000000000000000";
                                 op2_sel                    <= '0';
                                 r_w_control                <= "00";
+                                branch_io                  <= "00";
 
                             when "011"  =>
 
@@ -115,6 +123,7 @@ architecture rtl of control_unit is
                                 rsrc2_val                  <= incremented_pc;
                                 op2_sel                    <= '1';
                                 r_w_control                <= "10";
+                                branch_io                  <= "00";
 
                             when "100"   =>
 
@@ -126,6 +135,7 @@ architecture rtl of control_unit is
                                 rsrc2_val                  <= "00000000000000000000000000000000";
                                 op2_sel                    <= '0';
                                 r_w_control                <= "01";
+                                branch_io                  <= "00";
 
                             when "101"   =>
 
@@ -137,6 +147,7 @@ architecture rtl of control_unit is
                                 rsrc2_val                  <= "00000000000000000000000000000000";
                                 op2_sel                    <= '0';
                                 r_w_control                <= "01";
+                                branch_io                  <= "00";
 
                             when others =>
 
@@ -148,6 +159,7 @@ architecture rtl of control_unit is
                                 rsrc2_val                  <= "00000000000000000000000000000000";
                                 op2_sel                    <= '0';
                                 r_w_control                <= "00";
+                                branch_io                  <= "00";
 
                         end case ;
 
@@ -161,6 +173,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_ADD    =>
                     aluop                      <= ALUOP_ADD;
@@ -172,6 +185,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_SUB    =>
                     aluop                      <= ALUOP_SUB;
@@ -183,6 +197,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_AND    =>
                     aluop                      <= ALUOP_AND;
@@ -194,6 +209,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_OR     =>
                     aluop                      <= ALUOP_OR;
@@ -205,6 +221,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_SHL    =>
                     aluop                      <= ALUOP_SHL;
@@ -216,6 +233,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_SHR    =>
                     aluop                      <= ALUOP_SHR;
@@ -227,6 +245,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_IADD   =>
                     aluop                      <= ALUOP_ADD;
@@ -238,6 +257,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_PUSH   =>
                     aluop                      <= ALUOP_DEC2;
@@ -249,6 +269,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "10";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_POP    =>
 
@@ -261,6 +282,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "01";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_LDM    =>
 
@@ -273,6 +295,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '1';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_LDD    =>
 
@@ -285,6 +308,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '1';
                     r_w_control                <= "01";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
 
                 when OPC_STD    =>
 
@@ -297,6 +321,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '1';
                     r_w_control                <= "10";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
                 when "01110"    =>
                     aluop                      <= ALUOP_NOP;
                     rsrc1_sel                  <= "1111";
@@ -307,6 +332,8 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '1';
+                    branch_io                  <= "00";
+
                 when others     =>
                     aluop                      <= ALUOP_NOP;
                     rsrc1_sel                  <= "1111";
@@ -317,6 +344,7 @@ architecture rtl of control_unit is
                     op2_sel                    <= '0';
                     r_w_control                <= "00";
                     hlt                        <= '0';
+                    branch_io                  <= "00";
             end case ;
         end process;
     -----------------------------------------------------------------------------------------------------------------------------
