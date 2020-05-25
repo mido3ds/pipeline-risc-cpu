@@ -240,7 +240,7 @@ begin
             src0_adr <= to_vec(adr, src0_adr'length);
             wait until rising_edge(clk);
 
-            check_equal(out_src0_value, expected, "test_reg failed");
+            check_equal(out_src0_value, expected, "test_reg failed, adr=" & to_str(adr));
             clear_signals;
         end procedure;
 
@@ -838,7 +838,7 @@ begin
 
             test_reg(2, to_vec('1', 32));
             test_reg(8, to_vec(2 ** 11 - 4, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(1, 16));
+            test_data_mem(2 ** 11 - 2, to_vec(3, 16));
         end if;
 
         if run("ret_r4") then
@@ -898,7 +898,7 @@ begin
 
             test_reg(2, to_vec(50, 32));
             test_reg(8, to_vec(2 ** 11 - 2, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(1, 16));
+            test_data_mem(2 ** 11 - 2, to_vec(3, 16));
         end if;
 
         if run("reset") then
