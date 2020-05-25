@@ -10,7 +10,7 @@ entity decode_stage is
         --clk                     : in  std_logic;
         rst                     : in std_logic;
 
-        mem_stalling_bit        : in  std_logic;                               -- signal from memory stage used in rti or interrupt operations
+        mem_stalling_bit        : in  std_logic; -- signal from memory stage used in rti or interrupt operations
         in_zero_flag            : in  std_logic;
         in_port                 : in  std_logic_vector(31 downto 0);
 
@@ -21,9 +21,8 @@ entity decode_stage is
         --fdb_hashed_adr          : in  std_logic_vector(3  downto 0);
         fdb_interrupt           : in  std_logic;
         --fdb_reset               : in  std_logic;
-        --fdb_inst_length         : in  std_logic;                     -- TODO: use this
 
-            ------------------- assume the values will be read from main and decoder just selects the registers
+        ------------------- assume the values will be read from main and decoder just selects the registers
         -- From Register File
         --rf_op0_value            : in  std_logic_vector(31 downto 0); -- OP
         --rf_op1_value            : in  std_logic_vector(31 downto 0);

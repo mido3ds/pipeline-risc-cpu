@@ -53,10 +53,10 @@ begin
                     if_flush <= '1';
                 end if;
             end if;
-            -----------I DON'T KNOW WHAT TO DO WITH THE HASHED ADDRESS------
+            --pass the hashed address
             feedback_hashed_adr <= hashed_adr;
         else
-            --as long as we are not involved...
+            --as long as we are not involved
             if_flush <= '0';
         end if;
     end process;

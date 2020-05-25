@@ -9,7 +9,6 @@ entity f_d_buffer is
         in_flush        : in std_logic;
         --in_stall        : in std_logic;
         in_instr        : in std_logic_vector(31 downto 0);
-        --in_inst_length  : in std_logic;
         --in_next_adr     : in std_logic_vector(31 downto 0);
         in_inc_pc       : in std_logic_vector(31 downto 0);
         --in_hashed_adr   : in std_logic_vector(3 downto 0);

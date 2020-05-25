@@ -29,7 +29,7 @@ vu.add_library("project").add_source_files(
     [*get_files(src_path), *get_files(test_path)]
 )
 
-vu.set_compile_option("ghdl.a_flags", ghdl_elab_flags)
+vu.set_compile_option("ghdl.flags", ghdl_elab_flags)
 vu.set_sim_option('ghdl.elab_flags', ghdl_elab_flags)
 vu.set_sim_option('ghdl.sim_flags', ghdl_sim_flags)
 vu.set_sim_option('ghdl.elab_e', True)
