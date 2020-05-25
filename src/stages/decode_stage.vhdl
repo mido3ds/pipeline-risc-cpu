@@ -110,6 +110,12 @@ begin
             src2_value_selector     <= src_2_val_enable;
             src2_value              <= src_2_val;
             dxb_r_w                 <= r_w_control;
+            -- JZ instruction
+            if fdb_instr(31 downto 24) = "00000001" then
+                br_unit_enable <= '1';
+            elsif br_unit_enable = '1' then
+                br_unit_enable <= '0';
+            end if;
         end if;
     end process;
 
