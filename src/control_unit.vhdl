@@ -5,26 +5,22 @@ use work.common.all;
 
 entity control_unit is
     port (
-        ib            : in  std_logic_vector(31 downto 0);
-        in_port_value : in  std_logic_vector(31 downto 0);                  -- the in port value to be used in case of IN operation
-        incremented_pc: in  std_logic_vector(31 downto 0);
-        intr_bit      : in  std_logic;
-        --interrupt           : in std_logic;
-        --reset               : in std_logic;
+        ib             : in  std_logic_vector(31 downto 0);
+        in_port_value  : in  std_logic_vector(31 downto 0); -- the in port value to be used in case of IN operation
+        incremented_pc : in  std_logic_vector(31 downto 0);
+        intr_bit       : in  std_logic;
 
-        --OpCode              : out std_logic_vector(6 downto 0);
-        aluop         : out std_logic_vector(3  downto 0);
-        rsrc1_sel     : out std_logic_vector(3  downto 0);
-        rsrc2_sel     : out std_logic_vector(3  downto 0);
-        rdst1_sel     : out std_logic_vector(3  downto 0);
-        rdst2_sel     : out std_logic_vector(3  downto 0);
-        --don't forget the sign extend ya evram!
-        rsrc2_val     : out std_logic_vector(31 downto 0);
-        op2_sel       : out std_logic;
-        branch_io     : out std_logic_vector(1  downto 0);
-        --branch_enable : out std_logic;
-        r_w_control   : out std_logic_vector(1  downto 0);
-        hlt           : out std_logic
+        aluop          : out std_logic_vector(3  downto 0);
+        rsrc1_sel      : out std_logic_vector(3  downto 0);
+        rsrc2_sel      : out std_logic_vector(3  downto 0);
+        rdst1_sel      : out std_logic_vector(3  downto 0);
+        rdst2_sel      : out std_logic_vector(3  downto 0);
+
+        rsrc2_val      : out std_logic_vector(31 downto 0);
+        op2_sel        : out std_logic;
+        branch_io      : out std_logic_vector(1  downto 0);
+        r_w_control    : out std_logic_vector(1  downto 0);
+        hlt            : out std_logic
     );
 end entity;
 
@@ -88,8 +84,7 @@ architecture rtl of control_unit is
                         hlt                              <= '0';
                         case( ib(26 downto 24) ) is
 
-                            when "001"    =>
-                                --null;           -- TODO
+                            when "001"    =>               -- JZ
                                 aluop                      <= ALUOP_NOP;
                                 rsrc1_sel                  <= "1111";
                                 rsrc2_sel                  <= "1111";
@@ -100,9 +95,7 @@ architecture rtl of control_unit is
                                 r_w_control                <= "00";
                                 branch_io                  <= "11";
 
-                            when "010"   =>
-
-                                --null;          --TODO
+                            when "010"   =>                -- JMP
                                 aluop                      <= ALUOP_NOP;
                                 rsrc1_sel                  <= "1111";
                                 rsrc2_sel                  <= "1111";
@@ -113,8 +106,7 @@ architecture rtl of control_unit is
                                 r_w_control                <= "00";
                                 branch_io                  <= "00";
 
-                            when "011"  =>
-
+                            when "011"  =>                 -- CALL
                                 aluop                      <= ALUOP_DEC2;
                                 rsrc1_sel                  <= SP;
                                 rsrc2_sel                  <= "1111";
@@ -125,8 +117,7 @@ architecture rtl of control_unit is
                                 r_w_control                <= "10";
                                 branch_io                  <= "00";
 
-                            when "100"   =>
-
+                            when "100"   =>                -- RET
                                 aluop                      <= ALUOP_INC2;
                                 rsrc1_sel                  <= SP;
                                 rsrc2_sel                  <= "1111";
@@ -137,8 +128,7 @@ architecture rtl of control_unit is
                                 r_w_control                <= "01";
                                 branch_io                  <= "00";
 
-                            when "101"   =>
-
+                            when "101"   =>                -- RTI
                                 aluop                      <= ALUOP_INC2;
                                 rsrc1_sel                  <= SP;
                                 rsrc2_sel                  <= "1111";
@@ -150,7 +140,6 @@ architecture rtl of control_unit is
                                 branch_io                  <= "00";
 
                             when others =>
-
                                 aluop                      <= ALUOP_NOP;
                                 rsrc1_sel                  <= "1111";
                                 rsrc2_sel                  <= "1111";

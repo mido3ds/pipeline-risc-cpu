@@ -14,7 +14,6 @@ entity branch_adr is
         --proposed by predictor
         hashed_adr          : in std_logic_vector(3 downto 0);
         --enable this unit
-        --opcode              : in std_logic_vector(6 downto 0);
         branch_enable       : in std_logic;
 
         --only zero flag is needed
@@ -28,13 +27,6 @@ end entity;
 
 architecture rtl of branch_adr is
 begin
-    -- 0.6.3 Logic
-    -- Check if OpCode is of a conditional branch instruction, if true:
-    --     - Check whether PC Next Address is equal to Instruction Address
-    --     - If true:
-    --          IF Flush = 0, Branch Address = Instruction Address
-    --     - If false:
-    --          IF Flush = 1, Branch Address = Instruction Address
     process (branch_enable)
     begin
         if branch_enable = '1' then
