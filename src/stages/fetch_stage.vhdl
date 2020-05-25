@@ -179,7 +179,7 @@ begin
                 -- fetch stage stall
                 null; -- do nothing and preserve current PC
 
-            elsif len_bit = '0' and mem_data_out(14 downto 8) = "0000011" and mem_data_out(14 downto 8) = "0000010" then
+            elsif len_bit = '0' and (mem_data_out(14 downto 8) = "0000011" or mem_data_out(14 downto 8) = "0000010") then
                 -- call and jump instructions
                 if call_state = '0' then
                     -- get value from register file
