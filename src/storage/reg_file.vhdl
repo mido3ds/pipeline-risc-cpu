@@ -14,12 +14,10 @@ entity reg_file is
         wb0_value   : in std_logic_vector(31 downto 0); -- WB
         wb1_value   : in std_logic_vector(31 downto 0);
 
-        in_value    : in std_logic_vector(31 downto 0); -- IO
-
         rst         : in std_logic;
         clk         : in std_logic;
 
-        br_io_enbl  : in std_logic_vector(1 downto 0);   -- STATE
+        br_io_enbl  : in std_logic_vector(1 downto 0);   -- SPECIALS
 
         op0_value   : out std_logic_vector(31 downto 0); -- OP
         op1_value   : out std_logic_vector(31 downto 0);
@@ -36,7 +34,7 @@ architecture rtl of reg_file is
     signal r0, r1, r2, r3, r4, r5, r6, r7 : std_logic_vector(31 downto 0);
     signal sp                             : std_logic_vector(10 downto 0);
 begin
-    process (dst0_adr, dst1_adr, src0_adr, src1_adr, fetch_adr, wb0_value, wb1_value, in_value, rst, clk, br_io_enbl)
+    process (dst0_adr, dst1_adr, src0_adr, src1_adr, fetch_adr, wb0_value, wb1_value, rst, clk, br_io_enbl)
         procedure out_reg(adr : std_logic_vector(3 downto 0); signal o : out std_logic_vector(31 downto 0)) is
         begin
             case adr is
@@ -77,28 +75,20 @@ begin
             end loop;
             in_reg(to_vec(8, 4), to_vec(0, 32 - 11) & to_vec(-2, 11));
         elsif falling_edge(clk) then -- read
+            out_reg(src0_adr, op0_value);
+            out_reg(src1_adr, op1_value);
             case br_io_enbl is
-                when "00" =>
-                    out_reg(src0_adr, op0_value);
-                    out_reg(src1_adr, op1_value);
-                when "01" =>
-                    null;
-                when "10" =>
+                when "10" => -- OUT
                     out_reg(src0_adr, out_value);
-                when others =>
+                when "11" => -- Branch
                     out_reg(src0_adr, instr_adr);
+                when others =>
+                    null;
             end case;
             out_reg(fetch_adr, fetch_value);
         elsif rising_edge(clk) then -- write
-            case br_io_enbl is
-                when "00" =>
-                    in_reg(dst0_adr, wb0_value);
-                    in_reg(dst1_adr, wb1_value);
-                when "01" =>
-                    in_reg(dst0_adr, in_value);
-                when others =>
-                    null;
-            end case;
+            in_reg(dst0_adr, wb0_value);
+            in_reg(dst1_adr, wb1_value);
         end if;
     end process;
 end architecture;

@@ -264,8 +264,6 @@ begin
             wb0_value   => rf_wb0_value,           --> main
             wb1_value   => ws_rf_dest_reg_2_value, --> wb_stage.dest_reg_2_value
 
-            in_value    => in_value,               --> main
-
             br_io_enbl  => rf_br_io_enbl,          --> main
             --OUT
             op0_value   => rf_dxb_op0_value,       --> d_x_buffer.in_operand0, tb
