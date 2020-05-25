@@ -680,7 +680,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(2, to_vec(50, 32));
+            test_reg(2, to_vec(16#50#, 32));
         end if;
 
         if run("ldd_r3_20") then
@@ -695,7 +695,7 @@ begin
             to_vec("0000001000000000"),
             to_vec("0111000000000000")
             ));
-            fill_data_mem(20, to_vec(14, 16) & to_vec(0, 16));
+            fill_data_mem(16#20#, to_vec(14, 16) & to_vec(0, 16));
 
             reset_cpu;
             wait until hlt = '1';
@@ -720,7 +720,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_data_mem(36, to_vec(14, 16) & to_vec(0, 16));
+            test_data_mem(16#36#, to_vec(14, 16) & to_vec(0, 16));
         end if;
 
         if run("jz_r0_true") then
@@ -780,7 +780,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(2, to_vec(50, 32));
+            test_reg(2, to_vec(16#50#, 32));
         end if;
 
         if run("jmp_r3") then
@@ -896,7 +896,7 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(2, to_vec(50, 32));
+            test_reg(2, to_vec(16#50#, 32));
             test_reg(8, to_vec(2 ** 11 - 2, 32));
             test_data_mem(2 ** 11 - 2, to_vec(3, 16));
         end if;
