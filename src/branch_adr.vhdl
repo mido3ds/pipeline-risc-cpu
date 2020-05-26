@@ -13,8 +13,8 @@ entity branch_adr is
         incr_pc_adr         : in std_logic_vector(31 downto 0);
         --proposed by predictor
         hashed_adr          : in std_logic_vector(3 downto 0);
-        --enable this unit
-        branch_enable       : in std_logic;
+        --enable this unit (through opcode)
+        opcode              : in std_logic_vector(7 downto 0);
 
         --only zero flag is needed
         zero_flag           : in std_logic;
@@ -27,9 +27,9 @@ end entity;
 
 architecture rtl of branch_adr is
 begin
-    process (branch_enable)
+    process (opcode, instr_adr)
     begin
-        if branch_enable = '1' then
+        if opcode = OPC_JZ then
             if zero_flag = '1' then
                 branch_adr_correct <= instr_adr;
                 if (instr_adr = next_pc_adr) then

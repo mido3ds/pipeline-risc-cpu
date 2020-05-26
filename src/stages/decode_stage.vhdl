@@ -53,7 +53,6 @@ architecture rtl of decode_stage is
     signal src_1                : std_logic_vector(3  downto 0)  := (others => '0');
     signal src_2_val            : std_logic_vector(31 downto 0)  := (others => '0');
     signal src_2_val_enable     : std_logic                      := '0';
-    signal br_unit_enable       : std_logic                      := '0';
 begin
     control_unit_0 : entity work.control_unit(rtl)
         port map(
@@ -79,7 +78,7 @@ begin
             instr_adr           => instr_adr,
             incr_pc_adr         => fdb_inc_pc,
             hashed_adr          => fdb_hashed_adr,
-            branch_enable       => br_unit_enable,
+            opcode              => fdb_instr(31 downto 24),
             zero_flag           => in_zero_flag,
             if_flush            => out_if_flush,
             branch_adr_correct  => out_branch_adr_update,
@@ -110,12 +109,6 @@ begin
             src2_value_selector     <= src_2_val_enable;
             src2_value              <= src_2_val;
             dxb_r_w                 <= r_w_control;
-            -- JZ instruction
-            if fdb_instr(31 downto 24) = "00000001" then
-                br_unit_enable <= '1';
-            elsif br_unit_enable = '1' then
-                br_unit_enable <= '0';
-            end if;
         end if;
     end process;
 

@@ -86,7 +86,7 @@ architecture rtl of control_unit is
 
                             when "001"    =>               -- JZ
                                 aluop                      <= ALUOP_NOP;
-                                rsrc1_sel                  <= "1111";
+                                rsrc1_sel                  <= '0' & ib(23 downto 21);
                                 rsrc2_sel                  <= "1111";
                                 rdst1_sel                  <= "1111";
                                 rdst2_sel                  <= "1111";
