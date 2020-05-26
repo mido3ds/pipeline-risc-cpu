@@ -503,13 +503,13 @@ begin
             to_vec("0001000101001100"),
             to_vec("0111000000000000")
             ));
-            set_reg(2, to_vec(12, 32));
-            set_reg(3, to_vec(-100, 32));
+            set_reg(1, to_vec(12, 32));
+            set_reg(2, to_vec(-100, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(1, to_vec(-88, 32));
+            test_reg(3, to_vec(-88, 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
         end if;
@@ -525,13 +525,13 @@ begin
             to_vec("0001101001110000"),
             to_vec("0111000000000000")
             ));
+            set_reg(2, to_vec(12, 32));
             set_reg(3, to_vec(12, 32));
-            set_reg(4, to_vec(12, 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(2, to_vec(88, 32));
+            test_reg(4, to_vec(0, 32));
             check_equal(ccr_out(CCR_ZERO), '1', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
         end if;
@@ -547,13 +547,13 @@ begin
             to_vec("0010001110010100"),
             to_vec("0111000000000000")
             ));
-            set_reg(4, to_vec(X"0F0F0F0F", 32));
-            set_reg(5, to_vec(X"0F00000F", 32));
+            set_reg(3, to_vec(X"0F0F0F0F", 32));
+            set_reg(4, to_vec(X"0F00000F", 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(3, to_vec(X"0F00000F", 32));
+            test_reg(5, to_vec(X"0F00000F", 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '0', "ccr(neg)");
         end if;
@@ -569,13 +569,13 @@ begin
             to_vec("0010101110010100"),
             to_vec("0111000000000000")
             ));
-            set_reg(4, to_vec(X"0F0F0F0F", 32));
-            set_reg(5, to_vec(X"FFF0000F", 32));
+            set_reg(3, to_vec(X"0F0F0F0F", 32));
+            set_reg(4, to_vec(X"FFF0000F", 32));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(3, to_vec(X"FFFF0F0F", 32));
+            test_reg(5, to_vec(X"FFFF0F0F", 32));
             check_equal(ccr_out(CCR_ZERO), '0', "ccr(zero)");
             check_equal(ccr_out(CCR_NEG), '1', "ccr(neg)");
         end if;
