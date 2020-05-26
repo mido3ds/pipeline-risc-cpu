@@ -66,7 +66,7 @@ architecture rtl of fetch_stage is
     signal jz_state     : std_logic                     := '0';
 
     --> branch_pred
-    signal br_pred_en   : std_logic                     := '0';
+    signal br_pred_en   : std_logic_vector(1 downto 0)  := (others => '0');
     signal hashed_adr   : std_logic_vector(3 downto 0)  := (others => '0');
     signal br_pred      : std_logic                     := '0';
 
@@ -88,7 +88,7 @@ begin
             rst             => rst,
             prev_hashed_adr => in_hashed_address,
             update          => in_if_flush,
-            enable          => br_pred_en,
+            enable          => br_pred_en(0),
             cur_hashed_adr  => hashed_adr,
             taken           => br_pred
         );
@@ -124,7 +124,7 @@ begin
             int_state             <= (others => '0');
             call_state            <= '0';
             jz_state              <= '0';
-            br_pred_en            <= '0';
+            br_pred_en            <= "00";
             hashed_adr            <= (others => '0');
             rst_state             <= "01";
 
@@ -213,13 +213,13 @@ begin
                         pc                                  <= to_vec(to_int(pc) + 1, pc'length);
                         out_predicted_address               <= to_vec(to_int(pc) + 1, pc'length);
                         out_instruction_bits(31 downto 16)  <= mem_data_out;
-                        br_pred_en                          <= '1';
+                        br_pred_en                          <= "11";
                         jz_state                            <= '0';
                     else
                         pc                                  <= in_reg_value;
                         out_predicted_address               <= in_reg_value;
                         out_instruction_bits(31 downto 16)  <= mem_data_out;
-                        br_pred_en                          <= '1';
+                        br_pred_en                          <= "11";
                         jz_state                            <= '0';
                     end if;
                 end if;
@@ -245,8 +245,10 @@ begin
             end if;  
             
             -- reset branch prediction update enable
-            if br_pred_en = '1' then
-                br_pred_en <= '0';
+            if br_pred_en = "11" then
+                br_pred_en <= "01";
+            elsif br_pred_en = "01" then
+                br_pred_en <= "00";
             end if;
 
         end if;
