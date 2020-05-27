@@ -17,7 +17,6 @@ entity d_x_buffer is
 
         in_src_0       : in std_logic_vector(4 - 1 downto 0);
         in_src_1       : in std_logic_vector(4 - 1 downto 0);
-        --in_dest_value  : in std_logic_vector(32 - 1 downto 0);
         in_opcode      : in std_logic_vector(7 - 1 downto 0);
         in_r_w         : in std_logic_vector(1 downto 0);
         in_interrupt   : in std_logic;
@@ -33,7 +32,6 @@ entity d_x_buffer is
 
         out_src_0      : out std_logic_vector(4 - 1 downto 0);
         out_src_1      : out std_logic_vector(4 - 1 downto 0);
-        -- out_dest_value : out std_logic_vector(32 - 1 downto 0);
         out_opcode     : out std_logic_vector(7 - 1 downto 0);
         out_r_w        : out std_logic_vector(1 downto 0);
         out_interrupt  : out std_logic;
@@ -49,14 +47,12 @@ architecture rtl of d_x_buffer is
     signal destination_1 : std_logic_vector(4 - 1 downto 0);
     signal src_0         : std_logic_vector(4 - 1 downto 0);
     signal src_1         : std_logic_vector(4 - 1 downto 0);
-    --signal dest_value    : std_logic_vector(32 - 1 downto 0);
     signal opcode        : std_logic_vector(7 - 1 downto 0);
     signal r_w           : std_logic_vector(1 downto 0);
     signal interrupt     : std_logic;
     signal alu_op        : std_logic_vector(3 downto 0);
     signal hlt           : std_logic;
 begin
-    --process (in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_dest_value, in_opcode, in_r_w, in_interrupt)
     process (in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt, in_hlt)
     begin
         if in_stall = '0' then
@@ -67,7 +63,6 @@ begin
             destination_1 <= in_dest_1;
             src_0         <= in_src_0;
             src_1         <= in_src_1;
-            --dest_value    <= in_dest_value;
             opcode        <= in_opcode;
             r_w           <= in_r_w;
             interrupt     <= in_interrupt;
@@ -93,7 +88,7 @@ begin
 
             out_src_0      <= src_0;
             out_src_1      <= src_1;
-            --out_dest_value <= dest_value;
+
             out_opcode     <= opcode;
             out_r_w        <= r_w;
             out_interrupt  <= interrupt;
