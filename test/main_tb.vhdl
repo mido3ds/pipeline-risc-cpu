@@ -720,7 +720,8 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_data_mem(16#36#, to_vec(14, 16) & to_vec(0, 16));
+            test_data_mem(16#36#, to_vec(0, 16));
+            test_data_mem(16#37#, to_vec(14, 16));
         end if;
 
         if run("jz_r0_true") then
