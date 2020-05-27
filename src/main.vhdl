@@ -388,21 +388,21 @@ begin
     hdu : entity work.hdu
         port map(
             --IN
-            rst           => rst,                --> main
+            rst              => rst,                             --> main
 
-            opcode_decode    => ds_dxb_opcode,                            --> TODO.TODO replace U with its signal
-            opcode_execute   => xs_xmb_opcode,                            --> TODO.TODO replace U with its signal
-            opcode_memory    => ms_mwb_opcode,                            --> TODO.TODO replace U with its signal
-            decode_src_reg_1 => xs_hdu_src_0,                           --> TODO.TODO replace U with its signal
-            decode_src_reg_2 => xs_hdu_src_1,                           --> TODO.TODO replace U with its signal
-            exe_dst_reg_1    => xmb_ms_destination_0,                     --> TODO.TODO replace U with its signal
-            exe_dst_reg_2    => xmb_ms_destination_1,                     --> TODO.TODO replace U with its signal
-            mem_dst_reg_1    => xmb_ms_destination_0,                        --> TODO.TODO replace U with its signal
-            mem_dst_reg_2    => xmb_ms_destination_1,                        --> TODO.TODO replace U with its signal
+            opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
+            opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
+            opcode_memory    => ms_mwb_opcode,                   --> memory_stage.opCode_out
+            decode_src_reg_1 => xs_hdu_src_0,                    --> d_x_buffer.out_src_0
+            decode_src_reg_2 => xs_hdu_src_1,                    --> d_x_buffer.out_src_1
+            exe_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
+            exe_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
+            mem_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
+            mem_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
             --OUT
-            operand_1_select => hdu_xs_op_1_sel, --> execute_stage.alu_op_1_selector
-            operand_2_select => hdu_xs_op_2_sel, --> execute_stage.alu_op_1_selector
-            Stall_signal     => hdu_stall        --> fetch_stage,f_d_buffer,d_x_buffer
+            operand_1_select => hdu_xs_op_1_sel,                 --> execute_stage.alu_op_1_selector
+            operand_2_select => hdu_xs_op_2_sel,                 --> execute_stage.alu_op_2_selector
+            Stall_signal     => hdu_stall                        --> fetch_stage(f_d_buffer, d_x_buffer).in_stall
         );
 
     x_m_buffer : entity work.x_m_buffer
