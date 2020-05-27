@@ -115,7 +115,7 @@ begin
     );
 
 
-    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address, hlt_in)
+    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address, hlt_in )
     begin
         if rst = '1' then
             memory_out                         <= (others => '0');
@@ -130,7 +130,7 @@ begin
             pc_selector                        <= '0';
             stalling_enable                    <= '0';
             hlt_out                            <= '0';
-        elsif rising_edge(clk) then
+        else
 
             if (pc_sel = '1') then
                 pc_selector                    <= pc_sel;

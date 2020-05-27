@@ -134,7 +134,7 @@ begin
                 ccr_out                     <= (others => '0');
                 update_ccr                  <= '0';
                 --operation                   <= ALUOP_NOP;
-            elsif (opCode_in = "1100" or opCode_in = "1101" ) then
+            elsif (opCode_in(6 downto 3) = "1100" or opCode_in(6 downto 3) = "1101" ) then
                 memory_address              <= operand_2;
                 memory_input                <= operand_1;
                 alu_output                  <= (others => '0');

@@ -302,8 +302,8 @@ architecture rtl of control_unit is
                 when OPC_STD    =>
 
                     aluop                      <= ALUOP_NOP;
-                    rsrc1_sel                  <= "1111";
-                    rsrc2_sel                  <= '0' & ib(26 downto 24);
+                    rsrc1_sel                  <= '0' & ib(26 downto 24);
+                    rsrc2_sel                  <= "1111";
                     rdst1_sel                  <= "1111";
                     rdst2_sel                  <= "1111";
                     rsrc2_val                  <= X"000" & ib(23 downto 4);
