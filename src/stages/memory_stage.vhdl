@@ -22,13 +22,10 @@ entity memory_stage is
         opCode_in                          : in  std_logic_vector(6  downto 0);
         hlt_in                             : in  std_logic;
 
-        --stalling                           : in  std_logic;
-
         -- used for pc navigator
         int_bit_in                         : in  std_logic;
 
 
-        --stack_pointer               : out std_logic_vector(31 downto 0);
         memory_out                         : out std_logic_vector(31 downto 0);
         alu_output                         : out std_logic_vector(31 downto 0);
         opCode_out                         : out std_logic_vector(6  downto 0);

@@ -62,7 +62,6 @@ architecture rtl of main is
     --> fetch_stage
     signal fsi_if_flush                  : std_logic;
     signal fsi_parallel_load_pc_selector : std_logic;
-    signal fsi_loaded_pc_value           : std_logic_vector(31 downto 0);
     signal fsi_branch_address            : std_logic_vector(31 downto 0);
     signal fsi_hashed_address            : std_logic_vector(3 downto 0);
     signal fsi_out_reg_idx               : std_logic_vector(3 downto 0);
@@ -193,8 +192,8 @@ begin
 
             in_stall                     => hdu_stall,                     --> hdu.Stall_signal
             in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
-            in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> TODO.TODO
-            in_loaded_pc_value           => fsi_loaded_pc_value,           --> TODO.TODO
+            in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> memory_stage.pc_selector
+            in_loaded_pc_value           => ms_mwb_mem_input,              --> memory_stage.memory_out
             in_branch_address            => fsi_branch_address,            --> decode_stage.out_branch_adr_update
             in_hashed_address            => fsi_hashed_address,            --> decode_stage.out_feedback_hashed_adr
             in_reg_value                 => fsi_in_reg_value,              --> reg_file.fetch_value
@@ -439,41 +438,41 @@ begin
         port map(
             --IN
             clk                        => clk,
-            rst                        => rst,                     --> main
+            rst                        => rst,                           --> main
 
-            ccr_in                     => ccr,                     --> main
-            memory_address             => xmb_ms_mem_adr,          --> x_m_buffer.out_mem_adr
-            memory_in                  => xmb_ms_mem_input,        --> x_m_buffer.out_mem_inp
-            r_w_control                => xmb_ms_r_w,              --> x_m_buffer.out_r_w
-            alu_result                 => xmb_ms_xs_aluout,        --> x_m_buffer.out_aluout
-            destination_register_1_in  => xmb_ms_destination_0,    --> x_m_buffer.out_destination_0
-            destination_register_2_in  => xmb_ms_destination_1,    --> x_m_buffer.out_destination_1
-            destination_1_value        => xmb_ms_dest_value_0,     --> x_m_buffer.out_dest_value_0
-            destination_2_value        => xmb_ms_dest_value_1,     --> x_m_buffer.out_dest_value_1
-            opCode_in                  => xmb_ms_opcode,           --> x_m_buffer.out_opcode
-            int_bit_in                 => xmb_ms_interrupt,        --> x_m_buffer.out_interrupt
-            hlt_in                     => xmb_ms_hlt,              --> x_m_buffer.out_hlt
+            ccr_in                     => ccr,                           --> main
+            memory_address             => xmb_ms_mem_adr,                --> x_m_buffer.out_mem_adr
+            memory_in                  => xmb_ms_mem_input,              --> x_m_buffer.out_mem_inp
+            r_w_control                => xmb_ms_r_w,                    --> x_m_buffer.out_r_w
+            alu_result                 => xmb_ms_xs_aluout,              --> x_m_buffer.out_aluout
+            destination_register_1_in  => xmb_ms_destination_0,          --> x_m_buffer.out_destination_0
+            destination_register_2_in  => xmb_ms_destination_1,          --> x_m_buffer.out_destination_1
+            destination_1_value        => xmb_ms_dest_value_0,           --> x_m_buffer.out_dest_value_0
+            destination_2_value        => xmb_ms_dest_value_1,           --> x_m_buffer.out_dest_value_1
+            opCode_in                  => xmb_ms_opcode,                 --> x_m_buffer.out_opcode
+            int_bit_in                 => xmb_ms_interrupt,              --> x_m_buffer.out_interrupt
+            hlt_in                     => xmb_ms_hlt,                    --> x_m_buffer.out_hlt
             --OUT
-            alu_output                 => ms_mwb_aluout,           --> m_w_buffer.in_aluout
-            memory_out                 => ms_mwb_mem_input,        --> m_w_buffer.in_mem
-            opCode_out                 => ms_mwb_opcode,           --> m_w_buffer.in_opcode
-            destination_register_1_out => ms_mwb_dest_0_adr,       --> m_w_buffer.in_destination_0
-            destination_register_2_out => ms_mwb_dest_1_adr,       --> m_w_buffer.in_destination_1
-            destination_1_value_out    => ms_mwb_dest_1_value_out, --> m_w_buffer.in_dest_value_0
-            destination_2_value_out    => ms_mwb_dest_2_value_out, --> m_w_buffer.in_dest_value_1
-            ccr_out                    => ms_ccr,                  --> main
-            hlt_out                    => ms_mwb_hlt,              --> m_w_buffer.in_hlt
-            -- pc_selector                => TODO,                   --> TODO.TODO
-            stalling_enable            => ms_stalling_enable,      --> execute_stage.mem_stalling_bit
-            ccr_out_selector           => ms_ccr_sel,              --> main
+            alu_output                 => ms_mwb_aluout,                 --> m_w_buffer.in_aluout
+            memory_out                 => ms_mwb_mem_input,              --> m_w_buffer.in_mem
+            opCode_out                 => ms_mwb_opcode,                 --> m_w_buffer.in_opcode
+            destination_register_1_out => ms_mwb_dest_0_adr,             --> m_w_buffer.in_destination_0
+            destination_register_2_out => ms_mwb_dest_1_adr,             --> m_w_buffer.in_destination_1
+            destination_1_value_out    => ms_mwb_dest_1_value_out,       --> m_w_buffer.in_dest_value_0
+            destination_2_value_out    => ms_mwb_dest_2_value_out,       --> m_w_buffer.in_dest_value_1
+            ccr_out                    => ms_ccr,                        --> main
+            hlt_out                    => ms_mwb_hlt,                    --> m_w_buffer.in_hlt
+            pc_selector                => fsi_parallel_load_pc_selector, --> fetch_stage.in_parallel_load_pc_selector
+            stalling_enable            => ms_stalling_enable,            --> execute_stage.mem_stalling_bit
+            ccr_out_selector           => ms_ccr_sel,                    --> main
 
             -- testing
-            tb_controls                => tb_controls,             --> tb
-            tb_mem_rd                  => tb_dm_rd,                --> tb
-            tb_mem_wr                  => tb_dm_wr,                --> tb
-            tb_mem_data_in             => tb_dm_data_in,           --> tb
-            tb_mem_adr                 => tb_dm_adr,               --> tb
-            tb_mem_data_out            => tb_dm_data_out           --> tb
+            tb_controls                => tb_controls,                   --> tb
+            tb_mem_rd                  => tb_dm_rd,                      --> tb
+            tb_mem_wr                  => tb_dm_wr,                      --> tb
+            tb_mem_data_in             => tb_dm_data_in,                 --> tb
+            tb_mem_adr                 => tb_dm_adr,                     --> tb
+            tb_mem_data_out            => tb_dm_data_out                 --> tb
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr
