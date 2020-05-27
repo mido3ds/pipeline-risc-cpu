@@ -2,5 +2,11 @@
 2
 
 .org 2
-std r3, 6
+inc r2
+nop
+nop
+nop
+nop
+std r2, 20
+ldd r3, 20
 end

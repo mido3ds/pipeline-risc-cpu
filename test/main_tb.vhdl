@@ -655,7 +655,7 @@ begin
             to_vec("0111000000000000")
             ));
             set_reg(8, to_vec(2, 32));
-            fill_data_mem(2, to_vec(0, 16) & to_vec(100, 16));
+            fill_data_mem(2, (to_vec(0, 16), to_vec(100, 16)));
 
             reset_cpu;
             wait until hlt = '1';
@@ -695,12 +695,12 @@ begin
             to_vec("0000001000000000"),
             to_vec("0111000000000000")
             ));
-            fill_data_mem(16#20#, to_vec(14, 16) & to_vec(0, 16));
+            fill_data_mem(16#20#, (to_vec(0, 16), to_vec(14, 16)));
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(3, to_vec(14, 16) & to_vec(0, 16));
+            test_reg(3, to_vec(0, 16) & to_vec(14, 16));
         end if;
 
         if run("std_r4_36") then
