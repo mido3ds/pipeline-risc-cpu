@@ -139,6 +139,8 @@ architecture rtl of main is
     signal xs_xmb_opcode                 : std_logic_vector(6 downto 0);
     signal xs_xmb_r_w                    : std_logic_vector(1 downto 0);
     signal xs_xmb_hlt                    : std_logic;
+    signal xs_hdu_src_0                  : std_logic_vector(3 downto 0);
+    signal xs_hdu_src_1                  : std_logic_vector(3 downto 0);
 
     -- memory_stage --> execute_stage,decode_stage
     signal ms_stalling_enable            : std_logic;
@@ -326,10 +328,14 @@ begin
             in_r_w         => ds_dxb_r_w,        --> decode_stage.dxb_r_w
             in_interrupt   => ds_dxb_interrupt,  --> decode_stage.dxb_interrupt
             in_hlt         => ds_dxb_hlt,        --> decode_stage.dxb_hlt
+            in_src_0       => ds_rf_src0_adr,
+            in_src_1       => ds_rf_src1_adr,
             -- OUT
             out_alu_op     => dxb_xs_alu_op,     --> execute_stage.alu_operation
             out_operand0   => dxb_xs_operand0,   --> execute_stage.operand_1
             out_operand1   => dxb_xs_operand1,   --> execute_stage.operand_2
+            out_src_0      => xs_hdu_src_0,
+            out_src_1      => xs_hdu_src_1,
             out_src2_value => dxb_xs_src2_value, --> execute_stage.in_src_value
             out_sel_src2   => dxb_xs_sel_src2,   --> execute_stage.src_value_sel
             out_dest_0     => dxb_xs_dest_0,     --> execute_stage.destination_register_1_in
@@ -384,13 +390,15 @@ begin
             --IN
             rst           => rst,                --> main
 
-            opcode_decode => (others => 'U'),    --> TODO.TODO replace U with its signal
-            opcode_execute => (others => 'U'),   --> TODO.TODO replace U with its signal
-            opcode_memory => (others => 'U'),    --> TODO.TODO replace U with its signal
-            decode_src_reg_1 => (others => 'U'), --> TODO.TODO replace U with its signal
-            decode_src_reg_2 => (others => 'U'), --> TODO.TODO replace U with its signal
-            exe_dst_reg => (others => 'U'),      --> TODO.TODO replace U with its signal
-            mem_dst_reg => (others => 'U'),      --> TODO.TODO replace U with its signal
+            opcode_decode    => ds_dxb_opcode,                            --> TODO.TODO replace U with its signal
+            opcode_execute   => xs_xmb_opcode,                            --> TODO.TODO replace U with its signal
+            opcode_memory    => ms_mwb_opcode,                            --> TODO.TODO replace U with its signal
+            decode_src_reg_1 => xs_hdu_src_0,                           --> TODO.TODO replace U with its signal
+            decode_src_reg_2 => xs_hdu_src_1,                           --> TODO.TODO replace U with its signal
+            exe_dst_reg_1    => xmb_ms_destination_0,                     --> TODO.TODO replace U with its signal
+            exe_dst_reg_2    => xmb_ms_destination_1,                     --> TODO.TODO replace U with its signal
+            mem_dst_reg_1    => xmb_ms_destination_0,                        --> TODO.TODO replace U with its signal
+            mem_dst_reg_2    => xmb_ms_destination_1,                        --> TODO.TODO replace U with its signal
             --OUT
             operand_1_select => hdu_xs_op_1_sel, --> execute_stage.alu_op_1_selector
             operand_2_select => hdu_xs_op_2_sel, --> execute_stage.alu_op_1_selector

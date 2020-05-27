@@ -14,6 +14,9 @@ entity d_x_buffer is
         in_sel_src2    : in std_logic;
         in_dest_0      : in std_logic_vector(4 - 1 downto 0);
         in_dest_1      : in std_logic_vector(4 - 1 downto 0);
+
+        in_src_0       : in std_logic_vector(4 - 1 downto 0);
+        in_src_1       : in std_logic_vector(4 - 1 downto 0);
         --in_dest_value  : in std_logic_vector(32 - 1 downto 0);
         in_opcode      : in std_logic_vector(7 - 1 downto 0);
         in_r_w         : in std_logic_vector(1 downto 0);
@@ -27,6 +30,9 @@ entity d_x_buffer is
         out_sel_src2   : out std_logic;
         out_dest_0     : out std_logic_vector(4 - 1 downto 0);
         out_dest_1     : out std_logic_vector(4 - 1 downto 0);
+
+        out_src_0      : out std_logic_vector(4 - 1 downto 0);
+        out_src_1      : out std_logic_vector(4 - 1 downto 0);
         -- out_dest_value : out std_logic_vector(32 - 1 downto 0);
         out_opcode     : out std_logic_vector(7 - 1 downto 0);
         out_r_w        : out std_logic_vector(1 downto 0);
@@ -41,6 +47,8 @@ architecture rtl of d_x_buffer is
     signal src2_value    : std_logic_vector(32 - 1 downto 0);
     signal destination_0 : std_logic_vector(4 - 1 downto 0);
     signal destination_1 : std_logic_vector(4 - 1 downto 0);
+    signal src_0         : std_logic_vector(4 - 1 downto 0);
+    signal src_1         : std_logic_vector(4 - 1 downto 0);
     --signal dest_value    : std_logic_vector(32 - 1 downto 0);
     signal opcode        : std_logic_vector(7 - 1 downto 0);
     signal r_w           : std_logic_vector(1 downto 0);
@@ -57,6 +65,8 @@ begin
             src2_value    <= in_src2_value;
             destination_0 <= in_dest_0;
             destination_1 <= in_dest_1;
+            src_0         <= in_src_0;
+            src_1         <= in_src_1;
             --dest_value    <= in_dest_value;
             opcode        <= in_opcode;
             r_w           <= in_r_w;
@@ -66,7 +76,7 @@ begin
         end if;
     end process;
 
-    process (clk, in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, out_sel_src2, in_hlt)
+    process (clk, in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, out_sel_src2, in_hlt, in_src_0,in_src_1)
     begin
         if rising_edge(clk) then
             out_alu_op     <= alu_op;
@@ -80,6 +90,9 @@ begin
 
             out_dest_0     <= destination_0;
             out_dest_1     <= destination_1;
+
+            out_src_0      <= src_0;
+            out_src_1      <= src_1;
             --out_dest_value <= dest_value;
             out_opcode     <= opcode;
             out_r_w        <= r_w;

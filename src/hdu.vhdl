@@ -12,8 +12,10 @@ entity hdu is
         opcode_memory    : in std_logic_vector(6 downto 0);
         decode_src_reg_1 : in std_logic_vector(3 downto 0);
         decode_src_reg_2 : in std_logic_vector(3 downto 0);
-        exe_dst_reg      : in std_logic_vector(3 downto 0);
-        mem_dst_reg      : in std_logic_vector(3 downto 0);
+        exe_dst_reg_1    : in std_logic_vector(3 downto 0);
+        exe_dst_reg_2    : in std_logic_vector(3 downto 0);
+        mem_dst_reg_1    : in std_logic_vector(3 downto 0);
+        mem_dst_reg_2    : in std_logic_vector(3 downto 0);
         --ALU_selction                        : out std_logic;
         operand_1_select : out std_logic_vector(1 downto 0);
         operand_2_select : out std_logic_vector(1 downto 0);
@@ -51,99 +53,32 @@ end entity;
 --detect EQ1,2,3,4 and send op_selectors and alu_Selectors accordingly...
 
 architecture rtl of hdu is
-    --This function returns 1 if the OPCODE sent will NOT cause a Data hazards
-    function source_hazard(OPCODE : std_logic_vector(6 downto 0))
-        return boolean is
     begin
-
-        if (OPCODE = "0000000"         --nop
-            or OPCODE(6 downto 3) = "1010" --pop
-            or OPCODE(6 downto 3) = "1011" --ldm
-            or OPCODE(6 downto 3) = "1100" --ldd
-            or OPCODE = "0000100"          --ret
-            or OPCODE = "0000101"          --rti
-            or OPCODE = "1111000"          --in
-            ) then
-            return false;
-        else
-            return true;
-        end if;
-    end function;
-
-    --these instructions JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT will not cause data dependency at the destination part
-    function destination_hazard(OPCODE : std_logic_vector(6 downto 0))
-        return boolean is
+    process(opcode_execute, opcode_memory, decode_src_reg_1, decode_src_reg_2, exe_dst_reg_1, exe_dst_reg_2 ,mem_dst_reg_2)
     begin
+        if (decode_src_reg_1 = "1111") then
+            operand_1_select         <= "00";
+        elsif (decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) then
+            if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
+                operand_1_select     <= "01";
+            end if;
 
-        if (OPCODE = "0000001"         --JZ
-            or OPCODE = "0000010"          --JMP
-            or OPCODE = "0000011"          --CALL
-            or OPCODE(6 downto 3) = "1001" --PUSH
-            or OPCODE = "0000100"          --ret
-            or OPCODE = "0000101"          --rti
-            or OPCODE(6 downto 3) = "1101" --STD
-            or OPCODE = "1111100"          --OUT
-            ) then
-            return false;
         else
-            return true;
+            operand_1_select       <= "00";
         end if;
-    end function;
 
-    --is this opcode a Load or Pop instructions?
-    function load_or_pop(OPCODE : std_logic_vector(6 downto 0))
-        return boolean is
-    begin
+        if (decode_src_reg_2 = "1111") then
+            operand_2_select       <= "00";
+        elsif (decode_src_reg_2 = exe_dst_reg_1 or decode_src_reg_2 = exe_dst_reg_2) then
+            if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
+            or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
+                operand_2_select     <= "01";
+            end if;
 
-        if (OPCODE(6 downto 3) = "1100" --LDD
-            or OPCODE(6 downto 3) = "1010"  --POP
-            ) then
-            return false;
         else
-            return true;
+            operand_2_select         <= "00";
         end if;
-    end function;
 
-    --are these two registers equal ?
-    function are_equal(reg1 : std_logic_vector(3 downto 0);
-        reg2                    : std_logic_vector(3 downto 0))
-        return boolean is
-    begin
-        if (reg1 = reg2) then
-            return true;
-        else
-            return false;
-        end if;
-    end function;
-begin
-    --Load Pop Use cases
-    Stall_signal <= '1' when source_hazard(opcode_decode)
-        and not load_or_pop (opcode_execute)
-        and (are_equal(decode_src_reg_1, exe_dst_reg)
-        or are_equal(decode_src_reg_2, exe_dst_reg))
-        else '0';
-
-    operand_1_select <= "01" when source_hazard(opcode_decode)
-        and not load_or_pop (opcode_execute)
-        and destination_hazard(opcode_execute)
-        and are_equal(decode_src_reg_1, exe_dst_reg) else
-
-        "10" when source_hazard(opcode_decode)
-        and not load_or_pop (opcode_execute)
-        and not destination_hazard(opcode_execute)
-        and destination_hazard(opcode_memory)
-        and are_equal(decode_src_reg_1, mem_dst_reg) else
-        "00";
-
-    operand_2_select <= "01" when source_hazard(opcode_decode)
-        and not load_or_pop (opcode_execute)
-        and destination_hazard(opcode_execute)
-        and are_equal(decode_src_reg_2, exe_dst_reg) else
-
-        "10" when source_hazard(opcode_decode)
-        and not load_or_pop (opcode_execute)
-        and not destination_hazard(opcode_execute)
-        and destination_hazard(opcode_memory)
-        and are_equal(decode_src_reg_2, mem_dst_reg) else
-        "00";
+        stall_signal    <= '0';
+    end process;
 end architecture;

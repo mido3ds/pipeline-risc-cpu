@@ -86,7 +86,7 @@ begin
                     null;
             end case;
             out_reg(fetch_adr, fetch_value);
-        elsif rising_edge(clk) then -- write
+        elsif rising_edge(clk) then-- write
             in_reg(dst0_adr, wb0_value);
             in_reg(dst1_adr, wb1_value);
         end if;

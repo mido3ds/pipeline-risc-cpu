@@ -44,7 +44,7 @@ begin
             dest_reg_1_value <= (others => '0');
             dest_reg_2_value <= (others => '0');
             hlt_out          <= '0';
-        elsif (rising_edge(clk)) then
+        else
             dest_reg_1           <= destination_register_1;
             dest_reg_2           <= destination_register_2;
             hlt_out              <= hlt_in;

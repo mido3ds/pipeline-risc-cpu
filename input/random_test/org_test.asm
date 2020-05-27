@@ -1,22 +1,21 @@
-.ORG 0
-10
-
-.ORG 2
-100
-
-.ORG 4
-NOT R7
-END
 
 .ORG 10
-LDM R1, 4
-NOP
-NOP
-NOP
-NOP
-NOP
-NOP
-JMP R1
-INC R2
-INC R4
+inc r0
+nop
+nop
+nop
+nop
+nop
+std r0, 0
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+ldd r1,0
 END

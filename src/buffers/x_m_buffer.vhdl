@@ -58,7 +58,7 @@ begin
     interrupt     <= in_interrupt;
     hlt           <= in_hlt;
 
-    process (clk)
+    process (clk, destination_0, destination_1, dest_value_0, dest_value_1)
     begin
         if rising_edge(clk) then
             out_aluout        <= aluout;
