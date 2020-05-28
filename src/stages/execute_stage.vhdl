@@ -15,7 +15,7 @@ entity execute_stage is
         -- forwarded data ( from alu or memory)
         forwarded_data_1                   : in  std_logic_vector(31 downto 0);
         forwarded_data_2                   : in  std_logic_vector(31 downto 0);
-
+        forwarded_data_3                   : in  std_logic_vector(31 downto 0);
         --forwarded_data_2_1                   : in  std_logic_vector(31 downto 0);
         --forwarded_data_2_2                   : in  std_logic_vector(31 downto 0);
 
@@ -23,6 +23,7 @@ entity execute_stage is
         -- 00 : operand ( No Hazerd detected )
         -- 01 : forwarded data 1 ( from alu  )
         -- 10 : forwarded data 2 ( from memory)
+        -- 11 : forwarded data 3 ( alu from memory stage)
 
         alu_op_1_selector                  : in  std_logic_vector(1  downto 0);
         alu_op_2_selector                  : in  std_logic_vector(1  downto 0);
@@ -30,8 +31,6 @@ entity execute_stage is
         -- from d_x_buffer
         operand_1                          : in  std_logic_vector(31 downto 0);
         operand_2                          : in  std_logic_vector(31 downto 0);
-        in_src_value                       : in  std_logic_vector(31 downto 0);
-        src_value_sel                      : in  std_logic;
         alu_operation                      : in  std_logic_vector(3  downto 0);
 
         destination_register_1_in          : in  std_logic_vector(3  downto 0);
@@ -88,7 +87,7 @@ begin
         c                                   => opt
     );
 
-    process(clk , opt, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, alu_operation, opCode_in, alu_output, hlt_in)
+    process(clk , opt, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, forwarded_data_3, alu_operation, opCode_in, alu_output, hlt_in)
     begin
         if rst = '1' then
             alu_output                         <= (others => '0');
@@ -148,8 +147,8 @@ begin
                         op_1                <= forwarded_data_1;
                     when  "10"   =>
                         op_1                <= forwarded_data_2;
-                    --when "11"   =>
-                    --    op_1                <= destination_2_value;
+                    when "11"   =>
+                        op_1                <= forwarded_data_3;
                     when  others =>   -- when 00
                         op_1                <= operand_1;
                 end case ;
@@ -159,14 +158,10 @@ begin
                         op_2                <= forwarded_data_1;
                     when  "10"   =>
                         op_2                <= forwarded_data_2;
-                    --when "11"   =>
-                    --    op_2                <= destination_2_value;
+                    when "11"   =>
+                        op_2                <= forwarded_data_3;
                     when  others =>   -- when 00
-                        if (src_value_sel = '1') then
-                            op_2            <= in_src_value;
-                        else
                             op_2                <= operand_2;
-                        end if;
                 end case ;
 
                 ccr_out                     <= ccr;

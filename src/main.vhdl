@@ -108,8 +108,6 @@ architecture rtl of main is
     signal dxb_xs_alu_op                 : std_logic_vector (3 downto 0);
     signal dxb_xs_operand0               : std_logic_vector(32 - 1 downto 0);
     signal dxb_xs_operand1               : std_logic_vector(32 - 1 downto 0);
-    signal dxb_xs_src2_value             : std_logic_vector(32 - 1 downto 0);
-    signal dxb_xs_sel_src2               : std_logic;
     signal dxb_xs_dest_0                 : std_logic_vector(4 - 1 downto 0);
     signal dxb_xs_dest_1                 : std_logic_vector(4 - 1 downto 0);
     signal dxb_xs_opcode                 : std_logic_vector(7 - 1 downto 0);
@@ -335,8 +333,6 @@ begin
             out_operand1   => dxb_xs_operand1,   --> execute_stage.operand_2
             out_src_0      => xs_hdu_src_0,
             out_src_1      => xs_hdu_src_1,
-            out_src2_value => dxb_xs_src2_value, --> execute_stage.in_src_value
-            out_sel_src2   => dxb_xs_sel_src2,   --> execute_stage.src_value_sel
             out_dest_0     => dxb_xs_dest_0,     --> execute_stage.destination_register_1_in
             out_dest_1     => dxb_xs_dest_1,     --> execute_stage.destination_register_2_in
             out_opcode     => dxb_xs_opcode,     --> execute_stage.opCode_in
@@ -356,8 +352,6 @@ begin
             operand_2                  => dxb_xs_operand1,      --> d_x_buffer.out_operand1
             destination_register_1_in  => dxb_xs_dest_0,        --> d_x_buffer.out_dest_0
             destination_register_2_in  => dxb_xs_dest_1,        --> d_x_buffer.dxb_xs_dest_1
-            in_src_value               => dxb_xs_src2_value,    --> d_x_buffer.out_src2_value
-            src_value_sel              => dxb_xs_sel_src2,      --> d_x_buffer.out_sel_src2
             opCode_in                  => dxb_xs_opcode,        --> d_x_buffer.dxb_xs_opcode
             int_bit_in                 => dxb_xs_interrupt,     --> d_x_buffer.dxb_xs_interrupt
             r_w_control_in             => dxb_xs_r_w,           --> d_x_buffer.out_r_w
@@ -368,6 +362,7 @@ begin
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout,     --> x_m_buffer.out_aluout
             forwarded_data_2           => mwb_ws_xs_mem,        --> m_w_buffer.out_mem
+            forwarded_data_3           => mwb_ws_aluout,        --> m_w_buffer.aluout
             --OUT
             ccr_out                    => xs_ccr,               --> main
             update_ccr                 => xs_ccr_sel,
@@ -396,8 +391,8 @@ begin
             decode_src_reg_2 => xs_hdu_src_1,                    --> d_x_buffer.out_src_1
             exe_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
             exe_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
-            mem_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
-            mem_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
+            mem_dst_reg_1    => mwb_ws_destination_0,            --> x_m_buffer.out_destination_0
+            mem_dst_reg_2    => mwb_ws_destination_1,            --> x_m_buffer.out_destination_1
             --OUT
             operand_1_select => hdu_xs_op_1_sel,                 --> execute_stage.alu_op_1_selector
             operand_2_select => hdu_xs_op_2_sel,                 --> execute_stage.alu_op_2_selector
