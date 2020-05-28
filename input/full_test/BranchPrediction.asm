@@ -15,6 +15,7 @@ LDM R1,50 #R1=50
 LDM R3,20 #R3=20
 LDM R4,2  #R4=2
 JMP R3    #Jump to 20
+END
 
 .ORG 20
 SUB R0,R2,R5 #check if R0 = R2
@@ -23,6 +24,7 @@ ADD R4,R4,R4 #R4 = R4*2
 OUT R4
 INC R0
 JMP R3 #jump to 20
+END
 
 
 .ORG 50
@@ -31,6 +33,8 @@ LDM R2,8 #R2=8
 LDM R3,60 #R3=60
 LDM R4,3  #R4=3
 JMP R3 #jump to 60
+END
+
 .ORG 60
 ADD R4,R4,R4 #R4 = R4*2
 OUT R4
@@ -39,3 +43,4 @@ AND R0,R2,R5 #when R0 < R2(8) answer will be zero
 JZ R3 #jump if R0 < R2 to 60
 INC R4
 OUT R4
+END
