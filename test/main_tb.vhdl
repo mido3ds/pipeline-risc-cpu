@@ -907,7 +907,8 @@ begin
 
             test_reg(2, to_vec(16#50#, 32));
             test_reg(8, to_vec(2 ** 11 - 2, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(3, 16), '1');
+            test_data_mem(2 ** 11 - 2, to_vec(0, 16), '1');
+            test_data_mem(2 ** 11 - 3, to_vec(3, 16), '1');
         end if;
 
         if run("reset") then
