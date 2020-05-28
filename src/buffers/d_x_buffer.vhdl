@@ -25,8 +25,6 @@ entity d_x_buffer is
         out_alu_op     : out std_logic_vector (3 downto 0);
         out_operand0   : out std_logic_vector(32 - 1 downto 0);
         out_operand1   : out std_logic_vector(32 - 1 downto 0);
-        out_src2_value : out std_logic_vector(32 - 1 downto 0);
-        out_sel_src2   : out std_logic;
         out_dest_0     : out std_logic_vector(4 - 1 downto 0);
         out_dest_1     : out std_logic_vector(4 - 1 downto 0);
 
@@ -71,7 +69,7 @@ begin
         end if;
     end process;
 
-    process (clk, in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, out_sel_src2, in_hlt, in_src_0,in_src_1)
+    process (clk, in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, in_hlt, in_src_0,in_src_1)
     begin
         if rising_edge(clk) then
             out_alu_op     <= alu_op;
