@@ -33,6 +33,7 @@ entity main is
         -- to data_mem
         tb_dm_rd            : in std_logic;
         tb_dm_wr            : in std_logic;
+        tb_dm_is_stack      : in std_logic;
         tb_dm_data_in       : in std_logic_vector(31 downto 0);
         tb_dm_adr           : in std_logic_vector(31 downto 0);
         -- from data_mem
@@ -470,6 +471,7 @@ begin
             tb_controls                => tb_controls,                   --> tb
             tb_mem_rd                  => tb_dm_rd,                      --> tb
             tb_mem_wr                  => tb_dm_wr,                      --> tb
+            tb_is_stack                => tb_dm_is_stack,                --> tb 
             tb_mem_data_in             => tb_dm_data_in,                 --> tb
             tb_mem_adr                 => tb_dm_adr,                     --> tb
             tb_mem_data_out            => tb_dm_data_out                 --> tb

@@ -7,6 +7,6 @@ nop
 nop
 nop
 nop
-std r2, 20
-ldd r3, 20
+push r2
+pop r4
 end

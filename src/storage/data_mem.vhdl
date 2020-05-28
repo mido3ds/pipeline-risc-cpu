@@ -10,6 +10,7 @@ entity data_mem is
 
     port (
         clk, rd, wr, rst : in std_logic;
+        is_stack         : in std_logic;
         data_in          : in std_logic_vector(32 - 1 downto 0);
         address          : in std_logic_vector(ADR_LENGTH - 1 downto 0);
         data_out         : out std_logic_vector(32 - 1 downto 0)
@@ -37,7 +38,7 @@ begin
         );
 
     -- ram for odd addresses
-    ram_odd_adr <= std_logic_vector(unsigned(address) + 1);
+    ram_odd_adr <= std_logic_vector(unsigned(address) + 1) when is_stack = '0' else std_logic_vector(unsigned(address) - 1);
 
     ram_odd : entity work.ram
         generic map(WORD_LENGTH => WORD_LENGTH, ADR_LENGTH => ADR_LENGTH, NUM_WORDS => MEM_NUM_WORDS)
