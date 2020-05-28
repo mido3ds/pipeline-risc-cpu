@@ -34,7 +34,7 @@ JMP R1 #jump to 38
 .ORG 38 #Loop B
 SUB R2,R4,R7 #check if R4 = R2, Instr cache read miss will occur for first loop iteration
 JZ R3 #jump to 50 if R4 = R2
-CALL R0#Instr cache read miss for block starting with 118 for first loop iteration.
+CALL R0 #Instr cache read miss for block starting with 118 for first loop iteration.
 LDD R1,210 #R1 = 38, Data cache read miss with each iteration, replaced block is dirty
 OUT R5
 INC R4

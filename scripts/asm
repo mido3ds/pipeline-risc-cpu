@@ -83,7 +83,7 @@ def assemble():
                 continue
 
         # split words by delimiters
-        line_words = re.split(';|,| |\n', line)
+        line_words = re.split(';|,| |\n|\t|\r', line)
         line_words = [x for x in line_words if x != '']
         if (len(line_words) == 0):
             continue
@@ -212,7 +212,7 @@ def gen_layout(ram_entries):
         Parameters:
         ram_entries (dict): dictionary of processed instructions.
     """
-    ram_layout = [hex(int('0', 2))] * (2**8)  # initialize layout with zeros
+    ram_layout = [hex(int('0', 2))] * (2**11)  # initialize layout with zeros
     # loop over all RAM blocks
     for block in ram_entries.keys():
         idx = int(block, 16)
