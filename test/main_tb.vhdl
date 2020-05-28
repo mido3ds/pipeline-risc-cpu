@@ -59,7 +59,7 @@ architecture tb of main_tb is
 begin
     clk <= not clk after CLK_PERD / 2;
 
-    test_runner_watchdog(runner, 2 * 1000 * CLK_PERD);
+    test_runner_watchdog(runner, 5 * 1000 * CLK_PERD);
 
     main_unit : entity work.main
         port map(
