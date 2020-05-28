@@ -44,7 +44,7 @@ begin
     dest_value_1  <= in_dest_value_1;
     hlt           <= in_hlt;
 
-    process (clk)
+    process (clk, aluout)
     begin
         if rising_edge(clk) then
             out_aluout        <= aluout;

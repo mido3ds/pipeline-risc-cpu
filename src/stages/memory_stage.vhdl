@@ -22,13 +22,10 @@ entity memory_stage is
         opCode_in                          : in  std_logic_vector(6  downto 0);
         hlt_in                             : in  std_logic;
 
-        --stalling                           : in  std_logic;
-
         -- used for pc navigator
         int_bit_in                         : in  std_logic;
 
 
-        --stack_pointer               : out std_logic_vector(31 downto 0);
         memory_out                         : out std_logic_vector(31 downto 0);
         alu_output                         : out std_logic_vector(31 downto 0);
         opCode_out                         : out std_logic_vector(6  downto 0);
@@ -54,6 +51,7 @@ entity memory_stage is
         -- to mem
         tb_mem_rd                    : in std_logic;
         tb_mem_wr                    : in std_logic;
+        tb_is_stack                  : in std_logic;
         tb_mem_data_in               : in std_logic_vector(31 downto 0);
         tb_mem_adr                   : in std_logic_vector(31 downto 0);
         -- from mem
@@ -70,13 +68,15 @@ architecture rtl of memory_stage is
     signal address                         : std_logic_vector(31 downto 0)    := (others => '0');
     signal stalling_in                     : std_logic                        := '0';
     signal stalling_out                    : std_logic                        := '0';
-
+    signal is_stack                        : std_logic                        := '0';
     signal pc_sel                          : std_logic                        := '0';
+
     --> data_mem
     signal dm_rd        : std_logic;
     signal dm_wr        : std_logic;
     signal dm_data_in   : std_logic_vector(31 downto 0);
     signal dm_adr       : std_logic_vector(31 downto 0);
+    signal dm_is_stack  : std_logic;
 begin
 
     data_mem : entity work.data_mem(rtl)
@@ -88,6 +88,7 @@ begin
         rd                                     => dm_rd,
         wr                                     => dm_wr,
         rst                                    => '0',
+        is_stack                               => dm_is_stack,
         data_in                                => dm_data_in,
         address                                => dm_adr,
         data_out                               => output_data
@@ -95,6 +96,7 @@ begin
     --IN
     dm_rd           <= tb_mem_rd when tb_controls = '1' else r_w_control(0);
     dm_wr           <= tb_mem_wr when tb_controls = '1' else r_w_control(1);
+    dm_is_stack     <= tb_is_stack when tb_controls = '1' else is_stack;
     dm_data_in      <= tb_mem_data_in when tb_controls = '1' else input_data;
     dm_adr          <= tb_mem_adr when tb_controls = '1' else address;
     --OUT
@@ -111,9 +113,7 @@ begin
         stack_pointer                          => sp,
         pc_selector                            => pc_sel,
         stalling_enable                        => stalling_out
-
     );
-
 
     process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address, hlt_in )
     begin
@@ -130,12 +130,21 @@ begin
             pc_selector                        <= '0';
             stalling_enable                    <= '0';
             hlt_out                            <= '0';
+            is_stack                           <= '0';
         else
 
             if (pc_sel = '1') then
-                pc_selector                    <= pc_sel;
+                pc_selector                   <= pc_sel;
             else
                 pc_selector                   <= pc_sel;
+            end if;
+            
+            -- set data memory write/read direction
+            if (opCode_in = "0000011" or opCode_in = "0000100" or opCode_in = "0000101" or opCode_in(6 downto 3) = "1001" or opCode_in(6 downto 3) = "1010" or int_bit_in = '1') then
+                -- CALL, RET, RTI, PUSH, POP & INTERRUPT
+                is_stack <= '1';
+            else
+                is_stack <= '0';
             end if;
 
             if stalling_in = '1' then      --we get the ccr only
@@ -144,7 +153,7 @@ begin
                 input_data                     <= memory_in;
                 alu_output                     <= sp;
 
-                if (opCode_in = OPC_RTI) then         -- loading ccr from stack
+                if (opCode_in = "0000101") then -- loading ccr from stack
                     ccr_out                    <= output_data(2 downto 0);
                     ccr_out_selector           <= '1';
 
@@ -172,9 +181,9 @@ begin
 
                 if int_bit_in = '1' then
                     pc_nav_enable              <= '1';
-                    input_data                 <= "00000000000000000000000000000" & ccr_in;        --store ccr first then store pc !
+                    input_data                 <= "00000000000000000000000000000" & ccr_in; --store ccr first then store pc !
 
-                elsif (opCode_in = "000100" or opCode_in = "000101") then                     -- opcode of rti or ret operations activate pc navigator
+                elsif (opCode_in = "0000100" or opCode_in = "0000101") then -- opcode of rti or ret operations activate pc navigator
                     pc_nav_enable              <= '1';
                     input_data                 <= memory_in;
                 else

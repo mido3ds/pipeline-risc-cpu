@@ -1,23 +1,9 @@
+.ORG 0
+10
 
 .ORG 10
-in r0
-nop
-not r7
-nop
-nop
-nop
-nop
-std r0, 6
-nop
-nop
-nop
-nop
-std r7,4
-nop
-nop
-nop
-nop
-nop
-nop
-ldd r2,6
+ldm r4,10
+inc r3
+add r3,r4,r5
+add r5,r5,r6
 END

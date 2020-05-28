@@ -45,6 +45,7 @@ architecture tb of main_tb is
     -- data_mem
     signal dm_rd          : std_logic;
     signal dm_wr          : std_logic;
+    signal dm_is_stack    : std_logic;
     signal dm_data_in     : std_logic_vector(31 downto 0);
     signal dm_adr         : std_logic_vector(31 downto 0);
     signal dm_data_out    : std_logic_vector(31 downto 0);
@@ -86,6 +87,7 @@ begin
 
             tb_dm_rd         => dm_rd,
             tb_dm_wr         => dm_wr,
+            tb_dm_is_stack   => dm_is_stack,
             tb_dm_data_in    => dm_data_in,
             tb_dm_adr        => dm_adr,
             tb_dm_data_out   => dm_data_out,
@@ -110,6 +112,7 @@ begin
             im_adr        <= (others => '0');
             dm_rd         <= '0';
             dm_wr         <= '0';
+            dm_is_stack   <= '0';
             dm_data_in    <= (others => '0');
             dm_adr        <= (others => '0');
             ccr_in        <= (others => '0');
@@ -198,7 +201,7 @@ begin
             clear_signals;
         end procedure;
 
-        procedure fill_data_mem(adr : integer; ramdata : WordArrType) is
+        procedure fill_data_mem(adr : integer; ramdata : WordArrType; is_stack : std_logic) is
             variable i : integer := adr;
         begin
             clear_signals;
@@ -214,10 +217,11 @@ begin
             end if;
 
             while i < ramdata'length loop
-                dm_adr     <= to_vec(i, im_adr'length);
-                dm_data_in <= ramdata(i) & ramdata(i + 1);
-                dm_rd      <= '0';
-                dm_wr      <= '1';
+                dm_adr      <= to_vec(i, im_adr'length);
+                dm_data_in  <= ramdata(i) & ramdata(i + 1);
+                dm_rd       <= '0';
+                dm_wr       <= '1';
+                dm_is_stack <= is_stack;
                 wait until rising_edge(clk);
 
                 i := i + 2;
@@ -244,7 +248,7 @@ begin
             clear_signals;
         end procedure;
 
-        procedure test_data_mem(adr : integer; expected : std_logic_vector(15 downto 0)) is
+        procedure test_data_mem(adr : integer; expected : std_logic_vector(15 downto 0); is_stack : std_logic) is
         begin
             clear_signals;
             tb_controls <= '1';
@@ -252,10 +256,11 @@ begin
             if adr mod 2 = 0 then
                 dm_adr <= to_vec(adr, im_adr'length);
             else
-                dm_adr <= to_vec(adr - 1, im_adr'length);
+                dm_adr <= to_vec(adr - 1, im_adr'length) when is_stack = '0' else to_vec(adr + 1, im_adr'length);
             end if;
-            dm_rd <= '1';
-            dm_wr <= '0';
+            dm_rd       <= '1';
+            dm_wr       <= '0';
+            dm_is_stack <= is_stack;
             wait for 1 ps;
 
             if adr mod 2 = 0 then
@@ -294,9 +299,10 @@ begin
 
             tb_controls <= '1';
             while i < MEM_NUM_WORDS loop
-                dm_adr <= to_vec(i, im_adr'length);
-                dm_rd  <= '1';
-                dm_wr  <= '0';
+                dm_adr      <= to_vec(i, im_adr'length);
+                dm_rd       <= '1';
+                dm_wr       <= '0';
+                dm_is_stack <= '0';
                 wait for 1 ps;
 
                 write(row, dm_data_out(31 downto 16));
@@ -640,7 +646,8 @@ begin
             wait until hlt = '1';
 
             test_reg(8, to_vec(2 ** 11 - 4, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(100, 16));
+            test_data_mem(2 ** 11 - 2, to_vec(0, 16), '1');
+            test_data_mem(2 ** 11 - 3, to_vec(100, 16), '1');
         end if;
 
         if run("pop_r1") then
@@ -655,13 +662,13 @@ begin
             to_vec("0111000000000000")
             ));
             set_reg(8, to_vec(2, 32));
-            fill_data_mem(2, to_vec(0, 16) & to_vec(100, 16));
+            fill_data_mem(2, (to_vec(0, 16), to_vec(100, 16)), '1');
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(8, to_vec(3, 32));
-            test_reg(1, to_vec(100, 16));
+            test_reg(8, to_vec(4, 32));
+            test_reg(1, to_vec(100, 32));
         end if;
 
         if run("ldm_r2_50") then
@@ -695,12 +702,12 @@ begin
             to_vec("0000001000000000"),
             to_vec("0111000000000000")
             ));
-            fill_data_mem(16#20#, to_vec(14, 16) & to_vec(0, 16));
+            fill_data_mem(16#20#, (to_vec(0, 16), to_vec(14, 16)), '0');
 
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(3, to_vec(14, 16) & to_vec(0, 16));
+            test_reg(3, to_vec(0, 16) & to_vec(14, 16));
         end if;
 
         if run("std_r4_36") then
@@ -720,7 +727,8 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_data_mem(16#36#, to_vec(14, 16) & to_vec(0, 16));
+            test_data_mem(16#36#, to_vec(0, 16), '0');
+            test_data_mem(16#37#, to_vec(14, 16), '0');
         end if;
 
         if run("jz_r0_true") then
@@ -838,7 +846,8 @@ begin
 
             test_reg(2, to_vec('1', 32));
             test_reg(8, to_vec(2 ** 11 - 4, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(3, 16));
+            test_data_mem(2 ** 11 - 2, to_vec(0, 16), '1');
+            test_data_mem(2 ** 11 - 3, to_vec(3, 16), '1');
         end if;
 
         if run("ret_r4") then
@@ -862,7 +871,7 @@ begin
             fill_data_mem(0, (
             to_vec(5, 16),
             to_vec(0, 16)
-            ));
+            ), '1');
 
             reset_cpu;
             wait until hlt = '1';
@@ -898,7 +907,8 @@ begin
 
             test_reg(2, to_vec(16#50#, 32));
             test_reg(8, to_vec(2 ** 11 - 2, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(3, 16));
+            test_data_mem(2 ** 11 - 2, to_vec(0, 16), '1');
+            test_data_mem(2 ** 11 - 3, to_vec(3, 16), '1');
         end if;
 
         if run("reset") then
@@ -942,7 +952,7 @@ begin
             fill_data_mem(2, (
             to_vec(0, 16),
             to_vec(3, 16)
-            ));
+            ), '1');
             set_ccr("101");
 
             reset_cpu;
@@ -953,7 +963,7 @@ begin
 
             test_reg(0, to_vec('1', 32));
             test_reg(8, to_vec(2 ** 11 - 6, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(0, 16 - 3) & "101"); -- stored flags ccr
+            test_data_mem(2 ** 11 - 2, to_vec(0, 16 - 3) & "101", '1'); -- stored flags ccr
         end if;
 
         if run("interrupt_after_end") then
@@ -973,7 +983,7 @@ begin
             fill_data_mem(2, (
             to_vec(0, 16),
             to_vec(3, 16)
-            ));
+            ), '1');
 
             reset_cpu;
             wait for CLK_PERD;
@@ -1008,7 +1018,7 @@ begin
             to_vec(0, 16),                     -- 2^11-3
             to_vec(to_vec(0, 16 - 3) & "010"), -- 2^11-2
             to_vec(0, 16)                      -- 2^11-1
-            ));
+            ), '1');
 
             reset_cpu;
             wait until hlt = '1';
@@ -1040,7 +1050,7 @@ begin
             fill_data_mem(2, (
             to_vec(0, 16),
             to_vec(7, 16)
-            ));
+            ), '1');
             set_ccr("101");
 
             reset_cpu;

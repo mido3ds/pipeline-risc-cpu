@@ -64,7 +64,19 @@ architecture rtl of hdu is
             end if;
 
         else
-            operand_1_select       <= "00";
+                -- here check if in memory or not
+            if (decode_src_reg_1 = mem_dst_reg_1 or decode_src_reg_1 = mem_dst_reg_2) then
+                -- check to take alu out or memory out
+                if (opcode_memory(6 downto 3) = "1111" or opcode_memory(6 downto 3) = "0010" or opcode_memory(6 downto 3) = "0011" or opcode_memory(6 downto 3) = "0100"
+                or opcode_memory(6 downto 3) = "0101" or opcode_memory(6 downto 3) = "0110" or opcode_memory(6 downto 3) = "0111" or opcode_memory(6 downto 3) = "1000") then
+                    operand_1_select     <= "11";
+                elsif (opcode_memory(6 downto 3) = "1100") then
+                    operand_1_select     <= "10";
+                end if;
+            else
+                operand_1_select       <= "00";
+            end if;
+
         end if;
 
         if (decode_src_reg_2 = "1111") then
@@ -76,7 +88,18 @@ architecture rtl of hdu is
             end if;
 
         else
-            operand_2_select         <= "00";
+            -- here check if in memory or not
+            if (decode_src_reg_2 = mem_dst_reg_1 or decode_src_reg_2 = mem_dst_reg_2) then
+                if (opcode_memory(6 downto 3) = "1111" or opcode_memory(6 downto 3) = "0010" or opcode_memory(6 downto 3) = "0011" or opcode_memory(6 downto 3) = "0100"
+                or opcode_memory(6 downto 3) = "0101" or opcode_memory(6 downto 3) = "0110" or opcode_memory(6 downto 3) = "0111" or opcode_memory(6 downto 3) = "1000") then
+                    operand_2_select     <= "11";
+                elsif (opcode_memory(6 downto 3) = "1100") then
+                    operand_2_select     <= "10";
+                end if;
+                -- check to take alu out or memory out
+            else
+                operand_2_select       <= "00";
+            end if;
         end if;
 
         stall_signal    <= '0';

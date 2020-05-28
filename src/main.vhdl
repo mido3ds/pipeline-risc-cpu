@@ -33,6 +33,7 @@ entity main is
         -- to data_mem
         tb_dm_rd            : in std_logic;
         tb_dm_wr            : in std_logic;
+        tb_dm_is_stack      : in std_logic;
         tb_dm_data_in       : in std_logic_vector(31 downto 0);
         tb_dm_adr           : in std_logic_vector(31 downto 0);
         -- from data_mem
@@ -62,7 +63,6 @@ architecture rtl of main is
     --> fetch_stage
     signal fsi_if_flush                  : std_logic;
     signal fsi_parallel_load_pc_selector : std_logic;
-    signal fsi_loaded_pc_value           : std_logic_vector(31 downto 0);
     signal fsi_branch_address            : std_logic_vector(31 downto 0);
     signal fsi_hashed_address            : std_logic_vector(3 downto 0);
     signal fsi_out_reg_idx               : std_logic_vector(3 downto 0);
@@ -109,8 +109,6 @@ architecture rtl of main is
     signal dxb_xs_alu_op                 : std_logic_vector (3 downto 0);
     signal dxb_xs_operand0               : std_logic_vector(32 - 1 downto 0);
     signal dxb_xs_operand1               : std_logic_vector(32 - 1 downto 0);
-    signal dxb_xs_src2_value             : std_logic_vector(32 - 1 downto 0);
-    signal dxb_xs_sel_src2               : std_logic;
     signal dxb_xs_dest_0                 : std_logic_vector(4 - 1 downto 0);
     signal dxb_xs_dest_1                 : std_logic_vector(4 - 1 downto 0);
     signal dxb_xs_opcode                 : std_logic_vector(7 - 1 downto 0);
@@ -193,8 +191,8 @@ begin
 
             in_stall                     => hdu_stall,                     --> hdu.Stall_signal
             in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
-            in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> TODO.TODO
-            in_loaded_pc_value           => fsi_loaded_pc_value,           --> TODO.TODO
+            in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> memory_stage.pc_selector
+            in_loaded_pc_value           => ms_mwb_mem_input,              --> memory_stage.memory_out
             in_branch_address            => fsi_branch_address,            --> decode_stage.out_branch_adr_update
             in_hashed_address            => fsi_hashed_address,            --> decode_stage.out_feedback_hashed_adr
             in_reg_value                 => fsi_in_reg_value,              --> reg_file.fetch_value
@@ -336,8 +334,6 @@ begin
             out_operand1   => dxb_xs_operand1,   --> execute_stage.operand_2
             out_src_0      => xs_hdu_src_0,
             out_src_1      => xs_hdu_src_1,
-            out_src2_value => dxb_xs_src2_value, --> execute_stage.in_src_value
-            out_sel_src2   => dxb_xs_sel_src2,   --> execute_stage.src_value_sel
             out_dest_0     => dxb_xs_dest_0,     --> execute_stage.destination_register_1_in
             out_dest_1     => dxb_xs_dest_1,     --> execute_stage.destination_register_2_in
             out_opcode     => dxb_xs_opcode,     --> execute_stage.opCode_in
@@ -357,8 +353,6 @@ begin
             operand_2                  => dxb_xs_operand1,      --> d_x_buffer.out_operand1
             destination_register_1_in  => dxb_xs_dest_0,        --> d_x_buffer.out_dest_0
             destination_register_2_in  => dxb_xs_dest_1,        --> d_x_buffer.dxb_xs_dest_1
-            in_src_value               => dxb_xs_src2_value,    --> d_x_buffer.out_src2_value
-            src_value_sel              => dxb_xs_sel_src2,      --> d_x_buffer.out_sel_src2
             opCode_in                  => dxb_xs_opcode,        --> d_x_buffer.dxb_xs_opcode
             int_bit_in                 => dxb_xs_interrupt,     --> d_x_buffer.dxb_xs_interrupt
             r_w_control_in             => dxb_xs_r_w,           --> d_x_buffer.out_r_w
@@ -369,6 +363,7 @@ begin
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout,     --> x_m_buffer.out_aluout
             forwarded_data_2           => mwb_ws_xs_mem,        --> m_w_buffer.out_mem
+            forwarded_data_3           => mwb_ws_aluout,        --> m_w_buffer.aluout
             --OUT
             ccr_out                    => xs_ccr,               --> main
             update_ccr                 => xs_ccr_sel,
@@ -397,8 +392,8 @@ begin
             decode_src_reg_2 => xs_hdu_src_1,                    --> d_x_buffer.out_src_1
             exe_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
             exe_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
-            mem_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
-            mem_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
+            mem_dst_reg_1    => mwb_ws_destination_0,            --> m_w_buffer.out_destination_0
+            mem_dst_reg_2    => mwb_ws_destination_1,            --> m_w_buffer.out_destination_1
             --OUT
             operand_1_select => hdu_xs_op_1_sel,                 --> execute_stage.alu_op_1_selector
             operand_2_select => hdu_xs_op_2_sel,                 --> execute_stage.alu_op_2_selector
@@ -439,41 +434,42 @@ begin
         port map(
             --IN
             clk                        => clk,
-            rst                        => rst,                     --> main
+            rst                        => rst,                           --> main
 
-            ccr_in                     => ccr,                     --> main
-            memory_address             => xmb_ms_mem_adr,          --> x_m_buffer.out_mem_adr
-            memory_in                  => xmb_ms_mem_input,        --> x_m_buffer.out_mem_inp
-            r_w_control                => xmb_ms_r_w,              --> x_m_buffer.out_r_w
-            alu_result                 => xmb_ms_xs_aluout,        --> x_m_buffer.out_aluout
-            destination_register_1_in  => xmb_ms_destination_0,    --> x_m_buffer.out_destination_0
-            destination_register_2_in  => xmb_ms_destination_1,    --> x_m_buffer.out_destination_1
-            destination_1_value        => xmb_ms_dest_value_0,     --> x_m_buffer.out_dest_value_0
-            destination_2_value        => xmb_ms_dest_value_1,     --> x_m_buffer.out_dest_value_1
-            opCode_in                  => xmb_ms_opcode,           --> x_m_buffer.out_opcode
-            int_bit_in                 => xmb_ms_interrupt,        --> x_m_buffer.out_interrupt
-            hlt_in                     => xmb_ms_hlt,              --> x_m_buffer.out_hlt
+            ccr_in                     => ccr,                           --> main
+            memory_address             => xmb_ms_mem_adr,                --> x_m_buffer.out_mem_adr
+            memory_in                  => xmb_ms_mem_input,              --> x_m_buffer.out_mem_inp
+            r_w_control                => xmb_ms_r_w,                    --> x_m_buffer.out_r_w
+            alu_result                 => xmb_ms_xs_aluout,              --> x_m_buffer.out_aluout
+            destination_register_1_in  => xmb_ms_destination_0,          --> x_m_buffer.out_destination_0
+            destination_register_2_in  => xmb_ms_destination_1,          --> x_m_buffer.out_destination_1
+            destination_1_value        => xmb_ms_dest_value_0,           --> x_m_buffer.out_dest_value_0
+            destination_2_value        => xmb_ms_dest_value_1,           --> x_m_buffer.out_dest_value_1
+            opCode_in                  => xmb_ms_opcode,                 --> x_m_buffer.out_opcode
+            int_bit_in                 => xmb_ms_interrupt,              --> x_m_buffer.out_interrupt
+            hlt_in                     => xmb_ms_hlt,                    --> x_m_buffer.out_hlt
             --OUT
-            alu_output                 => ms_mwb_aluout,           --> m_w_buffer.in_aluout
-            memory_out                 => ms_mwb_mem_input,        --> m_w_buffer.in_mem
-            opCode_out                 => ms_mwb_opcode,           --> m_w_buffer.in_opcode
-            destination_register_1_out => ms_mwb_dest_0_adr,       --> m_w_buffer.in_destination_0
-            destination_register_2_out => ms_mwb_dest_1_adr,       --> m_w_buffer.in_destination_1
-            destination_1_value_out    => ms_mwb_dest_1_value_out, --> m_w_buffer.in_dest_value_0
-            destination_2_value_out    => ms_mwb_dest_2_value_out, --> m_w_buffer.in_dest_value_1
-            ccr_out                    => ms_ccr,                  --> main
-            hlt_out                    => ms_mwb_hlt,              --> m_w_buffer.in_hlt
-            -- pc_selector                => TODO,                   --> TODO.TODO
-            stalling_enable            => ms_stalling_enable,      --> execute_stage.mem_stalling_bit
-            ccr_out_selector           => ms_ccr_sel,              --> main
+            alu_output                 => ms_mwb_aluout,                 --> m_w_buffer.in_aluout
+            memory_out                 => ms_mwb_mem_input,              --> m_w_buffer.in_mem
+            opCode_out                 => ms_mwb_opcode,                 --> m_w_buffer.in_opcode
+            destination_register_1_out => ms_mwb_dest_0_adr,             --> m_w_buffer.in_destination_0
+            destination_register_2_out => ms_mwb_dest_1_adr,             --> m_w_buffer.in_destination_1
+            destination_1_value_out    => ms_mwb_dest_1_value_out,       --> m_w_buffer.in_dest_value_0
+            destination_2_value_out    => ms_mwb_dest_2_value_out,       --> m_w_buffer.in_dest_value_1
+            ccr_out                    => ms_ccr,                        --> main
+            hlt_out                    => ms_mwb_hlt,                    --> m_w_buffer.in_hlt
+            pc_selector                => fsi_parallel_load_pc_selector, --> fetch_stage.in_parallel_load_pc_selector
+            stalling_enable            => ms_stalling_enable,            --> execute_stage.mem_stalling_bit
+            ccr_out_selector           => ms_ccr_sel,                    --> main
 
             -- testing
-            tb_controls                => tb_controls,             --> tb
-            tb_mem_rd                  => tb_dm_rd,                --> tb
-            tb_mem_wr                  => tb_dm_wr,                --> tb
-            tb_mem_data_in             => tb_dm_data_in,           --> tb
-            tb_mem_adr                 => tb_dm_adr,               --> tb
-            tb_mem_data_out            => tb_dm_data_out           --> tb
+            tb_controls                => tb_controls,                   --> tb
+            tb_mem_rd                  => tb_dm_rd,                      --> tb
+            tb_mem_wr                  => tb_dm_wr,                      --> tb
+            tb_is_stack                => tb_dm_is_stack,                --> tb 
+            tb_mem_data_in             => tb_dm_data_in,                 --> tb
+            tb_mem_adr                 => tb_dm_adr,                     --> tb
+            tb_mem_data_out            => tb_dm_data_out                 --> tb
         );
 
     -- ccr = memory_stage.ccr or execute_stage.ccr or tb.ccr

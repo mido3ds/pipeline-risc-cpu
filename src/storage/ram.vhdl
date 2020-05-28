@@ -47,7 +47,7 @@ begin
                     data_out <= data(to_int(safe_adr));
                 end if;
 
-                if wr = '1' then
+                if rising_edge(clk) and wr = '1' then
                     data(to_int(safe_adr)) <= data_in;
                 end if;
             end if;
