@@ -103,7 +103,7 @@ begin
     --OUT
     tb_mem_data_out    <= mem_data_out;
 
-    process (clk, rst, mem_data_out, br_pred)
+    process (clk, rst, mem_data_out, br_pred, in_interrupt, in_if_flush, in_stall, in_parallel_load_pc_selector, in_loaded_pc_value, in_branch_address, in_hashed_address, in_reg_value)
     begin
         if rst = '1' then
             -- reset logic start
@@ -147,20 +147,29 @@ begin
                 rst_state             <= "00";
 
             elsif in_interrupt = '1' and int_state = "00" then
-                -- interrupt logic start
-                out_interrupt <= '1';
-                pc            <= to_vec(2, pc'length);
-                int_state     <= "01";
+                -- store current pc
+                temp_pc              <= pc;
+                -- output NOP
+                out_instruction_bits <= (others => '0');
+                int_state            <= "01";
 
             elsif int_state = "01" then
+                -- interrupt logic start
+                out_interrupt        <= '1';
+                pc                   <= to_vec(2, pc'length);
+                out_inc_pc           <= to_vec(to_int(temp_pc) + 1, pc'length);
+                out_hashed_address   <= temp_pc(3 downto 0);
+                int_state            <= "10";
+
+            elsif int_state = "10" then
                 -- read upper part of pc
                 out_interrupt        <= '0';
                 out_instruction_bits <= (others => '0');
                 pc_store             <= mem_data_out;
                 pc                   <= to_vec(to_int(pc) + 1, pc'length);
-                int_state            <= "10";
+                int_state            <= "11";
 
-            elsif int_state = "10" then
+            elsif int_state = "11" then
                 -- read lower part of pc
                 out_instruction_bits <= (others => '0');
                 pc(31 downto 16)     <= pc_store;

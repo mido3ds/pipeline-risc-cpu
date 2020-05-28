@@ -667,8 +667,8 @@ begin
             reset_cpu;
             wait until hlt = '1';
 
-            test_reg(8, to_vec(3, 32));
-            test_reg(1, to_vec(100, 16));
+            test_reg(8, to_vec(4, 32));
+            test_reg(1, to_vec(100, 32));
         end if;
 
         if run("ldm_r2_50") then
