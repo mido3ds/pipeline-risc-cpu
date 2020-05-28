@@ -265,8 +265,8 @@ architecture rtl of control_unit is
                     aluop                      <= ALUOP_INC2;
                     rsrc1_sel                  <= SP;
                     rsrc2_sel                  <= "1111";
-                    rdst1_sel                  <= '0' & ib(26 downto 24);
-                    rdst2_sel                  <= "1111";
+                    rdst1_sel                  <= SP;
+                    rdst2_sel                  <= '0' & ib(26 downto 24);
                     rsrc2_val                  <= "00000000000000000000000000000000";
                     op2_sel                    <= '0';
                     r_w_control                <= "01";
