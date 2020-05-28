@@ -392,8 +392,8 @@ begin
             decode_src_reg_2 => xs_hdu_src_1,                    --> d_x_buffer.out_src_1
             exe_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
             exe_dst_reg_2    => xmb_ms_destination_1,            --> x_m_buffer.out_destination_1
-            mem_dst_reg_1    => mwb_ws_destination_0,            --> x_m_buffer.out_destination_0
-            mem_dst_reg_2    => mwb_ws_destination_1,            --> x_m_buffer.out_destination_1
+            mem_dst_reg_1    => mwb_ws_destination_0,            --> m_w_buffer.out_destination_0
+            mem_dst_reg_2    => mwb_ws_destination_1,            --> m_w_buffer.out_destination_1
             --OUT
             operand_1_select => hdu_xs_op_1_sel,                 --> execute_stage.alu_op_1_selector
             operand_2_select => hdu_xs_op_2_sel,                 --> execute_stage.alu_op_2_selector

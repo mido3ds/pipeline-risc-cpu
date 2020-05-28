@@ -10,7 +10,7 @@ entity data_mem is
 
     port (
         clk, rd, wr, rst : in std_logic;
-        is_stack         : in std_logic;
+        is_stack         : in std_logic; -- direction of write/read (1 : up(stack), 0 : down(data))
         data_in          : in std_logic_vector(32 - 1 downto 0);
         address          : in std_logic_vector(ADR_LENGTH - 1 downto 0);
         data_out         : out std_logic_vector(32 - 1 downto 0)
