@@ -22,3 +22,4 @@ SHL  R2,2     #R2=64  , C--> 0, N -->0 , Z -->0
 SHR  R2,3     #R2=0C  , C -->1, N-->0 , Z-->0
 SWAP R2,R5    #R5=0C ,R2=FFFF  ,no change for flags
 ADD  R5,R2,R2    #R2= 1000B (C,N,Z= 0)
+END
