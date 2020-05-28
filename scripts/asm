@@ -180,7 +180,7 @@ def assemble():
             else:
                 new_entry = "0" + new_entry + "00000000"
                 ram_entries[ram_div].append(new_entry)
-                for i in range(3):  # add three NOPs after RET and RTI for hazard avoidance
+                for i in range(4):  # add four NOPs after RET and RTI for hazard avoidance
                     ram_entries[ram_div].append("0000000000000000")
 
         # handle pc addresses

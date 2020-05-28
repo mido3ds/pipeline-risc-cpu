@@ -113,9 +113,7 @@ begin
         stack_pointer                          => sp,
         pc_selector                            => pc_sel,
         stalling_enable                        => stalling_out
-
     );
-
 
     process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address, hlt_in )
     begin

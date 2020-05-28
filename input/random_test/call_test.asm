@@ -9,6 +9,9 @@ nop
 nop
 call r4
 inc r1
+inc r1
+inc r1
+inc r1
 end
 
 .org 16
