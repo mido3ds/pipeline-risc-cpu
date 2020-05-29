@@ -13,12 +13,11 @@ entity memory_stage is
         r_w_control                        : in  std_logic_vector(1  downto 0);
         ccr_in                             : in  std_logic_vector(2  downto 0);
         -- passed to wb stage
-        alu_result                         : in  std_logic_vector(31 downto 0);
+        alu_result_1                       : in  std_logic_vector(31 downto 0);
+        alu_result_2                       : in  std_logic_vector(31 downto 0);
         destination_register_1_in          : in  std_logic_vector(3  downto 0);
         destination_register_2_in          : in  std_logic_vector(3  downto 0);
 
-        destination_1_value                : in  std_logic_vector(31 downto 0);
-        destination_2_value                : in  std_logic_vector(31 downto 0);
         opCode_in                          : in  std_logic_vector(6  downto 0);
         hlt_in                             : in  std_logic;
 
@@ -27,13 +26,12 @@ entity memory_stage is
 
 
         memory_out                         : out std_logic_vector(31 downto 0);
-        alu_output                         : out std_logic_vector(31 downto 0);
+        alu_output_1                       : out std_logic_vector(31 downto 0);
+        alu_output_2                       : out std_logic_vector(31 downto 0);
         opCode_out                         : out std_logic_vector(6  downto 0);
         destination_register_1_out         : out std_logic_vector(3  downto 0);
         destination_register_2_out         : out std_logic_vector(3  downto 0);
 
-        destination_1_value_out            : out std_logic_vector(31 downto 0);
-        destination_2_value_out            : out std_logic_vector(31 downto 0);
         hlt_out                            : out std_logic;
 
 
@@ -115,16 +113,15 @@ begin
         stalling_enable                        => stalling_out
     );
 
-    process(clk,rst, pc_sel, alu_result, pc_nav_enable, sp, input_data, output_data, address, hlt_in )
+    process(clk,rst, pc_sel, alu_result_1, alu_result_2, pc_nav_enable, sp, input_data, output_data, address, hlt_in )
     begin
         if rst = '1' then
             memory_out                         <= (others => '0');
-            alu_output                         <= (others => '0');
+            alu_output_1                       <= (others => '0');
+            alu_output_2                       <= (others => '0');
             opCode_out                         <= (others => '0');
             destination_register_1_out         <= "1111";
             destination_register_2_out         <= "1111";
-            destination_1_value_out            <= (others => '0');
-            destination_2_value_out            <= (others => '0');
             ccr_out                            <= (others => '0');
             ccr_out_selector                   <= '0';
             pc_selector                        <= '0';
@@ -138,7 +135,7 @@ begin
             else
                 pc_selector                   <= pc_sel;
             end if;
-            
+
             -- set data memory write/read direction
             if (opCode_in = "0000011" or opCode_in = "0000100" or opCode_in = "0000101" or opCode_in(6 downto 3) = "1001" or opCode_in(6 downto 3) = "1010" or int_bit_in = '1') then
                 -- CALL, RET, RTI, PUSH, POP & INTERRUPT
@@ -151,7 +148,7 @@ begin
                 pc_nav_enable                  <= '1';
                 address                        <= sp;
                 input_data                     <= memory_in;
-                alu_output                     <= sp;
+                alu_output_1                     <= sp;
 
                 if (opCode_in = "0000101") then -- loading ccr from stack
                     ccr_out                    <= output_data(2 downto 0);
@@ -161,7 +158,8 @@ begin
                 stalling_in                    <= '0';
             else
 
-                alu_output                     <= alu_result;
+                alu_output_1                   <= alu_result_1;
+                alu_output_2                   <= alu_result_2;
                 stalling_in                    <= stalling_out;
                 -- normal situation
                 opCode_out                     <= opCode_in;
@@ -169,8 +167,6 @@ begin
                 destination_register_2_out     <= destination_register_2_in;
                 ccr_out                        <= ccr_in;
                 ccr_out_selector               <= '0';
-                destination_1_value_out        <= destination_1_value;
-                destination_2_value_out        <= destination_2_value;
 
                 address                        <= memory_address;
                 memory_out                     <= output_data;

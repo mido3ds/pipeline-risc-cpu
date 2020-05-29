@@ -7,9 +7,10 @@ entity decode_stage is
     port (
         --inputs from main entity
         clk                     : in  std_logic;
-        rst                     : in std_logic;
+        rst                     : in  std_logic;
 
         mem_stalling_bit        : in  std_logic; -- signal from memory stage used in rti or interrupt operations
+        hdu_stalling_bit        : in  std_logic;
         in_zero_flag            : in  std_logic;
         in_port                 : in  std_logic_vector(31 downto 0);
         instr_adr               : in  std_logic_vector(31 downto 0); -- actual instruction address from register file
@@ -85,7 +86,7 @@ begin
             feedback_hashed_adr => out_feedback_hashed_adr
         );
 
-    process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val, instr_adr)
+    process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val, instr_adr, clk)
     begin
         if rst = '1' then
             dxb_alu_op              <= (others => '0');
@@ -98,7 +99,7 @@ begin
             rf_src1_adr             <= "1111";
             src2_value              <= (others => '0');
             src2_value_selector     <= '0';
-        elsif(mem_stalling_bit = '0') then
+        elsif(mem_stalling_bit = '0' and hdu_stalling_bit = '0') then
             dxb_interrupt           <= fdb_interrupt;
             dxb_opcode              <= fdb_instr(30 downto 24);
             dxb_alu_op              <= alu_op;
