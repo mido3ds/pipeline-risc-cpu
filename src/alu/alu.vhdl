@@ -9,7 +9,8 @@ entity alu is
         a    : in  std_logic_vector(31 downto 0);
         b    : in  std_logic_vector(31 downto 0);
         ccr  : out std_logic_vector(2  downto 0);
-        c    : out std_logic_vector(31 downto 0)
+        c    : out std_logic_vector(31 downto 0);
+        c_2  : out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -18,13 +19,15 @@ begin
     process (a, b, op)
         variable a2, b2 : unsigned(32 downto 0);
         variable c2     : unsigned(32 downto 0);
+        variable c2_2   : unsigned(32 downto 0);
         variable c3     : std_logic_vector(c2'range);
+        variable c4     : std_logic_vector(c2_2'range);
     begin
         if op /= ALUOP_NOP then
-            a2 := resize(unsigned(a), 33);
-            b2 := resize(unsigned(b), 33);
-            c2 := to_unsigned(0, c2'length);
-
+            a2   := resize(unsigned(a), 33);
+            b2   := resize(unsigned(b), 33);
+            c2   := to_unsigned(0, c2'length);
+            c2_2 := to_unsigned(0, c2_2'length);
             case op is
                 when ALUOP_INC =>
                     c2 := a2 + 1;
@@ -53,15 +56,20 @@ begin
                 when ALUOP_DEC2 =>
                     c2 := a2 - 2;
                     ccr(CCR_CARRY) <= c2(32);
+                when ALUOP_SWAP =>
+                    c2   := b2;
+                    c2_2 := a2;
                 when others => null;
             end case;
 
             c3 := std_logic_vector(c2);
+            c4 := std_logic_vector(c2_2);
 
             ccr(CCR_ZERO) <= to_std_logic(c3(31 downto 0) = to_vec(0, 32));
             ccr(CCR_NEG)  <= c2(31);
 
             c             <= c3(31 downto 0);
+            c_2           <= c4(31 downto 0);
         end if;
     end process;
 end architecture;

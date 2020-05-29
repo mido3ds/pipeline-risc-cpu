@@ -11,6 +11,7 @@ entity fetch_stage is
         in_interrupt                 : in std_logic;
         in_if_flush                  : in std_logic;
         in_stall                     : in std_logic;
+        in_stall_2                   : in std_logic;
         in_parallel_load_pc_selector : in std_logic;
         in_loaded_pc_value           : in std_logic_vector(31 downto 0);
         in_branch_address            : in std_logic_vector(31 downto 0);
@@ -192,7 +193,7 @@ begin
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
-            elsif in_stall = '1' then
+            elsif (in_stall = '1' or in_stall_2 = '1' )then
                 -- fetch stage stall
                 null; -- do nothing and preserve current PC
 

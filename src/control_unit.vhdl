@@ -153,7 +153,7 @@ architecture rtl of control_unit is
                         end case ;
 
                 when OPC_SWAP   =>
-                    aluop                      <= ALUOP_NOP;
+                    aluop                      <= ALUOP_SWAP;
                     rsrc1_sel                  <= '0' & ib(26 downto 24);
                     rsrc2_sel                  <= '0' & ib(23 downto 21);
                     rdst1_sel                  <= '0' & ib(26 downto 24);
