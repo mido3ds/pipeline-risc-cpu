@@ -19,3 +19,4 @@ inc R1         #R1= 6, C --> 0, N -->0, Z-->0
 Dec R2         #R2= FFFFFFEE,C-->1 , N-->1, Z-->0
 out R1
 out R2
+END

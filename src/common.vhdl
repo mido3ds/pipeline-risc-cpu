@@ -53,6 +53,7 @@ package common is
     constant ALUOP_SHR            : std_logic_vector(3 downto 0) := "1001";
     constant ALUOP_INC2           : std_logic_vector(3 downto 0) := "1010";
     constant ALUOP_DEC2           : std_logic_vector(3 downto 0) := "1011";
+    constant ALUOP_SWAP           : std_logic_vector(3 downto 0) := "1100";
 
     -- indices in ccr
     constant CCR_ZERO             : integer                      := 0;

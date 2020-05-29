@@ -148,6 +148,8 @@ def assemble():
             if (inst in ["push", "pop"]):
                 new_entry = "0" + new_entry + \
                     REGISTERS[line_words[1].upper()] + "00000000"
+                if (inst == "push"): # add NOP before each PUSH for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
                 ram_entries[ram_div].append(new_entry)
             elif (inst in ["ldd", "std"]):
                 eff_adr = bin(int(line_words[2], 16))[2:]
@@ -155,6 +157,8 @@ def assemble():
                 new_entry = "1" + new_entry + \
                     REGISTERS[line_words[1].upper()] + \
                     eff_adr[:8]
+                if (inst == "std"): # add NOP before each STD for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
                 ram_entries[ram_div].append(new_entry)
                 ram_entries[ram_div].append(
                     eff_adr[8:]+"0000")
@@ -214,12 +218,15 @@ def gen_layout(ram_entries):
     """
     ram_layout = [hex(int('0', 2))] * (2**11)  # initialize layout with zeros
     # loop over all RAM blocks
+    last_idx = 0
     for block in ram_entries.keys():
         idx = int(block, 16)
+        last_idx = int(block, 16)
         # insert all block content in RAM layout
         for i in range(idx, idx+len(ram_entries[block])):
             ram_layout[i] = hex(int(ram_entries[block][i-idx], 2))
-    return ram_layout
+            last_idx += 1
+    return ram_layout[:last_idx+1]
 
 
 def write_bin(ram_layout, output_txt):

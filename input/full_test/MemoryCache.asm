@@ -14,6 +14,7 @@ in R1 #R1 = 18
 in R2 #R2 = 2
 in R3 #R3 = 30
 JMP R1 #jump to 18
+END
 
 .ORG 18 #Loop A
 SUB R2,R4,R7 #check if R4 = R2, Instr cache read miss will occur with each loop iteration
@@ -22,7 +23,7 @@ CALL R0 #Instr cache read miss for block starting with 118 each time we call. Da
 OUT R5
 INC R4
 JMP R1 #jump to 18
-
+END
 
 .ORG 30
 in R1 #R1 = 38
@@ -30,6 +31,7 @@ in R3 #R3 = 50
 in R4 #R4 = 0
 STD R1,210 #M[210, 211]=38, Data cache write miss, replaced block is dirty
 JMP R1 #jump to 38
+END
 
 .ORG 38 #Loop B
 SUB R2,R4,R7 #check if R4 = R2, Instr cache read miss will occur for first loop iteration
@@ -39,10 +41,11 @@ LDD R1,210 #R1 = 38, Data cache read miss with each iteration, replaced block is
 OUT R5
 INC R4
 JMP R1 #jump to 38
-
+END
 
 .ORG 50
 STD R6,212 #M[212, 213]=R6
+END
 
 .ORG 118
 ADD R4,R4,R6 # R6=R4 * 2
@@ -53,3 +56,4 @@ LDM R5,1 #R5=1
 OR R5,R5,R6
 LDD R6,312 #R6=M[312, 313]
 ret
+END

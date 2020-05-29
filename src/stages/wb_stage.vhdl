@@ -9,13 +9,11 @@ entity wb_stage is
         clk                         : in  std_logic;
         rst                         : in  std_logic;
         memory_output               : in  std_logic_vector(31 downto 0);
-        alu_output                  : in  std_logic_vector(31 downto 0);
+        alu_output_1                : in  std_logic_vector(31 downto 0);
+        alu_output_2                : in  std_logic_vector(31 downto 0);
         destination_register_1      : in  std_logic_vector(3  downto 0);
         destination_register_2      : in  std_logic_vector(3  downto 0);
 
-        -- for swap case
-        destination_reg_1_val       : in  std_logic_vector(31 downto 0);
-        destination_reg_2_val       : in  std_logic_vector(31 downto 0);
 
         opCode                      : in  std_logic_vector(6  downto 0);
         hlt_in                      : in  std_logic;
@@ -35,7 +33,7 @@ architecture rtl of wb_stage is
 
 begin
 
-    process(clk, rst, dest_reg_1, dest_reg_2, destination_register_1, destination_register_2, hlt_in)
+    process(rst, dest_reg_1, dest_reg_2, destination_register_1, destination_register_2, hlt_in, alu_output_1, alu_output_2)
     begin
 
         if rst = '1' then
@@ -52,10 +50,10 @@ begin
 
             if opCode(6 downto 3) = "0001" then
 
-                dest_reg_1_value     <= destination_reg_2_val;
-                dest_reg_2_value     <= destination_reg_1_val;
+                dest_reg_1_value     <= alu_output_1;
+                dest_reg_2_value     <= alu_output_2;
             else
-                dest_reg_1_value     <= alu_output;
+                dest_reg_1_value     <= alu_output_1;
                 dest_reg_2_value     <= memory_output;
             end if;
 

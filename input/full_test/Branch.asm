@@ -19,6 +19,7 @@ in R7     #R7=FFFFFFFF
 Push R4   #sp=7FC, M[7FE, 7FF]=300
 JMP R1 
 INC R7	  # this statement shouldn't be executed,
+END
  
 #check flag forwarding  
 .ORG 30
@@ -26,10 +27,12 @@ AND R1,R5,R5   #R5=0 , Z = 1
             #try interrupt here
 JZ  R2      #Jump taken, Z = 0
 INC R7      #this statement shouldn't be executed
+END
 
 #check on flag updated on jump
 .ORG 50
 JZ R3      #Jump Not taken
+END
 
 #check destination forwarding
 NOT R5     #R5=FFFFFFFF, Z= 0, C--> not change, N=1
@@ -37,11 +40,13 @@ INC R5     #R5=0, Z=1, C=1, N=0
 in  R6     #R6=200, flag no change
 JZ  R6     #jump taken, Z = 0
 INC R1   #this statement shouldn't be executed
+END
 
 .ORG 100
 ADD R0,R0,R0    #N=0,Z=1,C=0
 out R6
 rti
+END
 
 #check on load use
 .ORG 200
@@ -51,6 +56,7 @@ Call R6    #SP=7FC, M[7FF]=half next PC,M[7FE]=other half next PC
 INC R6	  #R6=401, this statement shouldn't be executed till call returns, C--> 0, N-->0,Z-->0
 NOP
 NOP
+END
 
 
 .ORG 300
@@ -58,7 +64,9 @@ Add R3,R6,R6 #R6=400
 Add R1,R2,R1 #R1=80, C->0,N=0, Z=0
 ret
 INC R7           #this should not be executed
+END
 
 .ORG 500
 NOP
 NOP
+END
