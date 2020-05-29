@@ -1,0 +1,47 @@
+\subsection{Intuition and Assumptions}
+    Since data bus is $16-bits$ in width ie. $word$; so the following sizes are in terms of $words$.
+    
+    Since we are dealing with ONE main memory that contains all the Data and Instructions,
+    and two caches one for Data and the other is for Instructions.
+
+    This Design proposes to divide the Main memory into two parts, one for Data and one for Instructions,
+    the upper most part is saved for Data from \textit{address} $00000000000$ to $01111111111$, while the Instructions
+    \textit{address} starts from $10000000000$ to $11111111111$.
+
+    Considering this, the $LSB$ of the address will indicate whther that address is corresponding to
+    an instruction ($1$) or data ($0$).
+
+    These assumptions allow us to:
+    \begin{itemize}
+        \item Limit collisions (conflicts) since for each Cache the tag size is reduced
+            to only two bits since the actual address is 10 bits.
+        \item Create an internal pipeline between the instruction cache and data cache,
+            since the instruction cache is used only for reading, and filled periodically, more on 
+            that on section \nameref{workflowSection}.
+        \item No dirty bit array is used for instruction cache.
+    \end{itemize}
+     
+\subsection{Caches Size}
+    What is Given:
+    \begin{itemize}
+        \item Main memory: $4KB = 2^{12}B =2^{11} W$
+        \item Cache Size: $512 Bytes = 256Words$
+        \item Block Size: $16B = 8W$
+        \item Number of Rows/Slots: $32$
+        \item Number of Caches: $2$ one for Data and one for Instructions.
+    \end{itemize}
+
+    Sizes:
+    \begin{itemize}
+        \item Each Cache is $256Words$
+        \item Tags are 2 bits in width.
+        \item Validity is only 1 bit.
+        \item Dirty bit is used only in case of Data cache.
+        \item Extra bits required in total: $32*(2+1) + 16*(1) = 112bits$
+    \end{itemize}
+
+
+\subsection{Workflow}
+\label{workflowSection}
+
+
