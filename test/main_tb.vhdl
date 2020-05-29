@@ -225,7 +225,7 @@ begin
                 dm_is_stack <= is_stack;
                 wait until rising_edge(clk);
 
-                i := i + 2;
+                i := (i + 2) when is_stack = '0' else (i - 2);
                 j := j + 2;
             end loop;
 
@@ -940,21 +940,22 @@ begin
         if run("interrupt_before_end") then
             reset_all;
             fill_instr_mem((
-            --$ printf '2\n.org 2
+            --$ printf '2\n.org 0 2
+            --$ .org 2 6
+            --$ .org 4
             --$ end # interrupt before this, M[2:3] = 3
-            --$ .org 3 
+            --$ .org 6 
             --$ not r0
             --$ end' | ./scripts/asm | head -n$((2+3))
             to_vec("0000000000000000"),
-            to_vec("0000000000000010"),
+            to_vec("0000000000000100"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000110"),
             to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
-            fill_data_mem(2, (
-            to_vec(0, 16),
-            to_vec(3, 16)
-            ), '1');
             set_ccr("101");
 
             reset_cpu;
@@ -971,21 +972,22 @@ begin
         if run("interrupt_after_end") then
             reset_all;
             fill_instr_mem((
-            --$ printf '2\n.org 2
-            --$ end # interrupt after this, M[2:3] = 3
-            --$ .org 3 
+            --$ printf '2\n.org 0 2
+            --$ .org 2 6
+            --$ .org 4
+            --$ end # interrupt before this, M[2:3] = 3
+            --$ .org 6 
             --$ not r0
             --$ end' | ./scripts/asm | head -n$((2+3))
             to_vec("0000000000000000"),
-            to_vec("0000000000000010"),
+            to_vec("0000000000000100"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000110"),
             to_vec("0111000000000000"),
+            to_vec("0000000000000000"),
             to_vec("0111100100000000"),
             to_vec("0111000000000000")
             ));
-            fill_data_mem(2, (
-            to_vec(0, 16),
-            to_vec(3, 16)
-            ), '1');
 
             reset_cpu;
             wait for CLK_PERD;
@@ -1015,13 +1017,13 @@ begin
             to_vec("0111000000000000")
             ));
             set_reg(8, to_vec(2 ** 11 - 6, 32));
-            fill_data_mem(2 ** 11 - 4, (
-            to_vec(5, 16),                     -- 2^11-4
-            to_vec(0, 16),                     -- 2^11-3
-            to_vec(to_vec(0, 16 - 3) & "010"), -- 2^11-2
-            to_vec(0, 16)                      -- 2^11-1
+            fill_data_mem(2 ** 11 - 2, (
+            to_vec(5, 16),                     -- 2^11-5
+            to_vec(0, 16),                     -- 2^11-4
+            to_vec(to_vec(0, 16 - 3) & "010"), -- 2^11-3
+            to_vec(0, 16)                      -- 2^11-2
             ), '1');
-
+            dump_data_mem;
             reset_cpu;
             wait until hlt = '1';
 
@@ -1032,27 +1034,23 @@ begin
         if run("interrupt_rti") then
             reset_all;
             fill_instr_mem((
-            --$ printf '2\n.org 2
-            --$ end # interrupt before this, M[2:3] = 7
+            --$ printf '2\n.org 0 2
+            --$ .org 2 6
+            --$ .org 4
             --$ not r1
-            --$ end
-            --$ .org 7 
+            --$ end # interrupt before this, M[2:3] = 3
+            --$ .org 6 
             --$ not r0
-            --$ rti' | ./scripts/asm | head -n$((2+7))
+            --$ rti' | ./scripts/asm | head -n$((2+3))
             to_vec("0000000000000000"),
-            to_vec("0000000000000010"),
-            to_vec("0111000000000000"),
+            to_vec("0000000000000100"),
+            to_vec("0000000000000000"),
+            to_vec("0000000000000110"),
             to_vec("0111100100100000"),
             to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
             to_vec("0111100100000000"),
             to_vec("0000010100000000")
             ));
-            fill_data_mem(2, (
-            to_vec(0, 16),
-            to_vec(7, 16)
-            ), '1');
             set_ccr("101");
 
             reset_cpu;
