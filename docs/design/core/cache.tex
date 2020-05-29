@@ -1,4 +1,5 @@
 \subsection{Intuition and Assumptions}
+\label{intuitionSection}
     Since data bus is $16-bits$ in width ie. $word$; so the following sizes are in terms of $words$.
     
     Since we are dealing with ONE main memory that contains all the Data and Instructions,
@@ -43,5 +44,86 @@
 
 \subsection{Workflow}
 \label{workflowSection}
+    \subsubsection{General Cache Design}
+    As proposed in the \nameref{intuitionSection} section, two caches exist in the design.
 
+    In order to increase efficiency; we propose this fig.\ref{fig:cacheDesign}:
+    \begin{itemize}
+        \item Initially the instruction cache is filled with the first $Block$.
+        \item The propgram will start working as usually\dots
+        \item If No memory instruction is produced, this means the Memory is Ideal..
+        \item The Cache Controller requests more $Blocks$ of Instructions from main memory.
+        \item Meanwhile if Data is required from memory to be read or written, it will wait 
+            until the current block is retreived then the required $Data$ will be provided.
+        \item Then the $Data$ request will be fullfilled.
+        \item This means that Data Memory has higher priority unless the instruction cache is empty.
+    \end{itemize}
+
+    The following algorithm may make things more clear\dots
+
+    \begin{algorithm}[H]
+        \SetAlgoLined
+        \While{True}{
+            \uIf{Instruction Cache is Empty}{
+                Fetch the Next Instruction.\;
+            }
+            \uElseIf{Memory is Free to be Used}{
+                Fetch the Next Instruction.\;
+            }
+            \Else{
+                \uIf{there is a Data Memory Instruction}{
+                    \uIf{Memory is Busy}{
+                        Queue it next\;
+                    }\Else{
+                        Operate Now\;
+                    }
+                }
+            }
+        }
+        \caption{Cache Controller}
+        \end{algorithm}
+    
+    \vspace{1cm}
+    What makes this algorithm efficient is these two information, One: the Instruction cache
+    can be written periodically, Two: the Rate of Memory Instruction is very low and the Number
+    of memory instruction (such as $SW$ and $LD$) is less than other Instructions.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/cache/full_cache_design.png}
+        \caption{Cache Design}
+        \label{fig:cacheDesign}
+    \end{figure}
+
+    \subsubsection{Data Cache Design}
+
+    In the following flowchart fig.\ref{fig:dataCache} we illustrate how read and write operations are
+    handled in our system.\newline
+
+    Notes:
+    \begin{itemize}
+        \item These operations are related to $Data$ cache.
+        \item When Valid bit equals 0, this means it's not valid, and vv.
+        \item When Dirty bit equals 0. this means the block is not modified, and vv.
+        \item $Circle A$ is responsible for reading from main memory.
+        \item $Circle B$ is responsible for writing into main memory (Replacement).
+        \item Replacement occurs only when read is demanded let's see why:
+            \begin{itemize}
+                \item when dirty bit is set, and that exact same block is needed for read or write operation
+                \item If it's needed for read operation then the old block will be written first,
+                    then the ordered block will be read, this is ordinary Replacement.
+                \item and if it's needed for write operation, then if it's not valid or missed ordinary Replacement
+                is requested,
+                \item but if it was valid and tag is matched then we don't need to check the dirty bit
+                \textbf{data can be overwritten without updating the main memory} and the dirty bit is set anyway.
+            \end{itemize}
+    \end{itemize}
+
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/cache/cache_system_flowchart.png}
+        \caption{Data Cache R/W}
+        \label{fig:dataCache}
+    \end{figure}
 
