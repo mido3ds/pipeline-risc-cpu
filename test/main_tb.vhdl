@@ -203,6 +203,7 @@ begin
 
         procedure fill_data_mem(adr : integer; ramdata : WordArrType; is_stack : std_logic) is
             variable i : integer := adr;
+            variable j : integer := 0;
         begin
             clear_signals;
             info("start filling data_mem");
@@ -216,15 +217,16 @@ begin
                 wait until clk = '1';
             end if;
 
-            while i < ramdata'length loop
+            while j < ramdata'length loop
                 dm_adr      <= to_vec(i, im_adr'length);
-                dm_data_in  <= ramdata(i) & ramdata(i + 1);
+                dm_data_in  <= ramdata(j) & ramdata(j + 1);
                 dm_rd       <= '0';
                 dm_wr       <= '1';
                 dm_is_stack <= is_stack;
                 wait until rising_edge(clk);
 
                 i := i + 2;
+                j := j + 2;
             end loop;
 
             info("done filling data_mem");
@@ -662,7 +664,7 @@ begin
             to_vec("0111000000000000")
             ));
             set_reg(8, to_vec(2, 32));
-            fill_data_mem(2, (to_vec(0, 16), to_vec(100, 16)), '1');
+            fill_data_mem(4, (to_vec(0, 16), to_vec(100, 16)), '1');
 
             reset_cpu;
             wait until hlt = '1';
@@ -854,7 +856,7 @@ begin
             reset_all;
             fill_instr_mem((
             --$ printf '2\n.org 2
-            --$ ret # sp=-2, M[0]=5
+            --$ ret # sp=2, M[1]=0, M[2]=5
             --$ end
             --$ .org 5
             --$ not r2
@@ -867,8 +869,8 @@ begin
             to_vec("0111100101000000"),
             to_vec("0111000000000000")
             ));
-            set_reg(8, to_vec(-2, 32));
-            fill_data_mem(0, (
+            set_reg(8, to_vec(2, 32));
+            fill_data_mem(2, (
             to_vec(5, 16),
             to_vec(0, 16)
             ), '1');
