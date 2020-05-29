@@ -148,6 +148,8 @@ def assemble():
             if (inst in ["push", "pop"]):
                 new_entry = "0" + new_entry + \
                     REGISTERS[line_words[1].upper()] + "00000000"
+                if (inst == "push"): # add NOP before each PUSH for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
                 ram_entries[ram_div].append(new_entry)
             elif (inst in ["ldd", "std"]):
                 eff_adr = bin(int(line_words[2], 16))[2:]
@@ -155,6 +157,8 @@ def assemble():
                 new_entry = "1" + new_entry + \
                     REGISTERS[line_words[1].upper()] + \
                     eff_adr[:8]
+                if (inst == "std"): # add NOP before each STD for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
                 ram_entries[ram_div].append(new_entry)
                 ram_entries[ram_div].append(
                     eff_adr[8:]+"0000")
