@@ -216,6 +216,8 @@ begin
             --IN
             clk            => clk,
 
+            in_stall_hdu   => hdu_stall,               --> hdu.Stall_signal
+            in_stall_mem   => ms_stalling_enable,      --> memory_stage.stalling_enable
             in_flush       => fsi_if_flush,            --> decode_stage.out_if_flush
             in_instr       => fs_fdb_instruction_bits, --> fetch_stage.out_instruction_bits
             in_next_adr    => fs_fdb_predicted_address,--> fetch_stage.out_predicted_address
@@ -313,7 +315,8 @@ begin
             --IN
             clk            => clk,
 
-            in_stall       => hdu_stall,         --> hdu.Stall_signal
+            in_stall_hdu   => hdu_stall,          --> hdu.Stall_signal
+            in_stall_mem   => ms_stalling_enable, --> memory_stage.stalling_enable
             in_operand0    => rf_dxb_op0_value,  --> reg_file.op0_value
             in_operand1    => rf_dxb_op1_value,  --> reg_file.op1_value
             in_alu_op      => ds_dxb_alu_op,     --> decode_stage.dxb_alu_op
@@ -345,7 +348,7 @@ begin
         port map(
             --IN
             clk                        => clk,
-            rst                        => rst,                --> main
+            rst                        => rst,                  --> main
 
             alu_operation              => dxb_xs_alu_op,        --> d_x_buffer.out_alu_op
             operand_1                  => dxb_xs_operand0,      --> d_x_buffer.out_operand0

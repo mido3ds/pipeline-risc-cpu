@@ -6,6 +6,8 @@ entity f_d_buffer is
     port (
         clk             : in std_logic;
 
+        in_stall_hdu    : in std_logic;
+        in_stall_mem    : in std_logic;
         in_flush        : in std_logic;
         in_instr        : in std_logic_vector(31 downto 0);
         in_next_adr     : in std_logic_vector(31 downto 0);
@@ -30,7 +32,7 @@ architecture rtl of f_d_buffer is
     signal interrupt   : std_logic;
 
 begin
-    process (in_flush, in_instr, in_next_adr, in_inc_pc, in_hashed_adr, in_interrupt, in_reset)
+    process (in_stall_hdu, in_stall_mem, in_flush, in_instr, in_next_adr, in_inc_pc, in_hashed_adr, in_interrupt, in_reset)
     begin
         if in_flush = '1' or in_reset = '1' then
             instr       <= (others => '0');
@@ -38,7 +40,7 @@ begin
             inc_pc      <= (others => '0');
             hashed_adr  <= (others => '0');
             interrupt   <= '0';
-        else
+        elsif in_stall_hdu = '0' and in_stall_mem = '0' then
             instr       <= in_instr;
             next_adr    <= in_next_adr;
             inc_pc      <= in_inc_pc;

@@ -193,7 +193,7 @@ begin
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
-            elsif (in_stall_hdu = '1' or in_stall_mem = '1')then
+            elsif in_stall_hdu = '1' or in_stall_mem = '1' then
                 -- fetch stage stall
                 null; -- do nothing and preserve current PC
 

@@ -6,7 +6,8 @@ entity d_x_buffer is
     port (
         clk            : in std_logic;
 
-        in_stall       : in std_logic;
+        in_stall_hdu    : in std_logic;
+        in_stall_mem    : in std_logic;
         in_alu_op      : in std_logic_vector (3 downto 0);
         in_operand0    : in std_logic_vector(32 - 1 downto 0);
         in_operand1    : in std_logic_vector(32 - 1 downto 0);
@@ -51,9 +52,9 @@ architecture rtl of d_x_buffer is
     signal alu_op        : std_logic_vector(3 downto 0);
     signal hlt           : std_logic;
 begin
-    process (in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt, in_hlt)
+    process (in_stall_hdu, in_stall_mem, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt, in_hlt)
     begin
-        if in_stall = '0' then
+        if in_stall_hdu = '0' and in_stall_mem = '0' then
             operand0      <= in_operand0;
             operand1      <= in_operand1;
             src2_value    <= in_src2_value;
@@ -69,7 +70,7 @@ begin
         end if;
     end process;
 
-    process (clk, in_stall, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, in_hlt, in_src_0,in_src_1)
+    process (clk, in_operand0, in_operand1, in_dest_0, in_dest_1, in_opcode, in_r_w, in_interrupt , src2_value, in_hlt, in_src_0,in_src_1)
     begin
         if rising_edge(clk) then
             out_alu_op     <= alu_op;
