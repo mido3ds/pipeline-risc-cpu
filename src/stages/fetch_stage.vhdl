@@ -10,8 +10,8 @@ entity fetch_stage is
 
         in_interrupt                 : in std_logic;
         in_if_flush                  : in std_logic;
-        in_stall                     : in std_logic;
-        in_stall_2                   : in std_logic;
+        in_stall_hdu                 : in std_logic;
+        in_stall_mem                 : in std_logic;
         in_parallel_load_pc_selector : in std_logic;
         in_loaded_pc_value           : in std_logic_vector(31 downto 0);
         in_branch_address            : in std_logic_vector(31 downto 0);
@@ -104,7 +104,7 @@ begin
     --OUT
     tb_mem_data_out    <= mem_data_out;
 
-    process (clk, rst, mem_data_out, br_pred, in_interrupt, in_if_flush, in_stall, in_parallel_load_pc_selector, in_loaded_pc_value, in_branch_address, in_hashed_address, in_reg_value)
+    process (clk, rst, mem_data_out, br_pred, in_interrupt, in_if_flush, in_stall_hdu, in_stall_mem, in_parallel_load_pc_selector, in_loaded_pc_value, in_branch_address, in_hashed_address, in_reg_value)
     begin
         if rst = '1' then
             -- reset logic start
@@ -193,7 +193,7 @@ begin
                 -- output NOP
                 out_instruction_bits <= (others => '0');
 
-            elsif (in_stall = '1' or in_stall_2 = '1' )then
+            elsif (in_stall_hdu = '1' or in_stall_mem = '1')then
                 -- fetch stage stall
                 null; -- do nothing and preserve current PC
 

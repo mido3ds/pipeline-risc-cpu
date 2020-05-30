@@ -2,11 +2,13 @@
 10
 
 .ORG 10
-in r0
 inc r0
+inc r1
 inc r0
-inc r2
-swap r0,r2
-iadd r0,r2,5
-inc r2
+std r0,4
+ldd r1,4
+inc r1
+inc r2   # ignored
+inc r3   # done twice ! so stalling done after one cycle not before !
+inc r4
 END

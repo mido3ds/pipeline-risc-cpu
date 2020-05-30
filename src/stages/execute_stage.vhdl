@@ -105,7 +105,7 @@ begin
             r_w_control_out                    <= (others => '0');
             interrupt_bit_out                  <= '0';
             hlt_out                            <= '0';
-        elsif ( mem_stalling_bit = '0') then
+        elsif (mem_stalling_bit = '0' and hdu_stalling_bit = '0') then
             -- works at rising edge and stalling disabled only
 
             destination_register_1_out      <= destination_register_1_in;

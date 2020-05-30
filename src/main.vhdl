@@ -186,8 +186,8 @@ begin
             rst                          => rst,
             in_interrupt                 => interrupt,
 
-            in_stall                     => hdu_stall,                     --> hdu.Stall_signal
-            in_stall_2                   => ms_stalling_enable,
+            in_stall_hdu                 => hdu_stall,                     --> hdu.Stall_signal
+            in_stall_mem                 => ms_stalling_enable,            --> memory_stage.stalling_enable
             in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
             in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> memory_stage.pc_selector
             in_loaded_pc_value           => ms_mwb_mem_input,              --> memory_stage.memory_out
@@ -362,14 +362,14 @@ begin
             alu_op_1_selector          => hdu_xs_op_1_sel,      --> hdu.operand_1_select
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout_1,   --> x_m_buffer.out_aluout
-            forwarded_data_2           => xmb_ms_xs_aluout_2,        --> m_w_buffer.out_mem
-            forwarded_data_3           => mwb_ws_aluout_1,        --> m_w_buffer.aluout
+            forwarded_data_2           => xmb_ms_xs_aluout_2,   --> m_w_buffer.out_mem
+            forwarded_data_3           => mwb_ws_aluout_1,      --> m_w_buffer.aluout
             forwarded_data_4           => mwb_ws_aluout_2,
             forwarded_data_5           => mwb_ws_xs_mem,
             --OUT
             ccr_out                    => xs_ccr,               --> main
             update_ccr                 => xs_ccr_sel,
-            alu_output_1               => xs_xmb_alu_output_1,    --> x_m_buffer.in_aluout
+            alu_output_1               => xs_xmb_alu_output_1,  --> x_m_buffer.in_aluout
             alu_output_2               => xs_xmb_alu_output_2,
             memory_address             => xs_xmb_mem_adr,       --> x_m_buffer.in_mem_adr
             memory_input               => xs_xmb_mem_input,     --> x_m_buffer.in_mem_inp
@@ -388,7 +388,8 @@ begin
 
             opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
             opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
-            opcode_memory    => ms_mwb_opcode,                   --> memory_stage.opCode_out
+            opcode_memory    => xmb_ms_opcode,                   --> x_m_buffer.out_opcode
+            opcode_wb        => ms_mwb_opcode,                   --> memory_stage.opCode_out
             decode_src_reg_1 => xs_hdu_src_0,                    --> d_x_buffer.out_src_0
             decode_src_reg_2 => xs_hdu_src_1,                    --> d_x_buffer.out_src_1
             exe_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0
@@ -407,8 +408,8 @@ begin
             --IN
             clk               => clk,
 
-            in_aluout_1       => xs_xmb_alu_output_1,    --> execute_stage.alu_output
-            in_aluout_2       => xs_xmb_alu_output_2,    --> execute_stage.alu_output
+            in_aluout_1       => xs_xmb_alu_output_1,  --> execute_stage.alu_output
+            in_aluout_2       => xs_xmb_alu_output_2,  --> execute_stage.alu_output
             in_mem_adr        => xs_xmb_mem_adr,       --> execute_stage.memory_address
             in_mem_inp        => xs_xmb_mem_input,     --> execute_stage.memory_input
             in_opcode         => xs_xmb_opcode,        --> execute_stage.opCode_out
@@ -441,15 +442,15 @@ begin
             memory_in                  => xmb_ms_mem_input,              --> x_m_buffer.out_mem_inp
             r_w_control                => xmb_ms_r_w,                    --> x_m_buffer.out_r_w
             alu_result_1               => xmb_ms_xs_aluout_1,            --> x_m_buffer.out_aluout
-            alu_result_2               => xmb_ms_xs_aluout_2,              --> x_m_buffer.out_aluout
+            alu_result_2               => xmb_ms_xs_aluout_2,            --> x_m_buffer.out_aluout
             destination_register_1_in  => xmb_ms_destination_0,          --> x_m_buffer.out_destination_0
             destination_register_2_in  => xmb_ms_destination_1,          --> x_m_buffer.out_destination_1
             opCode_in                  => xmb_ms_opcode,                 --> x_m_buffer.out_opcode
             int_bit_in                 => xmb_ms_interrupt,              --> x_m_buffer.out_interrupt
             hlt_in                     => xmb_ms_hlt,                    --> x_m_buffer.out_hlt
             --OUT
-            alu_output_1               => ms_mwb_aluout_1,                 --> m_w_buffer.in_aluout
-            alu_output_2               => ms_mwb_aluout_2,                 --> m_w_buffer.in_aluout
+            alu_output_1               => ms_mwb_aluout_1,               --> m_w_buffer.in_aluout
+            alu_output_2               => ms_mwb_aluout_2,               --> m_w_buffer.in_aluout
             memory_out                 => ms_mwb_mem_input,              --> m_w_buffer.in_mem
             opCode_out                 => ms_mwb_opcode,                 --> m_w_buffer.in_opcode
             destination_register_1_out => ms_mwb_dest_0_adr,             --> m_w_buffer.in_destination_0
@@ -483,16 +484,16 @@ begin
             --IN
             clk               => clk,
 
-            in_aluout_1       => ms_mwb_aluout_1,           --> memory_stage.alu_output
-            in_aluout_2       => ms_mwb_aluout_2,           --> memory_stage.alu_output
+            in_aluout_1       => ms_mwb_aluout_1,         --> memory_stage.alu_output
+            in_aluout_2       => ms_mwb_aluout_2,         --> memory_stage.alu_output
             in_mem            => ms_mwb_mem_input,        --> memory_stage.memory_out
             in_opcode         => ms_mwb_opcode,           --> memory_stage.opCode_out
             in_destination_0  => ms_mwb_dest_0_adr,       --> memory_stage.destination_register_1_out
             in_destination_1  => ms_mwb_dest_1_adr,       --> memory_stage.destination_register_2_out
             in_hlt            => ms_mwb_hlt,              --> memory_stage.hlt_out
             --OUT
-            out_aluout_1      => mwb_ws_aluout_1,           --> wb_stage.alu_output
-            out_aluout_2      => mwb_ws_aluout_2,           --> wb_stage.alu_output
+            out_aluout_1      => mwb_ws_aluout_1,         --> wb_stage.alu_output
+            out_aluout_2      => mwb_ws_aluout_2,         --> wb_stage.alu_output
             out_mem           => mwb_ws_xs_mem,           --> wb_stage.memory_output
             out_opcode        => mwb_ws_opcode,           --> wb_stage.opCode
             out_destination_0 => mwb_ws_destination_0,    --> wb_stage.destination_register_1
@@ -506,8 +507,8 @@ begin
             clk                    => clk,
             rst                    => rst,                    --> main
 
-            alu_output_1           => mwb_ws_aluout_1,          --> m_w_buffer.out_aluout
-            alu_output_2           => mwb_ws_aluout_2,          --> m_w_buffer.out_aluout
+            alu_output_1           => mwb_ws_aluout_1,        --> m_w_buffer.out_aluout
+            alu_output_2           => mwb_ws_aluout_2,        --> m_w_buffer.out_aluout
             memory_output          => mwb_ws_xs_mem,          --> m_w_buffer.out_mem
             opCode                 => mwb_ws_opcode,          --> m_w_buffer.out_opcode
             destination_register_1 => mwb_ws_destination_0,   --> m_w_buffer.out_destination_0

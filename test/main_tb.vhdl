@@ -1023,7 +1023,7 @@ begin
             to_vec(to_vec(0, 16 - 3) & "010"), -- 2^11-3
             to_vec(0, 16)                      -- 2^11-2
             ), '1');
-            dump_data_mem;
+
             reset_cpu;
             wait until hlt = '1';
 

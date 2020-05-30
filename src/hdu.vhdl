@@ -10,6 +10,7 @@ entity hdu is
         opcode_decode    : in std_logic_vector(6 downto 0);
         opcode_execute   : in std_logic_vector(6 downto 0);
         opcode_memory    : in std_logic_vector(6 downto 0);
+        opcode_wb        : in std_logic_vector(6 downto 0);
         decode_src_reg_1 : in std_logic_vector(3 downto 0);
         decode_src_reg_2 : in std_logic_vector(3 downto 0);
         exe_dst_reg_1    : in std_logic_vector(3 downto 0);
@@ -53,70 +54,56 @@ end entity;
 --detect EQ1,2,3,4 and send op_selectors and alu_Selectors accordingly...
 
 architecture rtl of hdu is
-    signal stall_1  : std_logic := '0';
-    signal stall_2  : std_logic := '0';
     begin
-    process(opcode_execute, opcode_memory, decode_src_reg_1, decode_src_reg_2, exe_dst_reg_1, exe_dst_reg_2 ,mem_dst_reg_2, stall_1, stall_2)
+    process(opcode_execute, opcode_memory,opcode_wb, decode_src_reg_1, decode_src_reg_2, exe_dst_reg_1, exe_dst_reg_2 ,mem_dst_reg_2)
     begin
+        if ((decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) and opcode_memory(6 downto 3) = "1100") then
+            stall_signal            <= '1';
+        else
+            stall_signal            <= '0';
+        end if;
         if (decode_src_reg_1 = "1111") then
             operand_1_select         <= "000";
-            stall_1    <= '0';
         elsif (decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) then
-            if (opcode_memory(6 downto 3) = "1100") then
-                operand_1_select     <= "000";
-                stall_1    <= '1';
-            else
-                if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
-                    operand_1_select     <= "001";
-                    stall_1    <= '0';
-                elsif (opcode_execute(6 downto 3) = "0001") then
-                    stall_1    <= '0';
-                    if(decode_src_reg_1 = exe_dst_reg_1) then
-                        operand_1_select  <= "001";
-                    else
-                        operand_1_select  <= "010";
-                    end if;
+            if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
+                operand_1_select     <= "001";
+            elsif (opcode_execute(6 downto 3) = "0001") then
+                if(decode_src_reg_1 = exe_dst_reg_1) then
+                    operand_1_select  <= "001";
+                else
+                    operand_1_select  <= "010";
                 end if;
             end if;
+
         else
                 -- here check if in memory or not
             if (decode_src_reg_1 = mem_dst_reg_1 or decode_src_reg_1 = mem_dst_reg_2) then
                 -- check to take alu out or memory out
-                if (opcode_memory(6 downto 3) = "1111" or opcode_memory(6 downto 3) = "0010" or opcode_memory(6 downto 3) = "0011" or opcode_memory(6 downto 3) = "0100"
-                or opcode_memory(6 downto 3) = "0101" or opcode_memory(6 downto 3) = "0110" or opcode_memory(6 downto 3) = "0111" or opcode_memory(6 downto 3) = "1000") then
+                if (opcode_wb(6 downto 3) = "1111" or opcode_wb(6 downto 3) = "0010" or opcode_wb(6 downto 3) = "0011" or opcode_wb(6 downto 3) = "0100"
+                or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000") then
                     operand_1_select     <= "011";
-                    stall_1    <= '0';
-                elsif (opcode_memory(6 downto 3) = "0001") then
-                    stall_1    <= '0';
+                elsif (opcode_wb(6 downto 3) = "0001") then
                     if (decode_src_reg_1 = mem_dst_reg_1) then
                         operand_1_select     <= "011";
                     else
                         operand_1_select     <= "100";
                     end if;
-                elsif (opcode_memory(6 downto 3) = "1100") then
+                elsif (opcode_wb(6 downto 3) = "1100") then
                     operand_1_select     <= "101";
-                    stall_1           <= '0';
                 end if;
             else
                 operand_1_select       <= "000";
-                stall_1                <= '0';
             end if;
         end if;
 
         if (decode_src_reg_2 = "1111") then
             operand_2_select       <= "000";
-            stall_2                <= '0';
         elsif (decode_src_reg_2 = exe_dst_reg_1 or decode_src_reg_2 = exe_dst_reg_2) then
 
-            if (opcode_memory(6 downto 3) = "1100") then
-                operand_2_select     <= "000";
-                stall_2                <= '1';
-            elsif (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
+            if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
             or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
                 operand_2_select     <= "001";
-                stall_2                <= '0';
             elsif(opcode_execute(6 downto 3) = "0001") then
-                stall_2               <= '0';
                 if (decode_src_reg_2 = exe_dst_reg_1) then
                     operand_2_select  <= "001";
                 else
@@ -127,27 +114,23 @@ architecture rtl of hdu is
         else
             -- here check if in memory or not
             if (decode_src_reg_2 = mem_dst_reg_1 or decode_src_reg_2 = mem_dst_reg_2) then
-                if (opcode_memory(6 downto 3) = "1111" or opcode_memory(6 downto 3) = "0010" or opcode_memory(6 downto 3) = "0011" or opcode_memory(6 downto 3) = "0100"
-                or opcode_memory(6 downto 3) = "0101" or opcode_memory(6 downto 3) = "0110" or opcode_memory(6 downto 3) = "0111" or opcode_memory(6 downto 3) = "1000") then
+                if (opcode_wb(6 downto 3) = "1111" or opcode_wb(6 downto 3) = "0010" or opcode_wb(6 downto 3) = "0011" or opcode_wb(6 downto 3) = "0100"
+                or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000") then
                     operand_2_select       <= "011";
-                    stall_2                <= '0';
-                elsif (opcode_memory(6 downto 3) = "0001") then
-                    stall_2                <= '0';
+                elsif (opcode_wb(6 downto 3) = "0001") then
                     if (decode_src_reg_2 = mem_dst_reg_1) then
                         operand_2_select     <= "011";
                     else
                         operand_2_select     <= "100";
                     end if;
-                elsif (opcode_memory(6 downto 3) = "1100") then         -- memory operation here need stalling :)
-                    stall_2                <= '0';
+                elsif (opcode_wb(6 downto 3) = "1100") then         -- memory operation here need stalling :)
                     operand_2_select     <= "101";
                 end if;
                 -- check to take alu out or memory out
             else
                 operand_2_select       <= "000";
-                stall_2                <= '0';
             end if;
         end if;
-        stall_signal    <= (stall_1 or stall_2);
+        --stall_signal                 <= '0';
     end process;
 end architecture;

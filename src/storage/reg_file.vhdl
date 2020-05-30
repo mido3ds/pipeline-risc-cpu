@@ -79,23 +79,25 @@ begin
                 op0_value     <= wb0_value;
             elsif (src0_adr = dst1_adr and src0_adr /= "1111") then
                 op0_value     <= wb1_value;
-            elsif (src1_adr = dst0_adr and src1_adr /= "1111") then
+            else
+                out_reg(src0_adr, op0_value);
+            end if;
+            if (src1_adr = dst0_adr and src1_adr /= "1111") then
                 op1_value     <= wb0_value;
             elsif (src1_adr = dst1_adr and src1_adr /= "1111") then
                 op1_value     <= wb1_value;
             else
-                out_reg(src0_adr, op0_value);
                 out_reg(src1_adr, op1_value);
-                case br_io_enbl is
-                    when "10" => -- OUT
-                        out_reg(src0_adr, out_value);
-                    when "11" => -- Branch
-                        out_reg(src0_adr, instr_adr);
-                    when others =>
-                        null;
-                end case;
-                out_reg(fetch_adr, fetch_value);
             end if;
+            case br_io_enbl is
+                when "10" => -- OUT
+                    out_reg(src0_adr, out_value);
+                when "11" => -- Branch
+                    out_reg(src0_adr, instr_adr);
+                when others =>
+                    null;
+            end case;
+            out_reg(fetch_adr, fetch_value);
         elsif rising_edge(clk) then -- write
             in_reg(dst0_adr, wb0_value);
             in_reg(dst1_adr, wb1_value);
