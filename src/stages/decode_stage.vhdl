@@ -46,14 +46,38 @@ entity decode_stage is
 end entity;
 
 architecture rtl of decode_stage is
-    signal alu_op               : std_logic_vector(3 downto 0)   := (others => '0');
-    signal r_w_control          : std_logic_vector(1  downto 0)  := (others => '0');
-    signal dest_0               : std_logic_vector(3  downto 0)  := (others => '0');
-    signal dest_1               : std_logic_vector(3  downto 0)  := (others => '0');
-    signal src_0                : std_logic_vector(3  downto 0)  := (others => '0');
-    signal src_1                : std_logic_vector(3  downto 0)  := (others => '0');
-    signal src_2_val            : std_logic_vector(31 downto 0)  := (others => '0');
-    signal src_2_val_enable     : std_logic                      := '0';
+    signal alu_op                       : std_logic_vector(3 downto 0)   := (others => '0');
+    signal r_w_control                  : std_logic_vector(1  downto 0)  := (others => '0');
+    signal dest_0                       : std_logic_vector(3  downto 0)  := (others => '0');
+    signal dest_1                       : std_logic_vector(3  downto 0)  := (others => '0');
+    signal src_0                        : std_logic_vector(3  downto 0)  := (others => '0');
+    signal src_1                        : std_logic_vector(3  downto 0)  := (others => '0');
+    signal src_2_val                    : std_logic_vector(31 downto 0)  := (others => '0');
+    signal src_2_val_enable             : std_logic                      := '0';
+    signal if_flush                     : std_logic                      := '0';
+    signal branch_adr_update            : std_logic_vector(31 downto 0)  := (others => '0');
+    signal feedback_hashed_adr          : std_logic_vector(3 downto 0)   := (others => '0');
+    signal hlt                          : std_logic                      := '0';
+    signal br_io_enbl                   : std_logic_vector(1 downto 0)   := (others => '0');
+    signal prev_stall                   : std_logic                      := '0';
+
+    --> temp stores (for stall)
+    signal temp_out_if_flush            : std_logic                      := '0';
+    signal temp_out_branch_adr_update   : std_logic_vector(31 downto 0)  := (others => '0');
+    signal temp_out_feedback_hashed_adr : std_logic_vector(3  downto 0)  := (others => '0');
+    signal temp_dxb_alu_op              : std_logic_vector(3  downto 0)  := (others => '0');
+    signal temp_dxb_dest_0              : std_logic_vector(3  downto 0)  := (others => '0');
+    signal temp_dxb_dest_1              : std_logic_vector(3  downto 0)  := (others => '0');
+    signal temp_dxb_opcode              : std_logic_vector(6  downto 0)  := (others => '0');
+    signal temp_dxb_r_w                 : std_logic_vector(1  downto 0)  := (others => '0');
+    signal temp_dxb_interrupt           : std_logic                      := '0';
+    signal temp_rf_src0_adr             : std_logic_vector(3  downto 0)  := (others => '0');
+    signal temp_rf_src1_adr             : std_logic_vector(3  downto 0)  := (others => '0');
+    signal temp_src2_value              : std_logic_vector(31 downto 0)  := (others => '0');
+    signal temp_src2_value_selector     : std_logic                      := '0';
+    signal temp_hlt_out                 : std_logic                      := '0';
+    signal temp_rf_br_io_enbl           : std_logic_vector(1  downto 0)  := (others => '0');
+
 begin
     control_unit_0 : entity work.control_unit(rtl)
         port map(
@@ -68,9 +92,9 @@ begin
             intr_bit             => fdb_interrupt,
             rsrc2_val            => src_2_val,
             op2_sel              => src_2_val_enable,
-            branch_io            => rf_br_io_enbl,
+            branch_io            => br_io_enbl,
             r_w_control          => r_w_control,
-            hlt                  => hlt_out
+            hlt                  => hlt
         );
 
     br_adr_unit : entity work.branch_adr(rtl)
@@ -81,9 +105,9 @@ begin
             hashed_adr          => fdb_hashed_adr,
             opcode              => fdb_instr(31 downto 24),
             zero_flag           => in_zero_flag,
-            if_flush            => out_if_flush,
-            branch_adr_correct  => out_branch_adr_update,
-            feedback_hashed_adr => out_feedback_hashed_adr
+            if_flush            => if_flush,
+            branch_adr_correct  => branch_adr_update,
+            feedback_hashed_adr => feedback_hashed_adr
         );
 
     process(mem_stalling_bit, rst, dest_0, dest_1, src_0, src_1, r_w_control, src_2_val_enable,  alu_op, src_2_val, instr_adr, clk)
@@ -99,7 +123,41 @@ begin
             rf_src1_adr             <= "1111";
             src2_value              <= (others => '0');
             src2_value_selector     <= '0';
-        elsif(mem_stalling_bit = '0' and hdu_stalling_bit = '0') then
+        elsif (mem_stalling_bit = '1' or hdu_stalling_bit = '1') then
+            temp_dxb_interrupt           <= fdb_interrupt;
+            temp_dxb_opcode              <= fdb_instr(30 downto 24);
+            temp_dxb_alu_op              <= alu_op;
+            temp_dxb_dest_0              <= dest_0;
+            temp_dxb_dest_1              <= dest_1;
+            temp_rf_src0_adr             <= src_0;
+            temp_rf_src1_adr             <= src_1;
+            temp_src2_value_selector     <= src_2_val_enable;
+            temp_src2_value              <= src_2_val;
+            temp_dxb_r_w                 <= r_w_control;
+            temp_out_if_flush            <= if_flush;
+            temp_out_branch_adr_update   <= branch_adr_update;
+            temp_out_feedback_hashed_adr <= feedback_hashed_adr;
+            temp_hlt_out                 <= hlt;
+            temp_rf_br_io_enbl           <= br_io_enbl;
+            prev_stall                   <= '1';
+        elsif prev_stall = '1' then
+            dxb_interrupt           <= temp_dxb_interrupt;
+            dxb_opcode              <= temp_dxb_opcode;
+            dxb_alu_op              <= temp_dxb_alu_op;
+            dxb_dest_0              <= temp_dxb_dest_0;
+            dxb_dest_1              <= temp_dxb_dest_1;
+            rf_src0_adr             <= temp_rf_src0_adr;
+            rf_src1_adr             <= temp_rf_src1_adr;
+            src2_value_selector     <= temp_src2_value_selector;
+            src2_value              <= temp_src2_value;
+            dxb_r_w                 <= temp_dxb_r_w;
+            out_if_flush            <= temp_out_if_flush;
+            out_branch_adr_update   <= temp_out_branch_adr_update;
+            out_feedback_hashed_adr <= temp_out_feedback_hashed_adr;
+            hlt_out                 <= temp_hlt_out;
+            rf_br_io_enbl           <= temp_rf_br_io_enbl;
+            prev_stall              <= '0';
+        elsif (mem_stalling_bit = '0' and hdu_stalling_bit = '0') then
             dxb_interrupt           <= fdb_interrupt;
             dxb_opcode              <= fdb_instr(30 downto 24);
             dxb_alu_op              <= alu_op;
@@ -110,6 +168,11 @@ begin
             src2_value_selector     <= src_2_val_enable;
             src2_value              <= src_2_val;
             dxb_r_w                 <= r_w_control;
+            out_if_flush            <= if_flush;
+            out_branch_adr_update   <= branch_adr_update;
+            out_feedback_hashed_adr <= feedback_hashed_adr;
+            hlt_out                 <= hlt;
+            rf_br_io_enbl           <= br_io_enbl;
         end if;
     end process;
 

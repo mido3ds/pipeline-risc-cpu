@@ -195,7 +195,8 @@ begin
 
             elsif in_stall_hdu = '1' or in_stall_mem = '1' then
                 -- fetch stage stall
-                null; -- do nothing and preserve current PC
+                -- output NOP and preserve current PC
+                out_instruction_bits <= (others => '0');
 
             elsif len_bit = '0' and (mem_data_out(14 downto 8) = "0000011" or mem_data_out(14 downto 8) = "0000010") then
                 -- call and jump instructions
