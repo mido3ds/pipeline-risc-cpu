@@ -18,7 +18,7 @@ if __name__ == "__main__":
     f = open(path_to_hexa, "r")
     lines = f.readlines()
 
-    out_file = open("./hex files/hexa.txt", "w")
+    out_file = open("./hex_files/hexa.txt", "w")
     print("started...")
     for i, line in enumerate(lines):
         
