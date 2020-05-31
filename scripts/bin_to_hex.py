@@ -18,9 +18,10 @@ if __name__ == "__main__":
     f = open(path_to_hexa, "r")
     lines = f.readlines()
 
-    out_file = open("hexa.txt", "a")
-
+    out_file = open("./hex files/hexa.txt", "w")
+    print("started...")
     for i, line in enumerate(lines):
+        
         hexa_line = ""
         if len(line) <16:
             continue
@@ -35,3 +36,4 @@ if __name__ == "__main__":
         out_file.write("\n")
     out_file.close()
     f.close()
+    print("finished")
