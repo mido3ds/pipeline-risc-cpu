@@ -40,7 +40,13 @@ architecture rtl of hdu is
             elsif(decode_src_reg_1 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1010") then
                 operand_1_select               <= "101";
             elsif (decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) then
-                if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" 
+                if (opcode_memory(6 downto 3) = "0001") then
+                    if(decode_src_reg_1 = exe_dst_reg_1) then
+                        operand_1_select  <= "001";
+                    else
+                        operand_1_select  <= "010";
+                    end if;
+                elsif (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" 
                 or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000" 
                 or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" or opcode_execute(6 downto 3) = "1010" or opcode_execute( 6 downto 3) = "1001") then
                     operand_1_select     <= "001";
@@ -83,8 +89,13 @@ architecture rtl of hdu is
             elsif (decode_src_reg_2 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1010") then
                 operand_2_select     <= "101";
             elsif (decode_src_reg_2 = exe_dst_reg_1 or decode_src_reg_2 = exe_dst_reg_2) then
-
-                if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
+                if(opcode_memory(6 downto 3) = "0001") then
+                    if (decode_src_reg_2 = exe_dst_reg_1) then
+                        operand_2_select  <= "001";
+                    else
+                        operand_2_select  <= "010";
+                    end if;
+                elsif (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
                 or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000" 
                 or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" or opcode_execute(6 downto 3) = "1010" or opcode_execute( 6 downto 3) = "1001") then
                     operand_2_select     <= "001";

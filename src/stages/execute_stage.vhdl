@@ -195,7 +195,7 @@ begin
                 alu_output_2                <= opt_2;
                 memory_input                <= op_2;
 
-                if (alu_operation = ALUOP_NOP or alu_operation = ALUOP_INC2 or alu_operation = ALUOP_DEC2) then
+                if (alu_operation = ALUOP_NOP or alu_operation = ALUOP_INC2 or alu_operation = ALUOP_DEC2 or alu_operation = ALUOP_SWAP) then
                     update_ccr              <= '0';
                 else
                     update_ccr              <= '1';
