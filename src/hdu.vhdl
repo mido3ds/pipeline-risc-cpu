@@ -24,36 +24,6 @@ entity hdu is
     );
 end entity;
 
--- here we must out change output signal if the decode opcode was out and the destination was the same destination as execute or memory or wb !
---MAIN LOGIC:
-
---does opcode_decode need a RSC? DO WE READ
---      NOP/POP/LDM/LDD/RET/RTI/IN...don't
---      SRC_HAZARD = 1
-
---IF SRC_HAZARD = 0...no hazards..out zeros
-
---does opcode_execute WB? DO WE WRITE
---      JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT...don't
---      DST1_HAZARD = 1
-
---does opcode_memory WB? DO WE WRITE
---      JZ/JMP/CALL/RET/RTI/PUSH/STD/OUT...don't
---      DST2_HAZARD = 1
-
---does decode_src_reg_1 == exe_dst_reg--->EQ1 = 1
---does decode_src_reg_1 == mem_dst_reg--->EQ2 = 1
---does decode_src_reg_2 == exe_dst_reg--->EQ3 = 1
---does decode_src_reg_2 == mem_dst_reg--->EQ4 = 1
-
---if all the previous are TRUE.. SRC_HAZARD && DST1_HAZARD && DST2_HAZARD
---check for Load use case..
---if opcode_execute is LDD/POP and EQ1 or EQ3
---Raise STALL
-
---if no stall...
---detect EQ1,2,3,4 and send op_selectors and alu_Selectors accordingly...
-
 architecture rtl of hdu is
     begin
     process(opcode_execute, opcode_memory,opcode_wb, decode_src_reg_1, decode_src_reg_2, exe_dst_reg_1, exe_dst_reg_2 ,mem_dst_reg_2)
@@ -66,7 +36,7 @@ architecture rtl of hdu is
             if (decode_src_reg_1 = "1111") then
                 operand_1_select         <= "000";
             elsif (decode_src_reg_1 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1100") then
-                operand_1_select               <= "011";
+                operand_1_select               <= "101";
             elsif(decode_src_reg_1 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1010") then
                 operand_1_select               <= "101";
             elsif (decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) then
@@ -109,7 +79,7 @@ architecture rtl of hdu is
             if (decode_src_reg_2 = "1111") then
                 operand_2_select       <= "000";
             elsif (decode_src_reg_2 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1100" ) then
-                operand_2_select     <= "011";
+                operand_2_select     <= "101";
             elsif (decode_src_reg_2 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1010") then
                 operand_2_select     <= "101";
             elsif (decode_src_reg_2 = exe_dst_reg_1 or decode_src_reg_2 = exe_dst_reg_2) then

@@ -33,7 +33,7 @@ architecture rtl of wb_stage is
 
 begin
 
-    process(rst, dest_reg_1, dest_reg_2, destination_register_1, destination_register_2, hlt_in, alu_output_1, alu_output_2)
+    process(rst, destination_register_1, destination_register_2, hlt_in, alu_output_1, alu_output_2)
     begin
 
         if rst = '1' then

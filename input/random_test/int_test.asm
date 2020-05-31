@@ -1,13 +1,6 @@
 .org 0
-4
-
-.org 2
-6
-
-.org 4
-not r1
-end
-
-.org 6 
-not r0
-rti
+inc r0
+push r0
+inc r2
+pop r3
+END
