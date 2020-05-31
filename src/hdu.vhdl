@@ -48,7 +48,7 @@ architecture rtl of hdu is
                     end if;
                 elsif (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" 
                 or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000" 
-                or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" or opcode_execute(6 downto 3) = "1010" or opcode_execute( 6 downto 3) = "1001") then
+                or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" or opcode_execute(6 downto 3) = "1010" or opcode_execute( 6 downto 3) = "1001" or opcode_execute(6 downto 3) = "1011") then
                     operand_1_select     <= "001";
                 elsif (opcode_execute(6 downto 3) = "0001") then
                     if(decode_src_reg_1 = exe_dst_reg_1) then
@@ -66,7 +66,7 @@ architecture rtl of hdu is
                     -- check to take alu out or memory out
                     if (opcode_wb(6 downto 3) = "1111" or opcode_wb(6 downto 3) = "0010" or opcode_wb(6 downto 3) = "0011" or opcode_wb(6 downto 3) = "0100"
                     or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000"
-                    or opcode_wb(6 downto 0) = "0000100" or opcode_wb(6 downto 0) = "0000011" or opcode_wb( 6 downto 3) = "1001" ) then
+                    or opcode_wb(6 downto 0) = "0000100" or opcode_wb(6 downto 0) = "0000011" or opcode_wb( 6 downto 3) = "1001" or opcode_wb(6 downto 3) = "1011") then
                         operand_1_select     <= "011";
                     elsif (opcode_wb(6 downto 3) = "0001") then
                         if (decode_src_reg_1 = mem_dst_reg_1) then
@@ -97,7 +97,7 @@ architecture rtl of hdu is
                     end if;
                 elsif (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
                 or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000" 
-                or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" or opcode_execute(6 downto 3) = "1010" or opcode_execute( 6 downto 3) = "1001") then
+                or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" or opcode_execute(6 downto 3) = "1010" or opcode_execute( 6 downto 3) = "1001" or opcode_execute(6 downto 3) = "1011") then
                     operand_2_select     <= "001";
                 elsif(opcode_execute(6 downto 3) = "0001") then
                     if (decode_src_reg_2 = exe_dst_reg_1) then
