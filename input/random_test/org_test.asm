@@ -1,16 +1,12 @@
-.ORG 2
-LDM R5,100
-nop
-CALL R5
-out r5
-END
-.org 50
-in r7
-ret
+.ORG 0
+10
 
-.org 100
-inc r0
-inc r1
-ldm r4, 50
+.org 2
+ldm r4,20
 call r4
+END
+
+
+.org 20
+inc r3
 ret

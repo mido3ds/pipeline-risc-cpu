@@ -193,7 +193,7 @@ begin
                 ccr_out                     <= ccr;
                 alu_output_1                <= opt_1;
                 alu_output_2                <= opt_2;
-                memory_input                <= operand_2;
+                memory_input                <= op_2;
 
                 if (alu_operation = ALUOP_NOP or alu_operation = ALUOP_INC2 or alu_operation = ALUOP_DEC2) then
                     update_ccr              <= '0';
@@ -204,7 +204,7 @@ begin
                 if (opCode_in(6 downto 3) = "1010" or opCode_in = "0000100" or opCode_in = "0000101" ) then
                     memory_address              <= opt_1;
                 else
-                    memory_address              <= operand_1;
+                    memory_address              <= op_1;
                 end if;
 
             end if;

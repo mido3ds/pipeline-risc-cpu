@@ -368,7 +368,7 @@ begin
             forwarded_data_2           => xmb_ms_xs_aluout_2,   --> m_w_buffer.out_mem
             forwarded_data_3           => mwb_ws_aluout_1,      --> m_w_buffer.aluout
             forwarded_data_4           => mwb_ws_aluout_2,
-            forwarded_data_5           => mwb_ws_xs_mem,
+            forwarded_data_5           => ms_mwb_mem_input,     --> direct memory output !
             --OUT
             ccr_out                    => xs_ccr,               --> main
             update_ccr                 => xs_ccr_sel,
