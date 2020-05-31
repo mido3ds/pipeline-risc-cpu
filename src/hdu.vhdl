@@ -24,6 +24,7 @@ entity hdu is
     );
 end entity;
 
+-- here we must out change output signal if the decode opcode was out and the destination was the same destination as execute or memory or wb !
 --MAIN LOGIC:
 
 --does opcode_decode need a RSC? DO WE READ
@@ -60,17 +61,15 @@ architecture rtl of hdu is
         if rst = '1' then
             operand_1_select <= (others => '0');
             operand_2_select <= (others => '0');
-            Stall_signal     <= '0';
+            stall_signal                 <= '0';
         else
-            if ((decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) and opcode_memory(6 downto 3) = "1100") then
-                stall_signal            <= '1';
-            else
-                stall_signal            <= '0';
-            end if;
             if (decode_src_reg_1 = "1111") then
                 operand_1_select         <= "000";
+            elsif (decode_src_reg_1 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1100") then
+                operand_1_select               <= "011";
             elsif (decode_src_reg_1 = exe_dst_reg_1 or decode_src_reg_1 = exe_dst_reg_2) then
-                if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
+                if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100" 
+                or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000" or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011" ) then
                     operand_1_select     <= "001";
                 elsif (opcode_execute(6 downto 3) = "0001") then
                     if(decode_src_reg_1 = exe_dst_reg_1) then
@@ -85,7 +84,8 @@ architecture rtl of hdu is
                 if (decode_src_reg_1 = mem_dst_reg_1 or decode_src_reg_1 = mem_dst_reg_2) then
                     -- check to take alu out or memory out
                     if (opcode_wb(6 downto 3) = "1111" or opcode_wb(6 downto 3) = "0010" or opcode_wb(6 downto 3) = "0011" or opcode_wb(6 downto 3) = "0100"
-                    or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000") then
+                    or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000"
+                    or opcode_wb(6 downto 0) = "0000100" or opcode_wb(6 downto 0) = "0000011") then
                         operand_1_select     <= "011";
                     elsif (opcode_wb(6 downto 3) = "0001") then
                         if (decode_src_reg_1 = mem_dst_reg_1) then
@@ -103,10 +103,13 @@ architecture rtl of hdu is
 
             if (decode_src_reg_2 = "1111") then
                 operand_2_select       <= "000";
+            elsif (decode_src_reg_2 = exe_dst_reg_2 and opcode_memory(6 downto 3) = "1100" ) then
+                operand_2_select     <= "011";
             elsif (decode_src_reg_2 = exe_dst_reg_1 or decode_src_reg_2 = exe_dst_reg_2) then
 
                 if (opcode_execute(6 downto 3) = "1111" or opcode_execute(6 downto 3) = "0010" or opcode_execute(6 downto 3) = "0011" or opcode_execute(6 downto 3) = "0100"
-                or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000") then
+                or opcode_execute(6 downto 3) = "0101" or opcode_execute(6 downto 3) = "0110" or opcode_execute(6 downto 3) = "0111" or opcode_execute(6 downto 3) = "1000" 
+                or opcode_execute(6 downto 0) = "0000100" or opcode_execute(6 downto 0) = "0000011") then
                     operand_2_select     <= "001";
                 elsif(opcode_execute(6 downto 3) = "0001") then
                     if (decode_src_reg_2 = exe_dst_reg_1) then
@@ -120,7 +123,8 @@ architecture rtl of hdu is
                 -- here check if in memory or not
                 if (decode_src_reg_2 = mem_dst_reg_1 or decode_src_reg_2 = mem_dst_reg_2) then
                     if (opcode_wb(6 downto 3) = "1111" or opcode_wb(6 downto 3) = "0010" or opcode_wb(6 downto 3) = "0011" or opcode_wb(6 downto 3) = "0100"
-                    or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000") then
+                    or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000"
+                    or opcode_wb(6 downto 0) = "0000100" or opcode_wb(6 downto 0) = "0000011") then
                         operand_2_select       <= "011";
                     elsif (opcode_wb(6 downto 3) = "0001") then
                         if (decode_src_reg_2 = mem_dst_reg_1) then
@@ -128,7 +132,7 @@ architecture rtl of hdu is
                         else
                             operand_2_select     <= "100";
                         end if;
-                    elsif (opcode_wb(6 downto 3) = "1100") then         -- memory operation here need stalling :)
+                    elsif (opcode_wb(6 downto 3) = "1100") then
                         operand_2_select     <= "101";
                     end if;
                     -- check to take alu out or memory out
@@ -136,7 +140,7 @@ architecture rtl of hdu is
                     operand_2_select       <= "000";
                 end if;
             end if;
-            --stall_signal                 <= '0';
+            stall_signal                 <= '0';
         end if;
     end process;
 end architecture;

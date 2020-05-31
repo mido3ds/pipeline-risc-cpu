@@ -135,6 +135,24 @@ begin
                 alu_output_2                <= (others => '0');
                 ccr_out                     <= (others => '0');
                 update_ccr                  <= '0';
+            elsif (opCode_in(6 downto 0) = "1111100") then
+                case( alu_op_1_selector ) is
+
+                    when "000"    =>
+                        alu_output_1                <= operand_1;
+                    when  "001"   =>
+                        alu_output_1                <= forwarded_data_1;
+                    when  "010"   =>
+                        alu_output_1                <= forwarded_data_2;
+                    when "011"    =>
+                        alu_output_1                <= forwarded_data_3;
+                    when "100"    =>
+                        alu_output_1                <= forwarded_data_4;
+                    when "101"    =>
+                        alu_output_1                <= forwarded_data_5;
+                    when  others =>
+                        null;
+                end case ;
             else
 
                 case( alu_op_1_selector ) is

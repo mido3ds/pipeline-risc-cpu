@@ -181,6 +181,11 @@ def assemble():
                 new_entry = "0" + new_entry + \
                     REGISTERS[line_words[1].upper()] + "00000"
                 ram_entries[ram_div].append(new_entry)
+                if(inst == "call"):   # add 4 NOPs after each CALL for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
+                    ram_entries[ram_div].append("0000000000000000")
+                    ram_entries[ram_div].append("0000000000000000")
+                    ram_entries[ram_div].append("0000000000000000")
             else:
                 new_entry = "0" + new_entry + "00000000"
                 ram_entries[ram_div].append(new_entry)

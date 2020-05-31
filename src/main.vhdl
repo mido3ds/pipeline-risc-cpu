@@ -392,7 +392,7 @@ begin
             opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
             opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
             opcode_memory    => xmb_ms_opcode,                   --> x_m_buffer.out_opcode
-            opcode_wb        => ms_mwb_opcode,                   --> memory_stage.opCode_out
+            opcode_wb        => mwb_ws_opcode,                   --> memory_stage.opCode_out
             decode_src_reg_1 => xs_hdu_src_0,                    --> d_x_buffer.out_src_0
             decode_src_reg_2 => xs_hdu_src_1,                    --> d_x_buffer.out_src_1
             exe_dst_reg_1    => xmb_ms_destination_0,            --> x_m_buffer.out_destination_0

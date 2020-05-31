@@ -65,6 +65,7 @@ begin
                 when x"6"   => r6 <= i;
                 when x"7"   => r7 <= i;
                 when x"8"   => sp <= i(10 downto 0);
+                when x"9"   => out_value <= i;
                 when others => null;
             end case;
         end procedure;
@@ -90,8 +91,6 @@ begin
                 out_reg(src1_adr, op1_value);
             end if;
             case br_io_enbl is
-                when "10" => -- OUT
-                    out_reg(src0_adr, out_value);
                 when "11" => -- Branch
                     out_reg(src0_adr, instr_adr);
                 when others =>

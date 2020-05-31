@@ -67,10 +67,10 @@ architecture rtl of control_unit is
 
                         when "100"   =>                 -- OUT
                             aluop                        <= ALUOP_NOP;
-                            rdst1_sel                    <= "1110";
+                            rdst1_sel                    <= "1001";
                             rsrc2_val                    <= "00000000000000000000000000000000";
                             op2_sel                      <= '0';
-                            branch_io                    <= "10";
+                            branch_io                    <= "00";
 
                         when others =>
                             aluop                        <= ALUOP_NOP;
