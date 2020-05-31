@@ -114,7 +114,7 @@ architecture rtl of hdu is
                 elsif (decode_src_reg_2 = mem_dst_reg_1 or decode_src_reg_2 = mem_dst_reg_2) then
                     if (opcode_wb(6 downto 3) = "1111" or opcode_wb(6 downto 3) = "0010" or opcode_wb(6 downto 3) = "0011" or opcode_wb(6 downto 3) = "0100"
                     or opcode_wb(6 downto 3) = "0101" or opcode_wb(6 downto 3) = "0110" or opcode_wb(6 downto 3) = "0111" or opcode_wb(6 downto 3) = "1000"
-                    or opcode_wb(6 downto 0) = "0000100" or opcode_wb(6 downto 0) = "0000011" or opcode_wb( 6 downto 3) = "1001") then
+                    or opcode_wb(6 downto 0) = "0000100" or opcode_wb(6 downto 0) = "0000011" or opcode_wb( 6 downto 3) = "1001" or opcode_wb(6 downto 3) = "1011") then
                         operand_2_select       <= "011";
                     elsif (opcode_wb(6 downto 3) = "0001") then
                         if (decode_src_reg_2 = mem_dst_reg_1) then
