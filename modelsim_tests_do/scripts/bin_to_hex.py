@@ -14,7 +14,7 @@ if __name__ == "__main__":
         sys.exit()
 
     fileName = args[1]
-    path_to_hexa = "../cases_binary"
+    path_to_hexa = "../cases_binary/"
     path_to_hexa+=fileName
     path_to_hexa+=".binary"
     

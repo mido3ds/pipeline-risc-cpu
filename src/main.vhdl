@@ -47,7 +47,7 @@ end entity;
 
 architecture rtl of main is
     -- ccr and its inputs
-    signal ccr                           : std_logic_vector(2 downto 0);
+    signal ccr                           : std_logic_vector(2 downto 0) := "000";
     signal xs_ccr                        : std_logic_vector(ccr'range);
     signal ms_ccr                        : std_logic_vector(ccr'range);
     signal ms_ccr_sel                    : std_logic;
@@ -62,6 +62,7 @@ architecture rtl of main is
 
     --> fetch_stage
     signal fsi_if_flush                  : std_logic;
+    signal fsi_if_enable                 : std_logic;
     signal fsi_parallel_load_pc_selector : std_logic;
     signal fsi_branch_address            : std_logic_vector(31 downto 0);
     signal fsi_hashed_address            : std_logic_vector(3 downto 0);
@@ -93,6 +94,7 @@ architecture rtl of main is
     signal ds_dxb_src2_sel               : std_logic;
     signal ds_dxb_hlt                    : std_logic;
 
+    signal exe_ccr                       : std_logic_vector(2 downto 0);
     -- decode_stage --> reg_file
     signal ds_rf_src0_adr                : std_logic_vector(3 downto 0);
     signal ds_rf_src1_adr                : std_logic_vector(3 downto 0);
@@ -189,6 +191,7 @@ begin
             in_stall_hdu                 => hdu_stall,                     --> hdu.Stall_signal
             in_stall_mem                 => ms_stalling_enable,            --> memory_stage.stalling_enable
             in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
+            in_if_enable                 => fsi_if_enable,                 --> decode_stage.out_if_enable
             in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> memory_stage.pc_selector
             in_loaded_pc_value           => ms_mwb_mem_input,              --> memory_stage.memory_out
             in_branch_address            => fsi_branch_address,            --> decode_stage.out_branch_adr_update
@@ -260,6 +263,7 @@ begin
             dxb_interrupt           => ds_dxb_interrupt,   --> d_x_buffer.in_interrupt
 
             out_if_flush            => fsi_if_flush,       --> fetch_stage.in_if_flush
+            out_if_enable           => fsi_if_enable,      --> fetch_stage.in_if_enable
             out_branch_adr_update   => fsi_branch_address, --> fetch_stage.in_branch_address
             out_feedback_hashed_adr => fsi_hashed_address, --> fetch_stage.in_hashed_address
 
@@ -330,6 +334,7 @@ begin
             in_hlt         => ds_dxb_hlt,        --> decode_stage.dxb_hlt
             in_src_0       => ds_rf_src0_adr,
             in_src_1       => ds_rf_src1_adr,
+            in_ccr         => ccr,
             -- OUT
             out_alu_op     => dxb_xs_alu_op,     --> execute_stage.alu_operation
             out_operand0   => dxb_xs_operand0,   --> execute_stage.operand_1
@@ -341,7 +346,8 @@ begin
             out_opcode     => dxb_xs_opcode,     --> execute_stage.opCode_in
             out_interrupt  => dxb_xs_interrupt,  --> execute_stage.int_bit_in
             out_r_w        => dxb_xs_r_w,        --> execute_stage.r_w_control_in
-            out_hlt        => dxb_xs_hlt         --> execute_stage.hlt_in
+            out_hlt        => dxb_xs_hlt,        --> execute_stage.hlt_in
+            out_ccr        => exe_ccr
         );
 
     execute_stage : entity work.execute_stage
@@ -350,6 +356,7 @@ begin
             clk                        => clk,
             rst                        => rst,                  --> main
 
+            ccr_in                     => exe_ccr,
             alu_operation              => dxb_xs_alu_op,        --> d_x_buffer.out_alu_op
             operand_1                  => dxb_xs_operand0,      --> d_x_buffer.out_operand0
             operand_2                  => dxb_xs_operand1,      --> d_x_buffer.out_operand1
@@ -389,8 +396,8 @@ begin
             --IN
             rst              => rst,                             --> main
 
-            opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
-            opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
+            --opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
+            --opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
             opcode_memory    => xmb_ms_opcode,                   --> x_m_buffer.out_opcode
             opcode_wb        => mwb_ws_opcode,                   --> memory_stage.opCode_out
             decode_src_reg_1 => xs_hdu_src_0,                    --> d_x_buffer.out_src_0

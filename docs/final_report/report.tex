@@ -1,0 +1,80 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{float}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{5-stage Pipelined Processor Report}
+\lhead{\thesection}
+\rfoot{\thepage}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\title{\textbf{Computer Architecture} \\
+\textbf{Final Assessment Report} \\
+5-stage Pipelined Processor \\
+Team \#4}
+\author{
+  Mohamed Shawky\\
+  \small\texttt{SEC:2, BN:16}
+  \and
+  Remonda Talaat\\
+  \small\texttt{SEC:1, BN:20}
+  \and
+  Evram Youssef\\
+  \small\texttt{SEC:1, BN:9}
+  \and
+  Mahmoud Adas\\
+  \small\texttt{SEC:2, BN:21}
+}
+\date{\today}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\maketitle
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+
+\pagenumbering{arabic}
+
+\part{Introduction}
+\input{core/introduction}
+
+\part{Overall System Design}
+\input{core/overall_system}
+
+\part{Instruction Format}
+\input{core/inst_format}
+
+\part{Control Unit (Signals)}
+\input{core/control_unit}
+
+\part{Pipeline Stages}
+\input{core/pipeline_stages}
+
+\part{Pipeline Hazards and solutions}
+\input{core/hazards}
+
+\part{Memory Cache Design}
+\input{core/cache}
+
+\part{Implementation Overview}
+\input{core/implementation}
+
+\part{Implementation Analysis}
+\input{core/analysis}
+
+\end{document}
