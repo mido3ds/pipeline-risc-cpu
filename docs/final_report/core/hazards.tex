@@ -73,4 +73,5 @@ There are some specialized software solutions done by the compiler. It can be su
 \begin{itemize}
     \item Insertion of 3 NOPs after each RTI or RET operation to avoid unnecessary instruction fetch.
     \item Insertion of 1 NOP before each JZ operation to avoid data hazards in CCR.
+    \item Insertion of 4 NOPs before each CALL or JMP operation to have enough time for all results to be written back to register file, as JMP and CALL don't activate branch address check in decode stage.
 \end{itemize}
