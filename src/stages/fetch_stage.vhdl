@@ -64,7 +64,7 @@ architecture rtl of fetch_stage is
 
     --> logic states
     signal rst_state    : std_logic_vector(1 downto 0)  := (others => '0');
-    signal int_state    : std_logic_vector(1 downto 0)  := (others => '0');
+    signal int_state    : std_logic_vector(2 downto 0)  := (others => '0');
     signal call_state   : std_logic                     := '0';
     signal jz_state     : std_logic                     := '0';
 
@@ -154,35 +154,40 @@ begin
                 out_hashed_address    <= pc(3 downto 0);
                 rst_state             <= "00";
 
-            elsif in_interrupt = '1' and int_state = "00" then
+            elsif in_interrupt = '1' and int_state = "000" then
                 -- store current pc
                 temp_pc              <= pc;
                 -- output NOP
                 out_instruction_bits <= (others => '0');
-                int_state            <= "01";
+                int_state            <= "001";
 
-            elsif int_state = "01" then
+            elsif int_state = "001" then
                 -- interrupt logic start
                 out_interrupt        <= '1';
                 pc                   <= to_vec(2, pc'length);
                 out_inc_pc           <= to_vec(to_int(temp_pc) + 1, pc'length);
                 out_hashed_address   <= temp_pc(3 downto 0);
-                int_state            <= "10";
+                int_state            <= "010";
 
-            elsif int_state = "10" then
+            elsif int_state = "010" then
                 -- read upper part of pc
                 out_interrupt        <= '0';
                 out_instruction_bits <= (others => '0');
                 pc_store             <= mem_data_out;
                 pc                   <= to_vec(to_int(pc) + 1, pc'length);
-                int_state            <= "11";
+                int_state            <= "011";
 
-            elsif int_state = "11" then
+            elsif int_state = "011" then
                 -- read lower part of pc
                 out_instruction_bits <= (others => '0');
                 pc(31 downto 16)     <= pc_store;
                 pc(15 downto 0)      <= mem_data_out;
-                int_state            <= "00";
+                int_state            <= "100";
+
+            elsif int_state = "100" then
+                -- output NOP
+                out_instruction_bits <= (others => '0');
+                int_state            <= "000";
 
             elsif in_parallel_load_pc_selector = '1' then
                 -- load from data memory

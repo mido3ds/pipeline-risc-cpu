@@ -64,8 +64,9 @@ architecture rtl of memory_stage is
     signal input_data                      : std_logic_vector(31 downto 0)    := (others => '0');
     signal output_data                     : std_logic_vector(31 downto 0)    := (others => '0');
     signal address                         : std_logic_vector(31 downto 0)    := (others => '0');
-    signal stalling_in                     : std_logic                        := '0';
-    signal stalling_out                    : std_logic                        := '0';
+    --signal stalling_in                     : std_logic                        := '0';
+    --signal stalling_out                    : std_logic                        := '0';
+    signal stalling                        : std_logic                        := '0';
     signal is_stack                        : std_logic                        := '0';
     signal pc_sel                          : std_logic                        := '0';
 
@@ -107,10 +108,10 @@ begin
         int_bit_in                             => int_bit_in,
         enable                                 => pc_nav_enable,
         address                                => memory_address,
-        stalling                               => stalling_in,
+        stalling                               => stalling,
         stack_pointer                          => sp,
-        pc_selector                            => pc_sel,
-        stalling_enable                        => stalling_out
+        pc_selector                            => pc_sel
+        --stalling_enable                        => stalling_out
     );
 
     process(clk,rst, pc_sel, alu_result_1, alu_result_2, pc_nav_enable, sp, input_data, output_data, address, hlt_in )
@@ -144,23 +145,24 @@ begin
                 is_stack <= '0';
             end if;
 
-            if stalling_in = '1' then      --we get the ccr only
+            if stalling = '1' then      --we get the ccr only
                 pc_nav_enable                  <= '1';
                 address                        <= sp;
                 input_data                     <= memory_in;
-                alu_output_1                     <= sp;
-
+                alu_output_1                   <= sp;
+                stalling_enable                <= '0';
+                stalling                       <= '0';
                 if (opCode_in = "0000101") then -- loading ccr from stack
                     ccr_out                    <= output_data(2 downto 0);
                     ccr_out_selector           <= '1';
 
                 end if;
-                stalling_in                    <= '0';
+                --stalling_in                    <= '0';
             else
 
                 alu_output_1                   <= alu_result_1;
                 alu_output_2                   <= alu_result_2;
-                stalling_in                    <= stalling_out;
+                --stalling_in                    <= stalling_out;
                 -- normal situation
                 opCode_out                     <= opCode_in;
                 destination_register_1_out     <= destination_register_1_in;
@@ -178,17 +180,28 @@ begin
                 if int_bit_in = '1' then
                     pc_nav_enable              <= '1';
                     input_data                 <= "00000000000000000000000000000" & ccr_in; --store ccr first then store pc !
+                    stalling_enable            <= '1';
+                    stalling                   <= '1';
 
                 elsif (opCode_in = "0000100" or opCode_in = "0000101") then -- opcode of rti or ret operations activate pc navigator
                     pc_nav_enable              <= '1';
                     input_data                 <= memory_in;
+                    if (opCode_in = "0000101") then
+                        stalling_enable            <= '1';
+                        stalling                   <= '1';
+                    else
+                        stalling_enable            <= '0';
+                        stalling                   <= '0';
+                    end if;
                 else
                     pc_nav_enable              <= '0';
                     input_data                 <= memory_in;
+                    stalling_enable            <= '0';
+                    stalling                   <= '0';
                 end if;
 
             end if;
-            stalling_enable                    <= stalling_in;
+            --stalling_enable                    <= stalling_in;
         end if;
 
     end process;

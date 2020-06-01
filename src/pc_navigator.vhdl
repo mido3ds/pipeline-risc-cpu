@@ -13,8 +13,8 @@ entity pc_navigator is
         opCode_in                   : in  std_logic_vector(6  downto 0);
         address                     : in  std_logic_vector(31 downto 0);
         stack_pointer               : out std_logic_vector(31 downto 0);
-        pc_selector                 : out std_logic;
-        stalling_enable             : out std_logic
+        pc_selector                 : out std_logic
+        --stalling_enable             : out std_logic
     );
 end entity;
 
@@ -74,11 +74,11 @@ begin
                 if int_bit_in = '1' then                  -- pc store so don't active the pc selector
                     pc_selector                <= '0';
 
-                    if stalling = '1' then
-                        stalling_enable        <= '0';
-                    else
-                        stalling_enable        <= '1';
-                    end if;
+                --    if stalling = '1' then
+                --        stalling_enable        <= '0';
+                --    else
+                --        stalling_enable        <= '1';
+                --    end if;
                     enable_subtraction         <= '1';
                     enable_addition            <= '0';
                     stack_pointer              <= res2_subtraction;
@@ -87,11 +87,11 @@ begin
                 elsif opCode_in = "0000101" then          -- rti operation so activate the pc selector and stalling enable bits
                     pc_selector                <= '1';
 
-                    if stalling = '1' then
-                        stalling_enable        <= '0';
-                    else
-                        stalling_enable        <= '1';
-                    end if;
+                    --if stalling = '1' then
+                    --    stalling_enable        <= '0';
+                    --else
+                    --    stalling_enable        <= '1';
+                    --end if;
 
                     enable_addition            <= '1';
                     enable_subtraction         <= '0';
@@ -99,14 +99,14 @@ begin
 
                 elsif opCode_in = "0000100" then
                     pc_selector                <= '1';
-                    stalling_enable            <= '0';
+                    --stalling_enable            <= '0';
                     stack_pointer              <= (others => '0');
 
                 end if;
                     -- check depending on the opcode to enable stalling bit or no
             else
 
-                stalling_enable                <= '0';
+                --stalling_enable                <= '0';
                 pc_selector                    <= '0';
                 stack_pointer                  <= (others => '0');
 

@@ -39,7 +39,7 @@ architecture rtl of control_unit is
                 rsrc2_val    <= incremented_pc;
                 op2_sel      <= '1';
                 branch_io    <= "00";
-                r_w_control  <= "01";
+                r_w_control  <= "10";
                 hlt          <= '0';
             else
                 case( ib(31 downto 27) ) is

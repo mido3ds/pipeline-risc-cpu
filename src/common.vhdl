@@ -64,6 +64,7 @@ package common is
     constant MEM_NUM_WORDS        : integer                      := 2 * 1024;
     constant MEM_WORD_LENGTH      : integer                      := 16;
 
+    constant zeros                : std_logic_vector(31 downto 0) := (others => '0');
     function is_opcode_branch(opc : std_logic_vector) return boolean;
 
     function to_vec(i : integer; size : integer          := 16) return std_logic_vector;
