@@ -1076,15 +1076,11 @@ begin
 
             reset_cpu;
             wait for 3*CLK_PERD;
-            in_value <= "00000000000000000000000000000101";
-            wait for CLK_PERD;
-            in_value <= "00000000000000000000000000011001";
-            wait for CLK_PERD;
-            in_value <= "00000000000000001111111111111101";
+            in_value <= "00001100110110101111111000011001";
+            wait for 3*CLK_PERD;
+            in_value <= "00000000000000001111111111111111";
             wait for CLK_PERD;
             in_value <= "00000000000000001111001100100000";
-            wait for CLK_PERD;
-            in_value <= "11111111111111111111111111111111";
             wait until hlt = '1';
 
             dump_data_mem;
