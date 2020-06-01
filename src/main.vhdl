@@ -47,7 +47,7 @@ end entity;
 
 architecture rtl of main is
     -- ccr and its inputs
-    signal ccr                           : std_logic_vector(2 downto 0);
+    signal ccr                           : std_logic_vector(2 downto 0) := "000";
     signal xs_ccr                        : std_logic_vector(ccr'range);
     signal ms_ccr                        : std_logic_vector(ccr'range);
     signal ms_ccr_sel                    : std_logic;
