@@ -16,6 +16,7 @@ entity alu is
 end entity;
 
 architecture rtl of alu is
+
 begin
     process (a, b, op, ccr_in)
         variable a2, b2 : unsigned(32 downto 0);
@@ -46,11 +47,21 @@ begin
                 when ALUOP_OR  => c2  := a2 or b2; ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
                 when ALUOP_NOT => c2 := not a2;    ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
                 when ALUOP_SHL =>
+                    if( a(31 downto to_int(b2)-1) =  zeros(31 downto to_int(b2)-1) ) then
+                        ccr(CCR_CARRY) <= '0';
+                    else
+                        ccr(CCR_CARRY) <= '1';
+                    end if;
                     c2 := shift_left(a2, to_int(b2));
-                    ccr(CCR_CARRY) <= c2(32);
                 when ALUOP_SHR =>
+
+                    if( a(to_int(b2) -1 downto 0) = zeros(31 downto to_int(b2)-1) ) then
+                        ccr(CCR_CARRY) <= '0';
+                    else
+                        ccr(CCR_CARRY) <= '1';
+                    end if;
                     c2 := shift_right(a2, to_int(b2));
-                    ccr(CCR_CARRY) <= c2(32);
+
                 when ALUOP_INC2 =>
                     c2 := a2 + 2;
                     ccr(CCR_CARRY) <= c2(32);
@@ -76,7 +87,6 @@ begin
             else
                 ccr(CCR_NEG) <= '0';
             end if;
-            --ccr(1)  <= c2(31);
 
             c             <= c3(31 downto 0);
             c_2           <= c4(31 downto 0);
