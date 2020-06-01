@@ -14,12 +14,20 @@ if __name__ == "__main__":
         print("add the path of the hexa file")
         sys.exit()
 
-    path_to_hexa = args[1]
-
+    fileName = args[1]
+    path_to_hexa = "../cases_hex/"
+    path_to_hexa+=fileName
+    path_to_hexa+=".hex"
+    
     f = open(path_to_hexa, "r")
     lines = f.readlines()
 
-    out_file = open("./mem_files/mem.txt", "w")
+    out_path = "../cases_do_memory/"
+    out_path += fileName
+    out_path += ".do"
+    
+    out_file = open(out_path, "w")
+
     print("started...")
     for i, line in enumerate(lines):
         memo_line = memo_line_1
