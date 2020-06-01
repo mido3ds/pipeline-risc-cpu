@@ -18,7 +18,7 @@ entity execute_stage is
         forwarded_data_3                   : in  std_logic_vector(31 downto 0);
         forwarded_data_4                   : in  std_logic_vector(31 downto 0);
         forwarded_data_5                   : in  std_logic_vector(31 downto 0);
-
+        ccr_in                             : in  std_logic_vector(2  downto 0);
         -- alu operands selectors
         -- 000 : operand ( No Hazerd detected )
         -- 001 : forwarded data 1 ( from alu_1  )
@@ -77,7 +77,6 @@ architecture rtl of execute_stage is
     signal opt_2                           : std_logic_vector(31 downto 0)    := (others => '0');
     signal ccr                             : std_logic_vector(2  downto 0)    := (others => '0');
 
-
 begin
 
     U : entity work.alu(rtl)
@@ -85,12 +84,12 @@ begin
         op                                  => alu_operation,
         a                                   => op_1,
         b                                   => op_2,
+        ccr_in                              => ccr_in,
         ccr                                 => ccr,
         c                                   => opt_1,
         c_2                                 => opt_2
     );
-
-    process(clk , opt_1, opt_2, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, forwarded_data_3, alu_operation, opCode_in, hlt_in)
+    process(clk , ccr_in, opt_1, opt_2, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, forwarded_data_3, alu_operation, opCode_in, hlt_in)
     begin
         if rst = '1' then
             alu_output_1                       <= (others => '0');
@@ -209,6 +208,5 @@ begin
 
             end if;
         end if;
-
     end process;
 end architecture;
