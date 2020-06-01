@@ -178,8 +178,8 @@ def assemble():
             if (inst in ["jz", "jmp", "call"]):
                 if (inst == "jz"):  # add NOP before each JZ for hazard avoidance
                     ram_entries[ram_div].append("0000000000000000")
-                if (inst == "call"):
-                    for i in range(4):  # add four NOPs after RET and RTI for hazard avoidance
+                if (inst == "call" or inst == "jmp"):
+                    for i in range(4): # add four NOPs before CALL and JMP for hazard avoidance
                         ram_entries[ram_div].append("0000000000000000")
                 new_entry = "0" + new_entry + \
                     REGISTERS[line_words[1].upper()] + "00000"

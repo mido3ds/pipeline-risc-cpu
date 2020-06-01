@@ -16,4 +16,5 @@ All instructions are executed successfully, except for:
     \item Fetch stage outputs a single \emph{NOP} instruction, in case of \emph{Interrupt}, \emph{CALL}, \emph{JZ} and \emph{JMP}, due to the delay of reading data (PC values or branch address) from register file.
     \item Flushing happens only to the fetch stage, in case of incorrect predicted branch address for \emph{JZ} instruction.
     \item We used \emph{ghdl} as a \emph{VHDL} compiler and \emph{GTKWave} as a simulator throughout the development process for fast development and debugging. We included our development setup, along with the main deliverables of the project. 
+    \item The compiler should add an extra instruction \emph{END} to the end of the assembly program to mark the end of the code and terminate the simulator.
 \end{itemize}
