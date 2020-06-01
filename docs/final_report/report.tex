@@ -10,17 +10,19 @@
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{float}
 
-
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{5-stage Pipelined Processor Design Report}
+\rhead{5-stage Pipelined Processor Report}
 \lhead{\thesection}
 \rfoot{\thepage}
 
 \DeclarePairedDelimiter\ceil{\lceil}{\rceil}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
-\title{\textbf{5-stage Pipelined Processor Design Report}\\Team \#4}
+\title{\textbf{Computer Architecture} \\
+\textbf{Final Assessment Report} \\
+5-stage Pipelined Processor \\
+Team \#4}
 \author{
   Mohamed Shawky\\
   \small\texttt{SEC:2, BN:16}
@@ -69,5 +71,10 @@
 \part{Memory Cache Design}
 \input{core/cache}
 
+\part{Implementation Overview}
+\input{core/implementation}
+
+\part{Implementation Analysis}
+\input{core/analysis}
 
 \end{document}
