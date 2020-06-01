@@ -41,6 +41,9 @@ begin
                 when ALUOP_SUB =>
                     c2 := a2 - b2;
                     ccr(CCR_CARRY) <= c2(32);
+                    if a2 < (1 + not b2) then
+                        ccr(CCR_CARRY) <= '1';
+                    end if;
                 when ALUOP_AND => c2 := a2 and b2;
                 when ALUOP_OR  => c2  := a2 or b2;
                 when ALUOP_NOT => c2 := not a2;
@@ -56,6 +59,9 @@ begin
                 when ALUOP_DEC2 =>
                     c2 := a2 - 2;
                     ccr(CCR_CARRY) <= c2(32);
+                    if a2 < 16#7FFFFFFE# then
+                        ccr(CCR_CARRY) <= '1';
+                    end if;
                 when ALUOP_SWAP =>
                     c2   := b2;
                     c2_2 := a2;
