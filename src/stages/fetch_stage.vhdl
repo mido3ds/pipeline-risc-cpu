@@ -10,6 +10,7 @@ entity fetch_stage is
 
         in_interrupt                 : in std_logic;
         in_if_flush                  : in std_logic;
+        in_if_enable                 : in std_logic;
         in_stall_hdu                 : in std_logic;
         in_stall_mem                 : in std_logic;
         in_parallel_load_pc_selector : in std_logic;
@@ -68,7 +69,6 @@ architecture rtl of fetch_stage is
     signal jz_state     : std_logic                     := '0';
 
     --> branch_pred
-    signal br_pred_en   : std_logic_vector(1 downto 0)  := (others => '0');
     signal hashed_adr   : std_logic_vector(3 downto 0)  := (others => '0');
     signal br_pred      : std_logic                     := '0';
 
@@ -90,7 +90,7 @@ begin
             rst             => rst,
             prev_hashed_adr => in_hashed_address,
             update          => in_if_flush,
-            enable          => br_pred_en(0),
+            enable          => in_if_enable,
             cur_hashed_adr  => hashed_adr,
             taken           => br_pred
         );
@@ -125,9 +125,16 @@ begin
             int_state             <= (others => '0');
             call_state            <= '0';
             jz_state              <= '0';
-            br_pred_en            <= "00";
             hashed_adr            <= (others => '0');
             rst_state             <= "01";
+
+        elsif in_if_flush = '1' then
+            -- instruction flush
+            pc                   <= in_branch_address;
+            out_inc_pc           <= to_vec(to_int(pc) + 1, pc'length);
+            out_hashed_address   <= pc(3 downto 0);
+            -- output NOP
+            out_instruction_bits <= (others => '0');
 
         elsif rising_edge(clk) then
             -- main fetch logic
@@ -176,14 +183,6 @@ begin
                 pc(31 downto 16)     <= pc_store;
                 pc(15 downto 0)      <= mem_data_out;
                 int_state            <= "00";
-            
-            elsif in_if_flush = '1' then
-                -- instruction flush
-                pc                   <= in_branch_address;
-                out_inc_pc           <= to_vec(to_int(pc) + 1, pc'length);
-                out_hashed_address   <= pc(3 downto 0);
-                -- output NOP
-                out_instruction_bits <= (others => '0');
 
             elsif in_parallel_load_pc_selector = '1' then
                 -- load from data memory
@@ -238,13 +237,11 @@ begin
                         pc                                  <= to_vec(to_int(pc) + 1, pc'length);
                         out_predicted_address               <= to_vec(to_int(pc) + 1, pc'length);
                         out_instruction_bits(31 downto 16)  <= mem_data_out;
-                        br_pred_en                          <= "11";
                         jz_state                            <= '0';
                     else
                         pc                                  <= in_reg_value;
                         out_predicted_address               <= in_reg_value;
                         out_instruction_bits(31 downto 16)  <= mem_data_out;
-                        br_pred_en                          <= "11";
                         jz_state                            <= '0';
                     end if;
                 end if;
@@ -270,13 +267,6 @@ begin
                     len_bit                            <= '0';
                 end if; 
             end if;  
-            
-            -- reset branch prediction update enable
-            if br_pred_en = "11" then
-                br_pred_en <= "01";
-            elsif br_pred_en = "01" then
-                br_pred_en <= "00";
-            end if;
 
         end if;
 

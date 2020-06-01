@@ -20,6 +20,7 @@ entity branch_adr is
         zero_flag           : in std_logic;
 
         if_flush            : out std_logic;
+        if_enable           : out std_logic;
         branch_adr_correct  : out std_logic_vector(31 downto 0);
         feedback_hashed_adr : out std_logic_vector(3 downto 0)
     );
@@ -47,9 +48,11 @@ begin
             end if;
             --pass the hashed address
             feedback_hashed_adr <= hashed_adr;
+            if_enable           <= '1';
         else
             --as long as we are not involved
-            if_flush <= '0';
+            if_flush  <= '0';
+            if_enable <= '0';
         end if;
     end process;
 end architecture;

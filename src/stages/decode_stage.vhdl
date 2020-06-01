@@ -23,6 +23,7 @@ entity decode_stage is
         fdb_interrupt           : in  std_logic;
 
         out_if_flush            : out std_logic;
+        out_if_enable           : out std_logic;
         out_branch_adr_update   : out std_logic_vector(31 downto 0);
         out_feedback_hashed_adr : out std_logic_vector(3  downto 0);
 
@@ -55,6 +56,7 @@ architecture rtl of decode_stage is
     signal src_2_val                    : std_logic_vector(31 downto 0)  := (others => '0');
     signal src_2_val_enable             : std_logic                      := '0';
     signal if_flush                     : std_logic                      := '0';
+    signal if_enable                    : std_logic                      := '0';
     signal branch_adr_update            : std_logic_vector(31 downto 0)  := (others => '0');
     signal feedback_hashed_adr          : std_logic_vector(3 downto 0)   := (others => '0');
     signal hlt                          : std_logic                      := '0';
@@ -63,6 +65,7 @@ architecture rtl of decode_stage is
 
     --> temp stores (for stall)
     signal temp_out_if_flush            : std_logic                      := '0';
+    signal temp_out_if_enable           : std_logic                      := '0';
     signal temp_out_branch_adr_update   : std_logic_vector(31 downto 0)  := (others => '0');
     signal temp_out_feedback_hashed_adr : std_logic_vector(3  downto 0)  := (others => '0');
     signal temp_dxb_alu_op              : std_logic_vector(3  downto 0)  := (others => '0');
@@ -106,6 +109,7 @@ begin
             opcode              => fdb_instr(31 downto 24),
             zero_flag           => in_zero_flag,
             if_flush            => if_flush,
+            if_enable           => if_enable,
             branch_adr_correct  => branch_adr_update,
             feedback_hashed_adr => feedback_hashed_adr
         );
@@ -135,6 +139,7 @@ begin
             temp_src2_value              <= src_2_val;
             temp_dxb_r_w                 <= r_w_control;
             temp_out_if_flush            <= if_flush;
+            temp_out_if_enable           <= if_enable;
             temp_out_branch_adr_update   <= branch_adr_update;
             temp_out_feedback_hashed_adr <= feedback_hashed_adr;
             temp_hlt_out                 <= hlt;
@@ -152,6 +157,7 @@ begin
             src2_value              <= temp_src2_value;
             dxb_r_w                 <= temp_dxb_r_w;
             out_if_flush            <= temp_out_if_flush;
+            out_if_enable           <= temp_out_if_enable;
             out_branch_adr_update   <= temp_out_branch_adr_update;
             out_feedback_hashed_adr <= temp_out_feedback_hashed_adr;
             hlt_out                 <= temp_hlt_out;
@@ -169,6 +175,7 @@ begin
             src2_value              <= src_2_val;
             dxb_r_w                 <= r_w_control;
             out_if_flush            <= if_flush;
+            out_if_enable           <= if_enable;
             out_branch_adr_update   <= branch_adr_update;
             out_feedback_hashed_adr <= feedback_hashed_adr;
             hlt_out                 <= hlt;
