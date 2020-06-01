@@ -1,0 +1,20 @@
+\section{Completeness}
+The processor is completely implemented except for \textbf{memory cache system}, which is already designed. However, we ran out of time trying to integrate it to our current implementation.
+
+So, we reverted back to the two memories, \emph{Harvard} architecture. However, we included the cache system design in this report to share our thinking.
+
+\section{Functionality}
+The implemented processor, with \emph{Harvard} architecture, completely works with correct functionalities and hazard handling.
+
+All instructions are executed successfully, except for:
+\begin{itemize}
+    \item \textbf{Interrupt} : which suffers from some implementation issues, as PC and CCR values aren't written correctly in data memory.
+\end{itemize}
+
+\section{General Notes}
+\begin{itemize}
+    \item Fetch stage outputs a single \emph{NOP} instruction, in case of \emph{Interrupt}, \emph{CALL}, \emph{JZ} and \emph{JMP}, due to the delay of reading data (PC values or branch address) from register file.
+    \item Flushing happens only to the fetch stage, in case of incorrect predicted branch address for \emph{JZ} instruction.
+    \item We used \emph{ghdl} as a \emph{VHDL} compiler and \emph{GTKWave} as a simulator throughout the development process for fast development and debugging. We included our development setup, along with the main deliverables of the project. 
+    \item The compiler should add an extra instruction \emph{END} to the end of the assembly program to mark the end of the code and terminate the simulator.
+\end{itemize}

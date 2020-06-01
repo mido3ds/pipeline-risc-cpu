@@ -1,0 +1,122 @@
+\section{One Operand Operations}
+\begin{itemize}
+    \item 4 bits (1111) for one operand instructions.
+    \item 3 bits to define instruction.
+    \item 3 bits for destination register.
+    \item 1 bit to define the memory slots occupied by the instruction.
+    \item Total of 11 bits, padded with 5 0's to fit 16 bits.
+\end{itemize}
+\begin{center}
+    \captionof{table}{One Operand Instruction Mapping\label{tab:1op}}
+ \begin{tabular}{||c| c| c| c| p{40mm}||} 
+ \hline
+ Operation & OpCode & Destination & 16$|$32 & Conditions  \\ [0.5ex] 
+ \hline\hline
+ IN & 1111000 & 000:111 & 0 & ----------------------- \\
+ \hline
+ NOT & 1111001 & 000:111 & 0 & if !Rdst=0,Z=1 \newline if !Rdst$<$0,N=1 \\
+ \hline
+ INC & 1111010 & 000:111 & 0 & if Rdst+1=0,Z=1 \newline if Rdst+1$<$0,N=1 \\
+ \hline
+ DEC & 1111011 & 000:111 & 0 & if Rdst-1=0,Z=1 \newline if Rdst-1$<$0,N=1 \\
+ \hline
+ OUT & 1111100 & 000:111 & 0 & ----------------------- \\
+ \hline
+\end{tabular}
+\end{center}
+
+\section{Special Operations}
+\begin{itemize}
+    \item NOP (0000000000000000).
+    \item END (1110000000000000).
+\end{itemize}
+
+\section{Two Operand Operations}
+\begin{itemize}
+    \item 4 bits to define instruction.
+    \item 3 bits for each of Rsrc1, Rsrc2 and Rdst.
+    \item 1 bit to define the memory slots occupied by the instruction.
+    \item 16 bits for immediate values.
+    \item Total of 14 bits in most cases with some exceptions mentioned below.
+\end{itemize}
+\begin{center}
+    \captionof{table}{Two Operand Instruction Mapping\label{tab:1op}}
+ \begin{tabular}{||c| c| c| c| c| c| c| p{30mm}||} 
+ \hline
+ Operation & OpCode & Rsrc1 & Rsrc2 & Rdst & imm & 16$|$32 & Conditions  \\ [0.5ex] 
+ \hline\hline
+ SWAP & 0001 & 000:111 & --- & 000:111 & --- & 0 & ----------------------- \\
+ \hline
+ ADD & 0010 & 000:111 & 000:111 & 000:111 & --- & 0 & if Result=0,Z=1 \newline if Result$<$0,N=1 \\
+ \hline
+ SUB & 0011 & 000:111 & 000:111 & 000:111 & --- & 0 & if Result=0,Z=1 \newline if Result$<$0,N=1 \\
+ \hline
+ AND & 0100 & 000:111 & 000:111 & 000:111 & --- & 0 & if Result=0,Z=1 \newline if Result$<$0,N=1 \\
+ \hline
+ OR & 0101 & 000:111 & 000:111 & 000:111 & --- & 0 & if Result=0,Z=1 \newline if Result$<$0,N=1 \\
+ \hline
+ SHL & 0110 & 000:111 & --- & --- & 16 bits & 1 & update carry flag \\
+ \hline
+ SHR & 0111 & 000:111 & --- & --- & 16 bits & 1 & update carry flag \\
+ \hline
+ IADD & 1000 & 000:111 & --- & 000:111 & 16 bits & 1 & if Result=0,Z=1 \newline if Result$<$0,N=1 \\
+ \hline
+\end{tabular}
+\end{center}
+
+\section{Memory Operations}
+\begin{itemize}
+    \item 4 bits to define instruction.
+    \item 3 bits for destination register.
+    \item 1 bit to define the memory slots occupied by the instruction.
+    \item 16 bits for immediate values.
+    \item 20 bits for effective addresses.
+    \item Total of 8 bits with no immediate values or effective addresses.
+    \item Total of 24 bits with immediate values.
+    \item Total of 28 bits with effective addresses.
+\end{itemize}
+\begin{center}
+    \captionof{table}{Memory Instruction Mapping\label{tab:1op}}
+ \begin{tabular}{||c| c| c| c| c| c| p{40mm}||} 
+ \hline
+ Operation & OpCode & Rdst & imm & EA & 16$|$32 & Conditions  \\ [0.5ex] 
+ \hline\hline
+ PUSH & 1001 & 000:111 & --- & --- & 0 & ----------------------- \\
+ \hline
+ POP & 1010 & 000:111 & --- & --- & 0 & ----------------------- \\
+ \hline
+ LDM & 1011 & 000:111 & 16 bits & --- & 1 & ----------------------- \\
+ \hline
+ LDD & 1100 & 000:111 & --- & 20 bits & 1 & ----------------------- \\
+ \hline
+ STD & 1101 & 000:111 & --- & 20 bits & 1 & ----------------------- \\
+ \hline
+\end{tabular}
+\end{center}
+
+\section{Branch and Change Control Operations}
+\begin{itemize}
+    \item 4 bits (0000) for branching instructions.
+    \item 3 bits to define instruction.
+    \item 3 bits for destination register.
+    \item 1 bit to define the memory slots occupied by the instruction.
+    \item Total of 11 bits, padded with 5 0's to fit 16 bits. 
+\end{itemize}
+\begin{center}
+    \captionof{table}{One Operand Instruction Mapping\label{tab:1op}}
+ \begin{tabular}{||c| c| c| c| p{40mm}||} 
+ \hline
+ Operation & OpCode & Destination & 16$|$32 & Conditions  \\ [0.5ex] 
+ \hline\hline
+ JZ & 0000001 & 000:111 & 0 & ----------------------- \\
+ \hline
+ JMP & 0000010 & 000:111 & 0 & ----------------------- \\
+ \hline
+ CALL & 0000011 & 000:111 & 0 & ----------------------- \\
+ \hline
+ RET & 0000100 & --- & 0 & ----------------------- \\
+ \hline
+ RTI & 0000101 & --- & 0 & ----------------------- \\
+ \hline
+\end{tabular}
+\end{center}

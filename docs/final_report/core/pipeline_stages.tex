@@ -1,0 +1,140 @@
+\section{Overview}
+This section discusses the 5 stages of our system and their functionalities.
+
+\subsection{Fetch Stage}
+\begin{itemize}
+    \item Responsible for fetching the next instruction.
+    \item Can take two cycles in case of 32-bit instructions.
+    \item Contains a branch prediction unit to determine the next address to be fetched in case of branching.
+    \item Outputs the instruction bits into IF/ID Buffer.
+    \item Reads from register file in the second half of cycle.
+\end{itemize}
+
+\subsection{Decode Stage}
+\begin{itemize}
+    \item Responsible for decoding the instruction bits into control signals.
+    \item Outputs the corresponding signals to ID/EX Buffer.
+    \item Contains register file to output operand values and register-related operations.
+    \item Determines the correct branch address in case of branching instructions by using Branch Address Unit.
+    \item Reads from register file in the second half of cycle.
+    \item Reads IN port, in case of IN operation and propagates it to be written in Write-Back stage.
+\end{itemize}
+
+\subsection{Execute Stage}
+\begin{itemize}
+    \item Responsible for ALU operations.
+    \item Determines the correct ALU output and pass it with other signals to EX/M Buffer.
+    \item The ALU operations and CCR update are done in the first half of cycle (to avoid $JZ$ branch hazards).
+\end{itemize}
+
+\subsection{Memory Stage}
+\begin{itemize}
+    \item Responsible for Data Memory IO.
+    \item Returns stored PC, in case of $RET$ and $RTI$.
+    \item Stores PC and CCR, in case of interrupt.
+\end{itemize}
+
+\subsection{Write-Back Stage}
+\begin{itemize}
+    \item Responsible for passing correct output values to the destination registers.
+    \item Write back is done in the first half of cycle.
+\end{itemize}
+
+\section{Intermediate Buffers}
+Each buffer has internal latches. 
+The buffer updates its latches when any input changes, regardless of clock. 
+The buffer outputs the value of the internal latches at the \textbf{rising edge} of the clock.
+
+Flush signal takes precedence over stall signal. That's it, if the buffer received both flush and stall, it must flush its internal buffers.
+\subsection{IF/ID Buffer}
+\subsubsection{Registers}
+\begin{itemize}
+    \item Instruction Register (32 bits)
+    \item Next Address Register (32 bits)
+    \item Incremented PC Register (32 bits)
+    \item Hashed Address Register (4 bits)
+    \item Interrupt Register (1 bit)
+\end{itemize}
+
+\subsubsection{Control Signals}
+\begin{itemize}
+    \item Flush: clear buffer (1 bit)
+    \item Stall: freeze buffer (1 bit)
+\end{itemize}
+
+\subsection{ID/EX Buffer}
+\subsubsection{Registers}
+\begin{itemize}
+    \item Operand Registers (2$X$32 bits)
+    \item Destination Register (2$X$4 bits)
+    \item Destination Register Value (32 bits)
+    \item OpCode Register (7 bits)
+    \item ALU Operation (4 bits)
+    \item R/W Register (2 bits)
+    \item Interrupt Register (1 bit)
+\end{itemize}
+
+\subsubsection{Control Signals}
+\begin{itemize}
+    \item Stall (IN): freeze buffer (1 bit)
+    \item Destination Register (OUT) (4 bits)
+\end{itemize}
+
+\subsection{EX/M Buffer}
+\subsubsection{Registers}
+\begin{itemize}
+    \item ALUout Register (32 bits)
+    \item MEM IN Register (32 bits)
+    \item Memory Address (32 bits)
+    \item Opcode Register (7 bits)
+    \item Destination Register (2$X$4 bits)
+    \item Destination Register Value (2$X$32 bits)
+    \item R/W Register (2 bits)
+    \item Interrupt Register (1 bit)
+\end{itemize}
+
+\subsubsection{Control Signals}
+\begin{itemize}
+    \item Destination Register (OUT) (4 bits)
+\end{itemize}
+
+\subsection{M/WB Buffer}
+
+\subsubsection{Registers}
+\begin{itemize}
+    \item ALUout (32 bits)
+    \item MEM OUT (32 bits)
+    \item OpCode (7 bits)
+    \item Destination Register (2$X$4 bits)
+    \item Destination Register Value (2$X$32 bits)
+\end{itemize}
+
+
+\section{Special Workflows}
+
+\subsection{CALL Workflow}
+\begin{itemize}
+    \item Rdest value is loaded in fetch stage (like branches) and stored in PC.
+    \item The current value of PC is propagated through the pipe, until it reaches the memory stage, where it's stored in data memory.
+\end{itemize}
+
+\subsection{RET Workflow}
+\begin{itemize}
+    \item Compiler inserts 3 NOPs after each RET instruction to avoid any hazards.
+    \item Once the RET operation reaches the memory stage it loads the PC value from stack (like a normal POP) and uses PC Navigator to write it to the PC.
+    \item \textbf{NOTE:} Data hazards related to SP are handled normally through hazard detection unit.
+\end{itemize}
+
+\subsection{Interrupt Workflow}
+\begin{itemize}
+    \item Interrupt signal is passed to the PC Control Unit and IF/ID Buffer, the fetch stage is stalled for two cycles to fetch the interrupt address and the Interrupt Bit propagates through the whole pipe, until it reaches the memory stage.
+    \item In the memory stage, the interrupt stalls the pipe one cycles to be able to push both PC and CCR into stack.
+\end{itemize}
+
+\subsection{RTI Workflow}
+\begin{itemize}
+    \item Compiler inserts 3 NOPs after each RTI instruction to avoid any hazards.
+    \item  Once the RTI operation reaches the memory stage it loads the PC value from stack (like a normal POP) and uses PC Navigator to write it to the PC.
+    \item However, RTI stalls the pipe for one cycle to be able to load CCR, too.
+    \item \textbf{NOTE:} Data hazards related to SP are handled normally through hazard detection unit.
+\end{itemize}
