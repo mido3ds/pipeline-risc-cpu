@@ -61,12 +61,21 @@ force -freeze sim:/main/rst 0 0
 #FileNames = [Branch, BranchPrediction, Memory, MemoryCache, OneOperand, TwoOperand]
 #################COMMENT THIS LINE WHEN DONE##############################################
 
-mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/OneOperand.mem} /main/fetch_stage/inst_mem/data
+mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/TwoOperand.mem} /main/fetch_stage/inst_mem/data
 
 
 ####################ANY ADDED INSTRUCTIONS GOES HEERE########################################
+
+run
+run
+run
 force -freeze sim:/main/in_value 5 0
 run
+force -freeze sim:/main/in_value 19 0
+run
+force -freeze sim:/main/in_value FFFD 0
+run
+force -freeze sim:/main/in_value F320 0
 run
 run
 run
@@ -74,4 +83,15 @@ run
 run
 run
 run
-force -freeze sim:/main/in_value 10 0
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run

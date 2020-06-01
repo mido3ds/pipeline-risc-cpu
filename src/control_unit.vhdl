@@ -27,7 +27,7 @@ end entity;
 architecture rtl of control_unit is
 
     begin
-        process(ib, in_port_value, incremented_pc, intr_bit)
+        process(ib, intr_bit)
         begin
             if(intr_bit = '1') then
 
