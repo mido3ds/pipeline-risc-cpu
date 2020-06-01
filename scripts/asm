@@ -176,7 +176,10 @@ def assemble():
         elif (inst in INST_BR):
             new_entry = OP_CODES_TABLE[inst]
             if (inst in ["jz", "jmp", "call"]):
-                if (inst == "jz"):  # add NOP before each JZ for hazard avoidance
+                if (inst == "jz" or inst == "jmp"):  # add NOP before each JZ for hazard avoidance
+                    ram_entries[ram_div].append("0000000000000000")
+                    ram_entries[ram_div].append("0000000000000000")
+                    ram_entries[ram_div].append("0000000000000000")
                     ram_entries[ram_div].append("0000000000000000")
                 if (inst == "call"):
                     for i in range(4):  # add four NOPs after RET and RTI for hazard avoidance

@@ -93,6 +93,7 @@ architecture rtl of main is
     signal ds_dxb_src2_sel               : std_logic;
     signal ds_dxb_hlt                    : std_logic;
 
+    signal exe_ccr                       : std_logic_vector(2 downto 0);
     -- decode_stage --> reg_file
     signal ds_rf_src0_adr                : std_logic_vector(3 downto 0);
     signal ds_rf_src1_adr                : std_logic_vector(3 downto 0);
@@ -330,6 +331,7 @@ begin
             in_hlt         => ds_dxb_hlt,        --> decode_stage.dxb_hlt
             in_src_0       => ds_rf_src0_adr,
             in_src_1       => ds_rf_src1_adr,
+            in_ccr         => ccr,
             -- OUT
             out_alu_op     => dxb_xs_alu_op,     --> execute_stage.alu_operation
             out_operand0   => dxb_xs_operand0,   --> execute_stage.operand_1
@@ -341,7 +343,8 @@ begin
             out_opcode     => dxb_xs_opcode,     --> execute_stage.opCode_in
             out_interrupt  => dxb_xs_interrupt,  --> execute_stage.int_bit_in
             out_r_w        => dxb_xs_r_w,        --> execute_stage.r_w_control_in
-            out_hlt        => dxb_xs_hlt         --> execute_stage.hlt_in
+            out_hlt        => dxb_xs_hlt,        --> execute_stage.hlt_in
+            out_ccr        => exe_ccr
         );
 
     execute_stage : entity work.execute_stage
@@ -350,6 +353,7 @@ begin
             clk                        => clk,
             rst                        => rst,                  --> main
 
+            ccr_in                     => exe_ccr,
             alu_operation              => dxb_xs_alu_op,        --> d_x_buffer.out_alu_op
             operand_1                  => dxb_xs_operand0,      --> d_x_buffer.out_operand0
             operand_2                  => dxb_xs_operand1,      --> d_x_buffer.out_operand1

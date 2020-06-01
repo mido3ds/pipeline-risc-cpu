@@ -5,18 +5,19 @@ use work.common.all;
 
 entity alu is
     port (
-        op   : in  std_logic_vector(3  downto 0);
-        a    : in  std_logic_vector(31 downto 0);
-        b    : in  std_logic_vector(31 downto 0);
-        ccr  : out std_logic_vector(2  downto 0);
-        c    : out std_logic_vector(31 downto 0);
-        c_2  : out std_logic_vector(31 downto 0)
+        op     : in  std_logic_vector(3  downto 0);
+        a      : in  std_logic_vector(31 downto 0);
+        b      : in  std_logic_vector(31 downto 0);
+        ccr_in : in  std_logic_vector(2  downto 0);
+        ccr    : out std_logic_vector(2  downto 0);
+        c      : out std_logic_vector(31 downto 0);
+        c_2    : out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture rtl of alu is
 begin
-    process (a, b, op)
+    process (a, b, op, ccr_in)
         variable a2, b2 : unsigned(32 downto 0);
         variable c2     : unsigned(32 downto 0);
         variable c2_2   : unsigned(32 downto 0);
@@ -41,9 +42,9 @@ begin
                 when ALUOP_SUB =>
                     c2 := a2 - b2;
                     ccr(CCR_CARRY) <= c2(32);
-                when ALUOP_AND => c2 := a2 and b2;
-                when ALUOP_OR  => c2  := a2 or b2;
-                when ALUOP_NOT => c2 := not a2;
+                when ALUOP_AND => c2 := a2 and b2; ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
+                when ALUOP_OR  => c2  := a2 or b2; ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
+                when ALUOP_NOT => c2 := not a2;    ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
                 when ALUOP_SHL =>
                     c2 := shift_left(a2, to_int(b2));
                     ccr(CCR_CARRY) <= c2(32);
@@ -65,8 +66,17 @@ begin
             c3 := std_logic_vector(c2);
             c4 := std_logic_vector(c2_2);
 
-            ccr(CCR_ZERO) <= to_std_logic(c3(31 downto 0) = to_vec(0, 32));
-            ccr(CCR_NEG)  <= c2(31);
+            if ( c3(31 downto 0) = "00000000000000000000000000000000") then
+                ccr(CCR_ZERO) <= '1';
+            else
+                ccr(CCR_ZERO) <= '0';
+            end if;
+            if (c3(31) = '1') then
+                ccr(CCR_NEG) <= '1';
+            else
+                ccr(CCR_NEG) <= '0';
+            end if;
+            --ccr(1)  <= c2(31);
 
             c             <= c3(31 downto 0);
             c_2           <= c4(31 downto 0);
