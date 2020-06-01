@@ -62,6 +62,7 @@ architecture rtl of main is
 
     --> fetch_stage
     signal fsi_if_flush                  : std_logic;
+    signal fsi_if_enable                 : std_logic;
     signal fsi_parallel_load_pc_selector : std_logic;
     signal fsi_branch_address            : std_logic_vector(31 downto 0);
     signal fsi_hashed_address            : std_logic_vector(3 downto 0);
@@ -190,6 +191,7 @@ begin
             in_stall_hdu                 => hdu_stall,                     --> hdu.Stall_signal
             in_stall_mem                 => ms_stalling_enable,            --> memory_stage.stalling_enable
             in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
+            in_if_enable                 => fsi_if_enable,                 --> decode_stage.out_if_enable
             in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> memory_stage.pc_selector
             in_loaded_pc_value           => ms_mwb_mem_input,              --> memory_stage.memory_out
             in_branch_address            => fsi_branch_address,            --> decode_stage.out_branch_adr_update
@@ -261,6 +263,7 @@ begin
             dxb_interrupt           => ds_dxb_interrupt,   --> d_x_buffer.in_interrupt
 
             out_if_flush            => fsi_if_flush,       --> fetch_stage.in_if_flush
+            out_if_enable           => fsi_if_enable,      --> fetch_stage.in_if_enable
             out_branch_adr_update   => fsi_branch_address, --> fetch_stage.in_branch_address
             out_feedback_hashed_adr => fsi_hashed_address, --> fetch_stage.in_hashed_address
 
