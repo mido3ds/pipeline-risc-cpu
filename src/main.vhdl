@@ -389,8 +389,8 @@ begin
             --IN
             rst              => rst,                             --> main
 
-            opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
-            opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
+            --opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
+            --opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
             opcode_memory    => xmb_ms_opcode,                   --> x_m_buffer.out_opcode
             opcode_wb        => mwb_ws_opcode,                   --> memory_stage.opCode_out
             decode_src_reg_1 => xs_hdu_src_0,                    --> d_x_buffer.out_src_0
