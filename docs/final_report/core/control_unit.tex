@@ -42,7 +42,7 @@ Control unit is responsible for generating the control signals that are used to 
         \item \textbf{Rsrc2\_val (32 bits):} occupies a single place in the ID/EX buffer. However, it's used in many different ways. It can be used as a register value extracted form register file. it can be used as an immediate value extracted from IF/ID buffer. Also, it can hold the stack pointer address, as well as the effective address (EA) sent to the memory for reading or writing.
         \item \textbf{Rdst2 (4 bits):} only used when dealing with a SWAP instruction, thus we need Op1 and Op2 and their new selectors.
         \item \textbf{OP2\_sel (1 bit):} determines the value of Rsrc2 register in ID/EX buffer, whether it's immediate or register value.
-        \item  \textbf{Branch/IO Enable (2 bits):} informs the register file what operation of these are we executing (No/In/Out/Branch), however \emph{Branch Enable} (1 bit) interacts with the Branch Address Unit, informing it what type of OpCode are we dealing with (branching or not).
+        \item  \textbf{Branch/IO Enable (2 bits):} informs the register file what operation of these are we executing (No/Out/Branch), however \emph{Branch Enable} (1 bit) interacts with the Branch Address Unit, informing it what type of OpCode are we dealing with (branching or not).
     \end{itemize}
 \end{itemize}
 

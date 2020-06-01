@@ -24,12 +24,14 @@ This section discusses the 5 stages of our system and their functionalities.
 \begin{itemize}
     \item Responsible for ALU operations.
     \item Determines the correct ALU output and pass it with other signals to EX/M Buffer.
-    \item The ALU operations and CCR update are done in the first half of cycle.
+    \item The ALU operations and CCR update are done in the first half of cycle (to avoid $JZ$ branch hazards).
 \end{itemize}
 
 \subsection{Memory Stage}
 \begin{itemize}
     \item Responsible for Data Memory IO.
+    \item Returns stored PC, in case of $RET$ and $RTI$.
+    \item Stores PC and CCR, in case of interrupt.
 \end{itemize}
 
 \subsection{Write-Back Stage}

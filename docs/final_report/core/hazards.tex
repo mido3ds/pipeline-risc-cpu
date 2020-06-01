@@ -4,7 +4,7 @@
 The structural hazard occurs in data memory and register file.
 
 \subsection{Handling}
-The structural hazard in data memory is solved by using 2 memory units, one for instructions and one for data. Both have the same specs \emph{(previously mentioned)}.
+The structural hazard in data memory is solved by using 2 memory units, one for instructions and one for data.
 
 However, structural hazard in register file is handled by forcing the write back to happen in the first half of the clock cycle and register reading from decode and fetch to happen in the second half.
 

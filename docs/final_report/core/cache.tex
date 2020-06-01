@@ -1,6 +1,6 @@
 \subsection{Intuition and Assumptions}
 \label{intuitionSection}
-    Since data bus is $16-bits$ in width ie. $word$; so the following sizes are in terms of $words$.
+    Since data bus is $16-bits$ in width i.e. $word$, so the following sizes are in terms of $words$.
     
     Since we are dealing with ONE main memory that contains all the Data and Instructions,
     and two caches one for Data and the other is for Instructions.
@@ -9,8 +9,7 @@
     the upper most part is saved for Data from \textit{address} $00000000000$ to $01111111111$, while the Instructions
     \textit{address} starts from $10000000000$ to $11111111111$.
 
-    Considering this, the $LSB$ of the address will indicate whther that address is corresponding to
-    an instruction ($1$) or data ($0$).
+    Considering this, the $LSB$ of the address will indicate whether that address is corresponding to an instruction ($1$) or data ($0$).
 
     These assumptions allow us to:
     \begin{itemize}
@@ -50,18 +49,18 @@
     In order to increase efficiency; we propose this fig.\ref{fig:cacheDesign}:
     \begin{itemize}
         \item Initially the instruction cache is filled with the first $Block$.
-        \item The propgram will start working as usually\dots
+        \item The program will start working as usually\dots
         \item If No memory instruction is produced, this means the Memory is Ideal..
         \item The Cache Controller requests more $Blocks$ of Instructions from main memory.
         \item Meanwhile if Data is required from memory to be read or written, it will wait 
-            until the current block is retreived then the required $Data$ will be provided.
-        \item Then the $Data$ request will be fullfilled.
+            until the current block is retrieved then the required $Data$ will be provided.
+        \item Then the $Data$ request will be full-filled.
         \item This means that Data Memory has higher priority unless the instruction cache is empty.
     \end{itemize}
 
     The following algorithm may make things more clear\dots
 
-    \begin{algorithm}[H]
+    \begin{algorithm}
         \SetAlgoLined
         \While{True}{
             \uIf{Instruction Cache is Empty}{
@@ -87,14 +86,7 @@
     What makes this algorithm efficient is these two information, One: the Instruction cache
     can be written periodically, Two: the Rate of Memory Instruction is very low and the Number
     of memory instruction (such as $SW$ and $LD$) is less than other Instructions.
-
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=\textwidth]{images/cache/full_cache_design.png}
-        \caption{Cache Design}
-        \label{fig:cacheDesign}
-    \end{figure}
-
+    
     \subsubsection{Data Cache Design}
 
     In the following flowchart fig.\ref{fig:dataCache} we illustrate how read and write operations are
@@ -118,11 +110,18 @@
                 \textbf{data can be overwritten without updating the main memory} and the dirty bit is set anyway.
             \end{itemize}
     \end{itemize}
-
-
-    \begin{figure}[H]
+    
+    \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/cache/cache_system_flowchart.png}
+        \includegraphics[width=0.5\textwidth]{images/cache/full_cache_design.png}
+        \caption{Cache Design}
+        \label{fig:cacheDesign}
+    \end{figure}
+
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/cache/cache_system_flowchart.png}
         \caption{Data Cache R/W}
         \label{fig:dataCache}
     \end{figure}
