@@ -51,6 +51,14 @@ add wave -position end  sim:/main/reg_file/r6
 add wave -position end  sim:/main/reg_file/r7
 
 
+
+#Stalling and Forwarding Signals
+add wave -position end  sim:/main/hdu/operand_1_select
+add wave -position end  sim:/main/hdu/operand_2_select
+add wave -position end  sim:/main/hdu_stall
+add wave -position end  sim:/main/fsi_if_flush
+
+
 #Run reset signal for one or two cycles
 force -freeze sim:/main/interrupt 0 0
 force -freeze sim:/main/rst 1 0
