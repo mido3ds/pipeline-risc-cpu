@@ -11,8 +11,6 @@ entity fetch_stage is
         in_interrupt                 : in std_logic;
         in_if_flush                  : in std_logic;
         in_if_enable                 : in std_logic;
-        in_stall_hdu                 : in std_logic;
-        in_stall_mem                 : in std_logic;
         in_parallel_load_pc_selector : in std_logic;
         in_loaded_pc_value           : in std_logic_vector(31 downto 0);
         in_branch_address            : in std_logic_vector(31 downto 0);
@@ -64,7 +62,7 @@ architecture rtl of fetch_stage is
 
     --> logic states
     signal rst_state    : std_logic_vector(1 downto 0)  := (others => '0');
-    signal int_state    : std_logic_vector(1 downto 0)  := (others => '0');
+    signal int_state    : std_logic_vector(2 downto 0)  := (others => '0');
     signal call_state   : std_logic                     := '0';
     signal jz_state     : std_logic                     := '0';
 
@@ -104,7 +102,7 @@ begin
     --OUT
     tb_mem_data_out    <= mem_data_out;
 
-    process (clk, rst, mem_data_out, br_pred, in_interrupt, in_if_flush, in_stall_hdu, in_stall_mem, in_parallel_load_pc_selector, in_loaded_pc_value, in_branch_address, in_hashed_address, in_reg_value)
+    process (clk, rst, mem_data_out, br_pred, in_interrupt, in_if_flush, in_parallel_load_pc_selector, in_loaded_pc_value, in_branch_address, in_hashed_address, in_reg_value)
     begin
         if rst = '1' then
             -- reset logic start
@@ -154,47 +152,47 @@ begin
                 out_hashed_address    <= pc(3 downto 0);
                 rst_state             <= "00";
 
-            elsif in_interrupt = '1' and int_state = "00" then
+            elsif in_interrupt = '1' and int_state = "000" then
                 -- store current pc
                 temp_pc              <= pc;
                 -- output NOP
                 out_instruction_bits <= (others => '0');
-                int_state            <= "01";
+                int_state            <= "001";
 
-            elsif int_state = "01" then
+            elsif int_state = "001" then
                 -- interrupt logic start
                 out_interrupt        <= '1';
                 pc                   <= to_vec(2, pc'length);
                 out_inc_pc           <= to_vec(to_int(temp_pc) + 1, pc'length);
                 out_hashed_address   <= temp_pc(3 downto 0);
-                int_state            <= "10";
+                int_state            <= "010";
 
-            elsif int_state = "10" then
+            elsif int_state = "010" then
                 -- read upper part of pc
                 out_interrupt        <= '0';
                 out_instruction_bits <= (others => '0');
                 pc_store             <= mem_data_out;
                 pc                   <= to_vec(to_int(pc) + 1, pc'length);
-                int_state            <= "11";
+                int_state            <= "011";
 
-            elsif int_state = "11" then
+            elsif int_state = "011" then
                 -- read lower part of pc
                 out_instruction_bits <= (others => '0');
                 pc(31 downto 16)     <= pc_store;
                 pc(15 downto 0)      <= mem_data_out;
-                int_state            <= "00";
-
+                int_state            <= "100";
+                
+            elsif int_state = "100" then
+                -- output NOP
+                out_instruction_bits <= (others => '0');
+                int_state            <= "000";
+    
             elsif in_parallel_load_pc_selector = '1' then
                 -- load from data memory
                 pc                   <= in_loaded_pc_value;
                 out_inc_pc           <= to_vec(to_int(pc) + 1, pc'length);
                 out_hashed_address   <= pc(3 downto 0);
                 -- output NOP
-                out_instruction_bits <= (others => '0');
-
-            elsif in_stall_hdu = '1' or in_stall_mem = '1' then
-                -- fetch stage stall
-                -- output NOP and preserve current PC
                 out_instruction_bits <= (others => '0');
 
             elsif len_bit = '0' and (mem_data_out(14 downto 8) = "0000011" or mem_data_out(14 downto 8) = "0000010") then

@@ -53,9 +53,6 @@ architecture rtl of main is
     signal ms_ccr_sel                    : std_logic;
     signal xs_ccr_sel                    : std_logic;
 
-    -- hdu --> fetch_stage,f_d_buffer,d_x_buffer
-    signal hdu_stall                     : std_logic;
-
     -- hdu --> execute_stage
     signal hdu_xs_op_1_sel               : std_logic_vector(2 downto 0);
     signal hdu_xs_op_2_sel               : std_logic_vector(2 downto 0);
@@ -142,8 +139,6 @@ architecture rtl of main is
     signal xs_hdu_src_0                  : std_logic_vector(3 downto 0);
     signal xs_hdu_src_1                  : std_logic_vector(3 downto 0);
 
-    -- memory_stage --> execute_stage,decode_stage
-    signal ms_stalling_enable            : std_logic;
 
     -- x_m_buffer --> memory_stage
     signal xmb_ms_xs_aluout_1            : std_logic_vector(32 - 1 downto 0);
@@ -187,9 +182,6 @@ begin
             clk                          => clk,
             rst                          => rst,
             in_interrupt                 => interrupt,
-
-            in_stall_hdu                 => hdu_stall,                     --> hdu.Stall_signal
-            in_stall_mem                 => ms_stalling_enable,            --> memory_stage.stalling_enable
             in_if_flush                  => fsi_if_flush,                  --> decode_stage.out_if_flush
             in_if_enable                 => fsi_if_enable,                 --> decode_stage.out_if_enable
             in_parallel_load_pc_selector => fsi_parallel_load_pc_selector, --> memory_stage.pc_selector
@@ -218,9 +210,6 @@ begin
         port map(
             --IN
             clk            => clk,
-
-            in_stall_hdu   => hdu_stall,               --> hdu.Stall_signal
-            in_stall_mem   => ms_stalling_enable,      --> memory_stage.stalling_enable
             in_flush       => fsi_if_flush,            --> decode_stage.out_if_flush
             in_instr       => fs_fdb_instruction_bits, --> fetch_stage.out_instruction_bits
             in_next_adr    => fs_fdb_predicted_address,--> fetch_stage.out_predicted_address
@@ -248,8 +237,6 @@ begin
             fdb_hashed_adr          => fdb_ds_hashed_adr,  --> f_d_buffer.out_hashed_adr
             fdb_inc_pc              => fdb_ds_inc_pc,      --> f_d_buffer.out_inc_pc
             fdb_interrupt           => fdb_ds_interrupt,   --> f_d_buffer.out_interrupt
-            mem_stalling_bit        => ms_stalling_enable, --> memory_stage.stalling_enable
-            hdu_stalling_bit        => hdu_stall,
             in_port                 => in_value,           --> main
             instr_adr               => rf_ds_instr_adr,    --> reg_file.instr_adr
             --OUT
@@ -318,9 +305,6 @@ begin
         port map(
             --IN
             clk            => clk,
-
-            in_stall_hdu   => hdu_stall,          --> hdu.Stall_signal
-            in_stall_mem   => ms_stalling_enable, --> memory_stage.stalling_enable
             in_operand0    => rf_dxb_op0_value,  --> reg_file.op0_value
             in_operand1    => rf_dxb_op1_value,  --> reg_file.op1_value
             in_alu_op      => ds_dxb_alu_op,     --> decode_stage.dxb_alu_op
@@ -367,8 +351,6 @@ begin
             r_w_control_in             => dxb_xs_r_w,           --> d_x_buffer.out_r_w
             hlt_in                     => dxb_xs_hlt,           --> d_x_buffer.out_hlt
 
-            mem_stalling_bit           => ms_stalling_enable,   --> memory_stage.stalling_enable
-            hdu_stalling_bit           => hdu_stall,
             alu_op_1_selector          => hdu_xs_op_1_sel,      --> hdu.operand_1_select
             alu_op_2_selector          => hdu_xs_op_2_sel,      --> hdu.operand_2_select
             forwarded_data_1           => xmb_ms_xs_aluout_1,   --> x_m_buffer.out_aluout
@@ -395,9 +377,6 @@ begin
         port map(
             --IN
             rst              => rst,                             --> main
-
-            --opcode_decode    => ds_dxb_opcode,                   --> decode_stage.dxb_opcode
-            --opcode_execute   => xs_xmb_opcode,                   --> execute_stage.opCode_out
             opcode_memory    => xmb_ms_opcode,                   --> x_m_buffer.out_opcode
             opcode_wb        => mwb_ws_opcode,                   --> memory_stage.opCode_out
             decode_src_reg_1 => xs_hdu_src_0,                    --> d_x_buffer.out_src_0
@@ -409,8 +388,7 @@ begin
 
             --OUT
             operand_1_select => hdu_xs_op_1_sel,                 --> execute_stage.alu_op_1_selector
-            operand_2_select => hdu_xs_op_2_sel,                 --> execute_stage.alu_op_2_selector
-            Stall_signal     => hdu_stall                        --> fetch_stage(f_d_buffer, d_x_buffer).in_stall
+            operand_2_select => hdu_xs_op_2_sel                 --> execute_stage.alu_op_2_selector
         );
 
     x_m_buffer : entity work.x_m_buffer
@@ -468,7 +446,6 @@ begin
             ccr_out                    => ms_ccr,                        --> main
             hlt_out                    => ms_mwb_hlt,                    --> m_w_buffer.in_hlt
             pc_selector                => fsi_parallel_load_pc_selector, --> fetch_stage.in_parallel_load_pc_selector
-            stalling_enable            => ms_stalling_enable,            --> execute_stage.mem_stalling_bit
             ccr_out_selector           => ms_ccr_sel,                    --> main
 
             -- testing
