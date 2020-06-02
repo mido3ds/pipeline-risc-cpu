@@ -4,6 +4,7 @@ vsim -gui work.main
 
 #PASTE HERE THE MEMO FILE FROM CASES_DO_MEMORY/FILENAME.DO
 	#FOR EXAMPLE:
+	
 mem load -filltype value -filldata 0000 -fillradix hexadecimal /main/fetch_stage/inst_mem/data(0)
 mem load -filltype value -filldata 0010 -fillradix hexadecimal /main/fetch_stage/inst_mem/data(1)
 mem load -filltype value -filldata 0000 -fillradix hexadecimal /main/fetch_stage/inst_mem/data(2)

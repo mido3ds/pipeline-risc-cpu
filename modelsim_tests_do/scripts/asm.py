@@ -50,7 +50,7 @@ REGISTERS = {
     "R6": "110",
     "R7": "111"
 }
-fileName = "TwoOperand_NOP"
+fileName = "Memory_NOP"
 
 def assemble():
     """
