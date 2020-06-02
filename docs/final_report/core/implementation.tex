@@ -13,6 +13,7 @@ However, we still have the following issues:
 
 \section{General Notes}
 \begin{itemize}
+    \item In our implementation, the data memory is divided into \textbf{two parts}. In order to handle the 32-bit bus with the 16-bit width. \textbf{Even addresses} are written to one part and \textbf{odd addresses} are written to the other. The input address to the whole data memory is even, then the data memory receives this address and extract the corresponding odd address. Data memory is implemented this way, in order to be able to read or write an entire 32-bit entry in one cycle. 
     \item Fetch stage outputs a single \emph{NOP} instruction, in case of \emph{Interrupt}, \emph{CALL}, \emph{JZ} and \emph{JMP}, due to the delay of reading data (PC values or branch address) from register file.
     \item Flushing happens only to the fetch stage, in case of incorrect predicted branch address for \emph{JZ} instruction.
     \item The compiler should add an extra instruction \emph{END} to the end of the assembly program to mark the end of the code and terminate the simulator.
