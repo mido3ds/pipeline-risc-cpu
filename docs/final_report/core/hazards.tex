@@ -68,10 +68,12 @@ Occurs only at Fetch Stage, due to wrong branch prediction at Decode stage.
 We use 2-bit branch predictor, which is a hash table of \emph{Finite State Machines} (FSMs) to predict whether the branch will be taken (1) or not (0) at each individual branch address.
 
 \section{Software Solutions}
+\label{sec:software}
 
 There are some specialized software solutions done by the compiler. It can be summarized in:
 \begin{itemize}
-    \item Insertion of 3 NOPs after each RTI or RET operation to avoid unnecessary instruction fetch.
     \item Insertion of 1 NOP before each JZ operation to avoid data hazards in CCR.
+    \item Insertion of 1 NOP before each STD and PUSH operation to avoid data hazards due to delay in data memory.
+    \item Insertion of 4 NOPs after each RTI or RET operation to avoid unnecessary instruction fetch.
     \item Insertion of 4 NOPs before each CALL or JMP operation to have enough time for all results to be written back to register file, as JMP and CALL don't activate branch address check in decode stage.
 \end{itemize}

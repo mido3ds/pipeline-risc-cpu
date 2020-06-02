@@ -7,8 +7,6 @@ entity hdu is
     port (
         rst              : in std_logic;
 
-        --opcode_decode    : in std_logic_vector(6 downto 0);
-        --opcode_execute   : in std_logic_vector(6 downto 0);
         opcode_memory    : in std_logic_vector(6 downto 0);
         opcode_wb        : in std_logic_vector(6 downto 0);
         decode_src_reg_1 : in std_logic_vector(3 downto 0);
@@ -17,7 +15,7 @@ entity hdu is
         exe_dst_reg_2    : in std_logic_vector(3 downto 0);
         mem_dst_reg_1    : in std_logic_vector(3 downto 0);
         mem_dst_reg_2    : in std_logic_vector(3 downto 0);
-        --ALU_selction                        : out std_logic;
+
         operand_1_select : out std_logic_vector(2 downto 0);
         operand_2_select : out std_logic_vector(2 downto 0)
     );

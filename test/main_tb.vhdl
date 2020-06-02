@@ -852,35 +852,6 @@ begin
             test_data_mem(2 ** 11 - 3, to_vec(3, 16), '1');
         end if;
 
-        if run("ret_r4") then
-            reset_all;
-            fill_instr_mem((
-            --$ printf '2\n.org 2
-            --$ ret # sp=2, M[1]=0, M[2]=5
-            --$ end
-            --$ .org 5
-            --$ not r2
-            --$ end' | ./scripts/asm | head -n$((2+5))
-            to_vec("0000000000000000"),
-            to_vec("0000000000000010"),
-            to_vec("0000010000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0111100101000000"),
-            to_vec("0111000000000000")
-            ));
-            set_reg(8, to_vec(2, 32));
-            fill_data_mem(2, (
-            to_vec(5, 16),
-            to_vec(0, 16)
-            ), '1');
-
-            reset_cpu;
-            wait until hlt = '1';
-
-            test_reg(2, to_vec('1', 32));
-        end if;
-
         if run("call_r4_ret") then
             reset_all;
             fill_instr_mem((
@@ -935,38 +906,6 @@ begin
             wait until hlt = '1';
 
             test_reg(2, to_vec('1', 32));
-        end if;
-
-        if run("interrupt_before_end") then
-            reset_all;
-            fill_instr_mem((
-            --$ printf '2\n.org 0 2
-            --$ .org 2 6
-            --$ .org 4
-            --$ end # interrupt before this, M[2:3] = 3
-            --$ .org 6 
-            --$ not r0
-            --$ end' | ./scripts/asm | head -n$((2+3))
-            to_vec("0000000000000000"),
-            to_vec("0000000000000100"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000110"),
-            to_vec("0111000000000000"),
-            to_vec("0000000000000000"),
-            to_vec("0111100100000000"),
-            to_vec("0111000000000000")
-            ));
-            set_ccr("101");
-
-            reset_cpu;
-            interrupt <= '1';
-            wait for CLK_PERD;
-            interrupt <= '0';
-            wait until hlt = '1';
-
-            test_reg(0, to_vec('1', 32));
-            test_reg(8, to_vec(2 ** 11 - 6, 32));
-            test_data_mem(2 ** 11 - 2, to_vec(0, 16 - 3) & "101", '1'); -- stored flags ccr
         end if;
 
         if run("interrupt_after_end") then
@@ -1031,40 +970,8 @@ begin
             check_equal(ccr_out, to_vec("010", 3), "ccr");
         end if;
 
-        if run("interrupt_rti") then
-            reset_all;
-            fill_instr_mem((
-            --$ printf '2\n.org 0 2
-            --$ .org 2 6
-            --$ .org 4
-            --$ not r1
-            --$ end # interrupt before this, M[2:3] = 3
-            --$ .org 6 
-            --$ not r0
-            --$ rti' | ./scripts/asm | head -n$((2+3))
-            to_vec("0000000000000000"),
-            to_vec("0000000000000100"),
-            to_vec("0000000000000000"),
-            to_vec("0000000000000110"),
-            to_vec("0111100100100000"),
-            to_vec("0111000000000000"),
-            to_vec("0111100100000000"),
-            to_vec("0000010100000000")
-            ));
-            set_ccr("101");
-
-            reset_cpu;
-            interrupt <= '1';
-            wait for CLK_PERD;
-            interrupt <= '0';
-            wait until hlt = '1';
-
-            test_reg(0, to_vec('1', 32));
-            test_reg(1, to_vec('1', 32));
-        end if;
-
         -- `playground` test-case runs only with `playground` script
-        --      `run-test` should ignore `playground` test-case
+        -- `run-test` should ignore `playground` test-case
         -- `playground` test-case reads instr_mem data (created by `playground` script) at out/instr_mem.playground.in
         -- dumps final data_mem content into out/data_mem.playground.out
         -- dumps final ccr value into out/ccr.playground.out

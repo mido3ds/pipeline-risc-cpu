@@ -75,8 +75,8 @@ mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-ri
 
 #TO disable forwarding...uncomment these
 
-force -freeze sim:/main/hdu/operand_1_select 0 0
-force -freeze sim:/main/hdu/operand_2_select 0 0
+#force -freeze sim:/main/hdu/operand_1_select 0 0
+#force -freeze sim:/main/hdu/operand_2_select 0 0
 
 #TO disable stalling
 #force -freeze sim:/main/hdu_stall 0 0

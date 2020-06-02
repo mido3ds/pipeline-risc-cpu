@@ -17,6 +17,7 @@ in R4     #R4=300
 in R6     #R6=FFFFFFFF 
 in R7     #R7=FFFFFFFF   
 Push R4   #sp=7FC, M[7FE, 7FF]=300
+#NOP from assembler
 JMP R1 
 INC R7	  # this statement shouldn't be executed,
 END
@@ -24,14 +25,15 @@ END
 #check flag forwarding  
 .ORG 30
 AND R1,R5,R5   #R5=0 , Z = 1
-            #try interrupt here
-JZ  R2      #Jump taken, Z = 0
+#INT            #try interrupt here
+JZ  R2      #Jump taken, Z = 1
 INC R7      #this statement shouldn't be executed
 END
 
 #check on flag updated on jump
 .ORG 50
-JZ R3      #Jump Not taken
+#JZ R3      #Jump Not taken
+CALL R4
 END
 
 #check destination forwarding
