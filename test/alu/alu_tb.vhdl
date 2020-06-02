@@ -272,6 +272,20 @@ begin
             check_equal(c, not to_vec(1234124, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(not to_vec(1234124, c'length)) < 0), "neg");
+
+            a <= to_vec(0, a'length);
+            b <= to_vec(1231, b'length);
+            wait for CLK_PERD/2;
+            check_equal(c, to_vec(x"FFFFFFFF", c'length), "c");
+            check_equal(zero, '0', "zero");
+            check_equal(neg, '1', "neg");
+
+            a <= to_vec(16#10#, a'length);
+            b <= to_vec(1231, b'length);
+            wait for CLK_PERD/2;
+            check_equal(c, to_vec(x"FFFFFFEF", c'length), "c");
+            check_equal(zero, '0', "zero");
+            check_equal(neg, '1', "neg");
         end if;
 
         if run("ALUOP_SHL") then
