@@ -181,12 +181,10 @@ begin
                 pc(31 downto 16)     <= pc_store;
                 pc(15 downto 0)      <= mem_data_out;
                 int_state            <= "100";
-                
             elsif int_state = "100" then
                 -- output NOP
                 out_instruction_bits <= (others => '0');
                 int_state            <= "000";
-    
             elsif in_parallel_load_pc_selector = '1' then
                 -- load from data memory
                 pc                   <= in_loaded_pc_value;

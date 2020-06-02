@@ -79,5 +79,35 @@ mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-ri
 #TO disable flushing..no need here!
 #force -freeze sim:/main/fsi_if_flush 0 0
 
+
 ####################ANY ADDED INSTRUCTIONS GOES HEERE########################################
+
+run
+run
+run
+force -freeze sim:/main/in_value 5 0
+run
+force -freeze sim:/main/in_value 19 0
+run
+force -freeze sim:/main/in_value FFFD 0
+run
+force -freeze sim:/main/in_value F320 0
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
 run

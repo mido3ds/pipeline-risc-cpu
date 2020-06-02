@@ -25,8 +25,6 @@ architecture tb of reg_file_tb is
     signal wb0_value   : std_logic_vector(31 downto 0); -- WB
     signal wb1_value   : std_logic_vector(31 downto 0);
 
-    signal in_value    : std_logic_vector(31 downto 0); -- IO
-
     signal rst         : std_logic;
 
     signal br_io_enbl  : std_logic_vector(1 downto 0);  -- STATE
@@ -36,8 +34,6 @@ architecture tb of reg_file_tb is
 
     signal fetch_value : std_logic_vector(31 downto 0);
     signal instr_adr   : std_logic_vector(31 downto 0);
-
-    signal out_value   : std_logic_vector(31 downto 0); -- IO
 begin
     clk <= not clk after CLK_PERD / 2;
 
@@ -51,14 +47,12 @@ begin
             fetch_adr   => fetch_adr,
             wb0_value   => wb0_value,
             wb1_value   => wb1_value,
-            in_value    => in_value,
             rst         => rst,
             br_io_enbl  => br_io_enbl,
             op0_value   => op0_value,
             op1_value   => op1_value,
             fetch_value => fetch_value,
-            instr_adr   => instr_adr,
-            out_value   => out_value
+            instr_adr   => instr_adr
         );
 
     main : process
@@ -136,27 +130,6 @@ begin
                 src0_adr <= to_vec(i, src0_adr'length);
                 wait for CLK_PERD;
                 check_equal(instr_adr, to_vec(i, instr_adr'length));
-            end loop;
-        end if;
-
-        if run("io") then
-            for i in 0 to 8 loop
-                -- write
-                br_io_enbl <= "01";
-                dst0_adr   <= to_vec(i, dst0_adr'length);
-                in_value   <= to_vec(i, in_value'length);
-
-                wait until rising_edge(clk);
-                wait for 1 ps;
-
-                -- read
-                br_io_enbl <= "10";
-                src0_adr   <= to_vec(i, src0_adr'length);
-
-                wait until falling_edge(clk);
-                wait for 1 ps;
-
-                check_equal(out_value, to_vec(i, out_value'length));
             end loop;
         end if;
 
