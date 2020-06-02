@@ -11,20 +11,7 @@
 
 .ORG 10
 in R1     #R1=30
-in R2     #R2=50
-in R3     #R3=100
-in R4     #R4=300
-in R6     #R6=FFFFFFFF 
-in R7     #R7=FFFFFFFF   
-Push R4   #sp=7FC, M[7FE, 7FF]=300
-call r4
-pop r7
-INC R7	  # this statement shouldn't be executed,
-END
- 
-
- .org 300
- push R1
- inc r0
- pop r0
- ret
+std r1, 200
+ldd r2,200
+inc r2
+end

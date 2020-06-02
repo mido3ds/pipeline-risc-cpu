@@ -86,7 +86,7 @@ begin
         c                                   => opt_1,
         c_2                                 => opt_2
     );
-    process(clk , ccr_in, opt_1, opt_2, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, forwarded_data_3, alu_operation, opCode_in, hlt_in)
+    process(clk , ccr_in, opt_1, opt_2, rst, operand_1, operand_2, forwarded_data_1, forwarded_data_2, forwarded_data_3, forwarded_data_4, forwarded_data_5, alu_operation, opCode_in, hlt_in)
     begin
         if rst = '1' then
             alu_output_1                       <= (others => '0');
