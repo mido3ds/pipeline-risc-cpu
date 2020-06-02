@@ -70,3 +70,31 @@ Run any assembly you want on the cpu simulation, just give it to `playgournd` sc
 # Assembler
 
 `$ ./scripts/asm < /path/to/input.asm > /path/to/output.binary`
+
+# Modelsim Folder Structure
+
+- `modelsim_tests_do` : contains the following :
+
+1) `cases` : the provided test cases assembly. An __END__ instruction is added to mark the end of each section, in order to end the simulation.
+2) `cases_binary` : the file that contains binary code from assembler.
+3) `cases_do_memory` : do files to initially load instructions in memory one by one.
+4) `cases_hex` : same as `cases_binary` but in hex.
+5) `cases_mem` : modelsim memory files to be loaded directly to the simulation.
+6) `cases_with_NOP` : same as `cases` but with NOPs added to test disabled hazard handling.
+7) `do_files` : contains do files for all provided test cases inside `MAIN` folder. However, `MAIN with NOP` folder contains do files for cases tested with NOPs.
+8) `scripts` : some python scripts to automate memory loading do files.
+9) `waves` : screenshots of the waves produced by all provided test cases.
+
+# Modelsim Usage
+
+- For using modelsim with provided test cases :
+
+1) Copy all vhdl files to a new modelsim project and compile them.
+2) Run the do file corresponding to the cases from `modelsim_tests_do/do_files/MAIN/*`.
+3) You might need to change the path of the `.mem` file in do file to correspond to memory files in `modelsim_tests_do/cases_mem` or simply add `cases_mem` folder to your modelsim project.
+
+- For using modelsim with other test cases :
+1) Copy all vhdl files to a new modelsim project and compile them.
+2) Create the binary file from assembler.
+3) Load memory file to modelsim one by one.
+4) Execute the desired do file.
