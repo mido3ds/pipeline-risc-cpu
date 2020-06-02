@@ -31,7 +31,7 @@ architecture rtl of control_unit is
         begin
             if(intr_bit = '1') then
 
-                aluop        <= ALUOP_NOP;
+                aluop        <= ALUOP_DEC2;
                 rsrc1_sel    <= SP;
                 rsrc2_sel    <= "1111";
                 rdst1_sel    <= SP;
