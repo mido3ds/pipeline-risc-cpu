@@ -1,10 +1,12 @@
+#Do these modifications to the code and copy it to the modelsim CLI
 
 #TO INIT. THE SIMULATION
 vsim -gui work.main
 
 #PASTE HERE THE MEMO FILE FROM CASES_DO_MEMORY/FILENAME.DO
-	#FOR EXAMPLE:
-	
+#From folder cases_do_memory
+
+	#FOR EXAMPLE:	
 mem load -filltype value -filldata 0000 -fillradix hexadecimal /main/fetch_stage/inst_mem/data(0)
 mem load -filltype value -filldata 0010 -fillradix hexadecimal /main/fetch_stage/inst_mem/data(1)
 mem load -filltype value -filldata 0000 -fillradix hexadecimal /main/fetch_stage/inst_mem/data(2)

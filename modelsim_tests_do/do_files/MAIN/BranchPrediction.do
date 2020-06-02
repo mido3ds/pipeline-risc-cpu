@@ -75,7 +75,9 @@ force -freeze sim:/main/rst 0 0
 #FileNames = [Branch, BranchPrediction, Memory, MemoryCache, OneOperand, TwoOperand]
 #################COMMENT THIS LINE WHEN DONE##############################################
 
-mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/BranchPrediction.mem} /main/fetch_stage/inst_mem/data
+#Add the path to where you want fileName.mem to be loaded from
+#PATH = D:folders/Branch.mem
+mem load -i {PATH} /main/fetch_stage/inst_mem/data
 
 ####################ADD these to disable the forwarding unit#################################
 
