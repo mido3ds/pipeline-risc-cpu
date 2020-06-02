@@ -50,7 +50,7 @@ REGISTERS = {
     "R6": "110",
     "R7": "111"
 }
-fileName = "Memory_NOP"
+fileName = "Branch"
 
 def assemble():
     """
@@ -60,7 +60,7 @@ def assemble():
     """
     # initialize variables
     # in_file = sys.stdin
-    path = "../cases_with_NOP/"
+    path = "../cases/"
     path+= fileName
     path += ".asm"
     f = open(path, "r")
