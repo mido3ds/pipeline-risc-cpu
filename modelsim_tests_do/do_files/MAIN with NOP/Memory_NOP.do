@@ -70,7 +70,7 @@ force -freeze sim:/main/rst 0 0
 
 #Add the path to where you want fileName.mem to be loaded from
 #PATH = D:folders/Memory_NOP.mem
-mem load -i {PATH} /main/fetch_stage/inst_mem/data
+mem load -i {path} /main/fetch_stage/inst_mem/data
 
 ####################ADD these to disable the forwarding unit#################################
 
