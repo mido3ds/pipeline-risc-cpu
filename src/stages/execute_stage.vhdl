@@ -9,8 +9,6 @@ entity execute_stage is
         -- from main
         clk                                : in  std_logic;
         rst                                : in  std_logic;
-        mem_stalling_bit                   : in  std_logic;
-        hdu_stalling_bit                   : in std_logic;
         -- from HDU
         -- forwarded data ( from alu or memory)
         forwarded_data_1                   : in  std_logic_vector(31 downto 0);
@@ -104,7 +102,7 @@ begin
             r_w_control_out                    <= (others => '0');
             interrupt_bit_out                  <= '0';
             hlt_out                            <= '0';
-        elsif (mem_stalling_bit = '0' and hdu_stalling_bit = '0') then
+        else
             -- works at rising edge and stalling disabled only
 
             destination_register_1_out      <= destination_register_1_in;

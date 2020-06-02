@@ -1,6 +1,3 @@
-#To restart the simulation
-restart -f
-
 #Init the simulation
 vsim -gui work.main
 
@@ -64,20 +61,25 @@ force -freeze sim:/main/rst 0 0
 #FileNames = [Branch, BranchPrediction, Memory, MemoryCache, OneOperand, TwoOperand]
 #################COMMENT THIS LINE WHEN DONE##############################################
 
-mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/TwoOperand.mem} /main/fetch_stage/inst_mem/data
+mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/Memory.mem} /main/fetch_stage/inst_mem/data
 
-
-####################ADD these to disable the forwarding unit#################################
-
-#TO disable forwarding...uncomment these
-#force -freeze sim:/main/hdu/operand_1_select 0 0
-#force -freeze sim:/main/hdu/operand_2_select 0 0
-
-#TO disable stalling
-#force -freeze sim:/main/hdu_stall 0 0
-
-#TO disable flushing..no need here!
-#force -freeze sim:/main/fsi_if_flush 0 0
 
 ####################ANY ADDED INSTRUCTIONS GOES HEERE########################################
+run
+run
+run
+force -freeze sim:/main/in_value 0CDAFE19 0
+run
+force -freeze sim:/main/in_value FFFF 0
+run
+force -freeze sim:/main/in_value F320 0
+run
+run
+run
+run
+run
+run
+run
+run
+run
 run

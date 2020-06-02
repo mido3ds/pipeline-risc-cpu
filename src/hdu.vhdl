@@ -19,8 +19,7 @@ entity hdu is
         mem_dst_reg_2    : in std_logic_vector(3 downto 0);
         --ALU_selction                        : out std_logic;
         operand_1_select : out std_logic_vector(2 downto 0);
-        operand_2_select : out std_logic_vector(2 downto 0);
-        Stall_signal     : out std_logic
+        operand_2_select : out std_logic_vector(2 downto 0)
     );
 end entity;
 
@@ -28,7 +27,6 @@ architecture rtl of hdu is
     begin
     process( opcode_memory,opcode_wb, decode_src_reg_1, decode_src_reg_2, exe_dst_reg_1, exe_dst_reg_2 , mem_dst_reg_1,mem_dst_reg_2)
     begin
-        stall_signal                 <= '0';
         if rst = '1' then
             operand_1_select <= (others => '0');
             operand_2_select <= (others => '0');
