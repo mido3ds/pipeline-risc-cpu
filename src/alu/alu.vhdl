@@ -50,7 +50,7 @@ begin
                 when ALUOP_OR  => c2  := a2 or b2; ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
                 when ALUOP_NOT => c2 := not a2;    ccr(CCR_CARRY) <= ccr_in(CCR_CARRY);
                 when ALUOP_SHL =>
-                    if( a(31 downto 32-to_int(b2)) =  zeros(31 downto 32- to_int(b2)) ) then
+                    if( a(31 downto 32-to_int(b2 mod 31)) =  zeros(31 downto 32- to_int(b2 mod 31)) ) then
                         ccr(CCR_CARRY) <= '0';
                     else
                         ccr(CCR_CARRY) <= '1';
@@ -58,7 +58,7 @@ begin
                     c2 := shift_left(a2, to_int(b2));
                 when ALUOP_SHR =>
 
-                    if( a(to_int(b2) -1 downto 0) = zeros(to_int(b2) -1 downto 0) ) then
+                    if( a(to_int(b2 mod 31) -1 downto 0) = zeros(to_int(b2 mod 31) -1 downto 0) ) then
                         ccr(CCR_CARRY) <= '0';
                     else
                         ccr(CCR_CARRY) <= '1';

@@ -19,6 +19,7 @@ architecture tb of data_mem_tb is
     constant ADR_LENGTH      : integer   := 11;
 
     signal rd, wr, rst       : std_logic;
+    signal is_stack          : std_logic;
     signal data_in, data_out : std_logic_vector(MEM_WORD_LENGTH * 2 - 1 downto 0);
     signal address           : std_logic_vector(ADR_LENGTH - 1 downto 0);
 begin
@@ -29,6 +30,7 @@ begin
         port map(
             rd       => rd,
             wr       => wr,
+            is_stack => is_stack,
             address  => address,
             clk      => clk,
             rst      => rst,
@@ -45,6 +47,7 @@ begin
 
         info("reset");
         rst <= '1';
+        is_stack <= '0';
         wait for 1 ps;
         rst     <= '0';
         wr      <= '0';

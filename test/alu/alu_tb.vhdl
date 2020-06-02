@@ -31,6 +31,7 @@ begin
             op  => op,
             a   => a,
             b   => b,
+            ccr_in =>(others => '1'),
             ccr => ccr,
             c   => c
         );
@@ -342,7 +343,7 @@ begin
             check_equal(c, "0" & to_vec('1', c'length - 1), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed("0" & to_vec('1', c'length - 1)) < 0), "neg");
-            check_equal(carry, '0', "carry");
+            check_equal(carry, '1', "carry");
         end if;
 
         if run("ALUOP_INC2") then
