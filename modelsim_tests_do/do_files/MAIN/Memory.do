@@ -66,12 +66,7 @@ force -freeze sim:/main/rst 0 0
 
 
 #load the memory from modelsim_tests_do/cases_mem folder/filename.mem
-#FileNames = [Branch, BranchPrediction, Memory, MemoryCache, OneOperand, TwoOperand]
-#################COMMENT THIS LINE WHEN DONE##############################################
-
-#Add the path to where you want fileName.mem to be loaded from
-#PATH = D:folders/Branch.mem
-mem load -i {PATH} /main/fetch_stage/inst_mem/data
+mem load -i {cases_mem/Memory.mem} /main/fetch_stage/inst_mem/data
 
 ####################ADD these to disable the forwarding unit#################################
 
@@ -79,9 +74,6 @@ mem load -i {PATH} /main/fetch_stage/inst_mem/data
 
 #force -freeze sim:/main/hdu/operand_1_select 0 0
 #force -freeze sim:/main/hdu/operand_2_select 0 0
-
-#TO disable stalling
-#force -freeze sim:/main/hdu_stall 0 0
 
 #TO disable flushing..no need here!
 #force -freeze sim:/main/fsi_if_flush 0 0

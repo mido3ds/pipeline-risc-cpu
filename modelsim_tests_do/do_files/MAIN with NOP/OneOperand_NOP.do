@@ -70,9 +70,7 @@ force -freeze sim:/main/rst 0 0
 #load the memory from modelsim_tests_do/cases_mem folder/filename.mem
 #FileNames = [ Memory_NOP, OneOperand_NOP, TwoOperand_NOP]
 
-#Add the path to where you want fileName.mem to be loaded from
-#PATH = D:folders/Memory_NOP.mem
-mem load -i {PATH} /main/fetch_stage/inst_mem/data
+mem load -i {cases_mem/OneOperand_NOP.mem} /main/fetch_stage/inst_mem/data
 
 ####################ADD these to disable the forwarding unit#################################
 #TO disable forwarding
