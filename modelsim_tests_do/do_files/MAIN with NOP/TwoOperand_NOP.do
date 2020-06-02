@@ -51,6 +51,7 @@ add wave -position end  sim:/main/reg_file/r6
 add wave -position end  sim:/main/reg_file/r7
 
 
+
 #Stalling and Forwarding Signals
 add wave -position end  sim:/main/hdu/operand_1_select
 add wave -position end  sim:/main/hdu/operand_2_select
@@ -71,13 +72,14 @@ force -freeze sim:/main/rst 0 0
 #FileNames = [Branch, BranchPrediction, Memory, MemoryCache, OneOperand, TwoOperand]
 #################COMMENT THIS LINE WHEN DONE##############################################
 
-mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/OneOperand.mem} /main/fetch_stage/inst_mem/data
+mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-risc-cpu/modelsim_tests_do/cases_mem/TwoOperand_NOP.mem} /main/fetch_stage/inst_mem/data
+
 
 ####################ADD these to disable the forwarding unit#################################
 
 #TO disable forwarding...uncomment these
-#force -freeze sim:/main/hdu/operand_1_select 0 0
-#force -freeze sim:/main/hdu/operand_2_select 0 0
+force -freeze sim:/main/hdu/operand_1_select 0 0
+force -freeze sim:/main/hdu/operand_2_select 0 0
 
 #TO disable stalling
 #force -freeze sim:/main/hdu_stall 0 0
@@ -85,17 +87,19 @@ mem load -i {D:/Part C/College Stuff/3rd Year/3B/ARCH 2/Arch Project/pipeline-ri
 #TO disable flushing..no need here!
 #force -freeze sim:/main/fsi_if_flush 0 0
 
+
 ####################ANY ADDED INSTRUCTIONS GOES HEERE########################################
+
 run
 run
 run
 force -freeze sim:/main/in_value 5 0
 run
+force -freeze sim:/main/in_value 19 0
 run
+force -freeze sim:/main/in_value FFFD 0
 run
-run
-force -freeze sim:/main/in_value 10 0
-run
+force -freeze sim:/main/in_value F320 0
 run
 run
 run
