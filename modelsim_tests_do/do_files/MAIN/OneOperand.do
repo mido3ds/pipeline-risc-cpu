@@ -1,5 +1,6 @@
 #To restart the simulation
 restart -f
+
 #Init the simulation
 vsim -gui work.main
 
