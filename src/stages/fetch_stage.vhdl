@@ -153,6 +153,7 @@ begin
                 rst_state             <= "00";
 
             elsif in_interrupt = '1' and int_state = "000" then
+                -- Interrupt first state
                 -- store current pc
                 temp_pc              <= pc;
                 -- output NOP
@@ -160,14 +161,16 @@ begin
                 int_state            <= "001";
 
             elsif int_state = "001" then
+                -- Interrupt second state
                 -- interrupt logic start
                 out_interrupt        <= '1';
                 pc                   <= to_vec(2, pc'length);
-                out_inc_pc           <= to_vec(to_int(temp_pc) + 1, pc'length);
+                out_inc_pc           <= temp_pc;
                 out_hashed_address   <= temp_pc(3 downto 0);
                 int_state            <= "010";
 
             elsif int_state = "010" then
+                -- Interrupt third state
                 -- read upper part of pc
                 out_interrupt        <= '0';
                 out_instruction_bits <= (others => '0');
@@ -176,15 +179,19 @@ begin
                 int_state            <= "011";
 
             elsif int_state = "011" then
+                -- Interrupt fourth state
                 -- read lower part of pc
                 out_instruction_bits <= (others => '0');
                 pc(31 downto 16)     <= pc_store;
                 pc(15 downto 0)      <= mem_data_out;
                 int_state            <= "100";
+
             elsif int_state = "100" then
+                -- Interrupt fifth state
                 -- output NOP
                 out_instruction_bits <= (others => '0');
                 int_state            <= "000";
+
             elsif in_parallel_load_pc_selector = '1' then
                 -- load from data memory
                 pc                   <= in_loaded_pc_value;
