@@ -75,6 +75,14 @@ begin
             check_equal(zero, '1', "zero");
             check_equal(neg, to_std_logic(signed(to_vec('0', c'length)) < 0), "neg");
             check_equal(carry, '1', "carry");
+
+            a <= to_vec(x"FFFFFFFF", a'length);
+            b <= to_vec(1231, b'length);
+            wait for CLK_PERD/2;
+            check_equal(c, to_vec('0', c'length), "c");
+            check_equal(zero, '1', "zero");
+            check_equal(neg, '0', "neg");
+            check_equal(carry, '1', "carry");
         end if;
 
         if run("ALUOP_DEC") then
@@ -86,7 +94,7 @@ begin
             check_equal(c, to_vec(4 - 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(4 - 1, c'length)) < 0), "neg");
-            check_equal(carry, '0', "carry");
+            check_equal(carry, '1', "carry");
 
             a <= to_vec(1234124, a'length);
             b <= to_vec(1231, b'length);
@@ -94,7 +102,7 @@ begin
             check_equal(c, to_vec(1234124 - 1, c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec(1234124 - 1, c'length)) < 0), "neg");
-            check_equal(carry, '0', "carry");
+            check_equal(carry, '1', "carry");
 
             a <= to_vec('0', a'length);
             b <= to_vec(1231, b'length);
@@ -102,7 +110,15 @@ begin
             check_equal(c, to_vec('1', c'length), "c");
             check_equal(zero, '0', "zero");
             check_equal(neg, to_std_logic(signed(to_vec('1', c'length)) < 0), "neg");
+            check_equal(carry, '0', "carry");
+
+            a <= to_vec(x"FFFFFFEF", a'length);
+            b <= to_vec(1231, b'length);
+            wait for CLK_PERD/2;
+            check_equal(c, to_vec(x"FFFFFFEE", c'length), "c");
             check_equal(carry, '1', "carry");
+            check_equal(neg, '1', "neg");
+            check_equal(zero, '0', "zero");
         end if;
 
         if run("ALUOP_ADD") then

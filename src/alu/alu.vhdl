@@ -35,7 +35,7 @@ begin
                     c2 := a2 + 1;
                     ccr(CCR_CARRY) <= c2(32);
                 when ALUOP_DEC =>
-                    c2 := a2 - 1;
+                    c2 := a2 + x"FFFFFFFF";
                     ccr(CCR_CARRY) <= c2(32);
                 when ALUOP_ADD =>
                     c2 := a2 + b2;
@@ -69,9 +69,9 @@ begin
                     c2 := a2 + 2;
                     ccr(CCR_CARRY) <= c2(32);
                 when ALUOP_DEC2 =>
-                    c2 := a2 - 2;
+                    c2 := a2 + x"FFFFFFFE";
                     ccr(CCR_CARRY) <= c2(32);
-                    if a2 < 16#7FFFFFFE# then
+                    if a2 < x"FFFFFFFE" then
                         ccr(CCR_CARRY) <= '1';
                     end if;
                 when ALUOP_SWAP =>
