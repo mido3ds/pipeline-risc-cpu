@@ -77,8 +77,6 @@ mem load -i {cases_mem/OneOperand_NOP.mem} /main/fetch_stage/inst_mem/data
 force -freeze sim:/main/hdu/operand_1_select 0 0
 force -freeze sim:/main/hdu/operand_2_select 0 0
 
-#TO disable stalling
-force -freeze sim:/main/hdu_stall 0 0
 
 #TO disable flushing..no need here!
 force -freeze sim:/main/fsi_if_flush 0 0
