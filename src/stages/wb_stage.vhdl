@@ -14,11 +14,8 @@ entity wb_stage is
         destination_register_1      : in  std_logic_vector(3  downto 0);
         destination_register_2      : in  std_logic_vector(3  downto 0);
 
-
         opCode                      : in  std_logic_vector(6  downto 0);
         hlt_in                      : in  std_logic;
-
-        --int_bit_in                  : in  std_logic;
 
         dest_reg_1                  : out std_logic_vector(3  downto 0);
         dest_reg_2                  : out std_logic_vector(3  downto 0);
@@ -46,7 +43,6 @@ begin
             dest_reg_1           <= destination_register_1;
             dest_reg_2           <= destination_register_2;
             hlt_out              <= hlt_in;
-            -- works in the first half of the clock cycle
 
             if opCode(6 downto 3) = "0001" then
 

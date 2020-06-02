@@ -13,7 +13,6 @@ entity moore is
     );
 end entity;
 
--------------- Synchronized -------------
 Architecture rtl of moore is
     
     type states is (strongly_not_taken, weakly_not_taken, weakly_taken, strongly_taken);

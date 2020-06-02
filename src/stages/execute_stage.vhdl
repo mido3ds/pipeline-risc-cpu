@@ -47,7 +47,7 @@ entity execute_stage is
         alu_output_2                       : out std_logic_vector(31 downto 0);
         ccr_out                            : out std_logic_vector(2  downto 0);
 
-        -- to be updated or no
+        -- to be updated or not
         update_ccr                         : out std_logic;  -- if 0 keep the previous value , if 1 take the output ccr
 
         memory_address                     : out std_logic_vector(31 downto 0);
@@ -70,7 +70,6 @@ architecture rtl of execute_stage is
 
     signal op_1                            : std_logic_vector(31 downto 0)    := (others => '0');
     signal op_2                            : std_logic_vector(31 downto 0)    := (others => '0');
-    --signal operation                       : std_logic_vector(3  downto 0)    := (others => '0');
     signal opt_1                           : std_logic_vector(31 downto 0)    := (others => '0');
     signal opt_2                           : std_logic_vector(31 downto 0)    := (others => '0');
     signal ccr                             : std_logic_vector(2  downto 0)    := (others => '0');
@@ -110,8 +109,6 @@ begin
 
             r_w_control_out                 <= r_w_control_in;
             hlt_out                         <= hlt_in;
-            --destination_1_value_out         <= destination_1_value;
-            --destination_2_value_out         <= destination_2_value;
 
             opCode_out                      <= opCode_in;
             interrupt_bit_out               <= int_bit_in;
@@ -124,7 +121,6 @@ begin
                 alu_output_2                <= (others => '0');
                 ccr_out                     <= (others => '0');
                 update_ccr                  <= '0';
-                --operation                   <= ALUOP_NOP;
             elsif (opCode_in(6 downto 3) = "1100" or opCode_in(6 downto 3) = "1101" ) then
                 memory_address              <= operand_2;
                 memory_input                <= operand_1;
